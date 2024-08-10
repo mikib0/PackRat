@@ -6,7 +6,7 @@ import { Storage } from 'app/utils/storage';
 import { QueryClient } from '@tanstack/react-query';
 import axios from 'app/config/trpcAxiosClient';
 import { Alert } from 'react-native';
-import { InformUser } from 'utils/ToastUtils';
+import { InformUser } from 'app/utils/ToastUtils';
 
 export const getToken = async () => {
   const token = await Storage.getItem('token');

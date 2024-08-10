@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Platform, ScrollView, View, Text } from 'react-native';
+import { Platform, ScrollView, View, Text, Alert } from 'react-native';
 import {
   RButton as OriginalRButton,
   RText,
@@ -17,6 +17,7 @@ import { FAQ_ITEMS } from './constants';
 import { LandingPageAccordion } from './LandingPageAccordion';
 import loadStyles from './landingpage.style';
 import { Redirect } from 'app/components/Redirect';
+import { API_URL } from '@packrat/config';
 
 const RButton: any = OriginalRButton;
 const RStack: any = OriginalRStack;
@@ -28,6 +29,10 @@ const LandingPage = () => {
   const handleGetStarted = () => {
     return <Redirect to="/sign-in" />;
   };
+
+  useEffect(() => {
+    Alert.alert('process.env.API_URL: ' + process.env.API_URL);
+  }, []);
 
   return (
     <ScrollView>
