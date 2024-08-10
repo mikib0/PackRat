@@ -5,6 +5,8 @@ import { createTRPCReact } from '@trpc/react-query';
 import { Storage } from 'app/utils/storage';
 import { QueryClient } from '@tanstack/react-query';
 import axios from 'app/config/trpcAxiosClient';
+import { Alert } from 'react-native';
+import { InformUser } from 'utils/ToastUtils';
 
 export const getToken = async () => {
   const token = await Storage.getItem('token');
@@ -14,6 +16,13 @@ export const getToken = async () => {
 
 const axiosFetch = async (url, options) => {
   let axiosResponse;
+
+  InformUser({
+    title: 'axiosFetch: ' + url,
+    placement: 'bottom',
+    duration: 12000,
+    style: { backgroundColor: 'red' },
+  });
 
   try {
     axiosResponse = await axios({
@@ -52,4 +61,13 @@ export const trpc = queryTrpc.createClient({
   transformer: undefined,
 });
 
-export const queryClient = new QueryClient();
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      networkMode: 'always',
+    },
+    mutations: {
+      networkMode: 'always',
+    },
+  },
+});
