@@ -93,7 +93,7 @@ const loadStyles = (currentTheme, isScrolled, screenWidth) => {
           position: 'fixed' as 'fixed' | 'relative',
           top: 0,
           zIndex: 100,
-          width: Platform.OS === 'web' ? '100vw' : "100%",
+          width: Platform.OS === 'web' ? '100vw' : '100%',
         },
       }),
     },
