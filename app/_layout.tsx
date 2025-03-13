@@ -34,6 +34,9 @@ export default function RootLayout() {
             <Stack.Screen name="modal" options={MODAL_OPTIONS} />
             <Stack.Screen name="consent-modal" options={CONSENT_MODAL_OPTIONS} />
             <Stack.Screen name="packs/index" options={PACK_LIST_OPTIONS} />
+            <Stack.Screen name="pack/[id]" options={PACK_DETAIL_OPTIONS} />
+            <Stack.Screen name="item/index" options={ITEM_LIST_OPTIONS} />
+            <Stack.Screen name="item/[id]" options={ITEM_DETAIL_OPTIONS} />
           </Stack>
         </NavThemeProvider>
       </Providers>
@@ -66,6 +69,7 @@ function SettingsIcon() {
   );
 }
 
+// MODALS
 const MODAL_OPTIONS = {
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
@@ -79,8 +83,35 @@ const CONSENT_MODAL_OPTIONS = {
   headerRight: () => <ThemeToggle />,
 } as const;
 
+// MAIN SCREENS
 const PACK_LIST_OPTIONS = {
   title: 'My Packs',
   headerLargeTitle: true,
+  headerRight: () => {
+    const { colors } = useColorScheme();
+    return (
+      <Link href="/pack/new" asChild>
+        <Pressable>
+          <Icon name="plus" color={colors.foreground} />
+        </Pressable>
+      </Link>
+    );
+  },
+} as const;
+
+const ITEM_LIST_OPTIONS = {
+  title: 'My Items',
+  headerLargeTitle: true,
+  headerRight: () => <ThemeToggle />,
+} as const;
+
+// DETAIL SCREENS
+const PACK_DETAIL_OPTIONS = {
+  title: 'Pack Details',
+  headerRight: () => <ThemeToggle />,
+} as const;
+
+const ITEM_DETAIL_OPTIONS = {
+  title: 'Item Details',
   headerRight: () => <ThemeToggle />,
 } as const;

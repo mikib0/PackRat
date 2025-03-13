@@ -1,11 +1,12 @@
-import { Icon } from '@roninoss/icons';
-import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { Image, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import WeightBadge from '~/components/initial/WeightBadge';
+import { cn } from '~/lib/cn';
 import { mockPackItems } from '../data/mockData';
 
-export default function ItemDetailScreen({ route, navigation }: any) {
-  // In a real app, you would get the item ID from route.params
-  const itemId = '101'; // Mock ID
+export default function ItemDetailScreen() {
+  const { id: itemId } = useLocalSearchParams();
+
   const item = mockPackItems.find((i) => i.id === itemId);
 
   if (!item) {
@@ -17,46 +18,35 @@ export default function ItemDetailScreen({ route, navigation }: any) {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="flex-row items-center border-b border-gray-200 bg-white px-4 py-3">
-        <TouchableOpacity onPress={() => console.log('Go back')} className="mr-3">
-          <Icon name="chevron-left" size={24} color="#374151" />
-        </TouchableOpacity>
-        <Text className="flex-1 text-xl font-semibold text-gray-900">{item.name}</Text>
-        <TouchableOpacity className="mr-4">
-          <Icon name="pencil-box-outline" size={20} color="#374151" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Icon name="trash-can-outline" size={20} color="#ef4444" />
-        </TouchableOpacity>
-      </View>
-
+    <SafeAreaView className="flex-1 bg-background">
       <ScrollView>
         {item.image && (
           <Image source={{ uri: item.image }} className="h-64 w-full" resizeMode="cover" />
         )}
 
-        <View className="mb-4 bg-white p-4">
-          <Text className="mb-1 text-2xl font-bold text-gray-900">{item.name}</Text>
-          <Text className="mb-3 text-gray-500">{item.category}</Text>
+        <View className="mb-4 bg-card p-4">
+          <Text className="mb-1 text-2xl font-bold text-foreground">{item.name}</Text>
+          <Text className="mb-3 text-muted-foreground">{item.category}</Text>
 
-          {item.description && <Text className="mb-4 text-gray-600">{item.description}</Text>}
+          {item.description && (
+            <Text className="mb-4 text-muted-foreground">{item.description}</Text>
+          )}
 
           <View className="mb-4 flex-row justify-between">
             <View>
-              <Text className="mb-1 text-xs text-gray-500">WEIGHT (EACH)</Text>
+              <Text className="mb-1 text-xs text-muted-foreground">WEIGHT (EACH)</Text>
               <WeightBadge weight={item.weight} unit={item.weightUnit} />
             </View>
 
             <View>
-              <Text className="mb-1 text-xs text-gray-500">QUANTITY</Text>
-              <View className="rounded-full bg-gray-100 px-2 py-1">
-                <Text className="text-xs font-medium text-gray-800">{item.quantity}</Text>
+              <Text className="mb-1 text-xs text-muted-foreground">QUANTITY</Text>
+              <View className="rounded-full bg-muted px-2 py-1">
+                <Text className="text-xs font-medium text-foreground">{item.quantity}</Text>
               </View>
             </View>
 
             <View>
-              <Text className="mb-1 text-xs text-gray-500">TOTAL WEIGHT</Text>
+              <Text className="mb-1 text-xs text-muted-foreground">TOTAL WEIGHT</Text>
               <WeightBadge weight={item.weight * item.quantity} unit={item.weightUnit} />
             </View>
           </View>
@@ -64,23 +54,29 @@ export default function ItemDetailScreen({ route, navigation }: any) {
           <View className="mb-4 flex-row space-x-3">
             <View className="flex-row items-center">
               <View
-                className={`mr-1 h-4 w-4 rounded-full ${item.consumable ? 'bg-orange-500' : 'bg-gray-300'}`}
+                className={cn(
+                  'mr-1 h-4 w-4 rounded-full',
+                  item.consumable ? 'bg-amber-500' : 'bg-muted'
+                )}
               />
-              <Text className="text-gray-700">Consumable</Text>
+              <Text className="text-foreground">Consumable</Text>
             </View>
 
             <View className="flex-row items-center">
               <View
-                className={`mr-1 h-4 w-4 rounded-full ${item.worn ? 'bg-green-500' : 'bg-gray-300'}`}
+                className={cn(
+                  'mr-1 h-4 w-4 rounded-full',
+                  item.worn ? 'bg-emerald-500' : 'bg-muted'
+                )}
               />
-              <Text className="text-gray-700">Worn</Text>
+              <Text className="text-foreground">Worn</Text>
             </View>
           </View>
 
           {item.notes && (
             <View className="mt-2">
-              <Text className="mb-1 text-xs text-gray-500">NOTES</Text>
-              <Text className="text-gray-700">{item.notes}</Text>
+              <Text className="mb-1 text-xs text-muted-foreground">NOTES</Text>
+              <Text className="text-foreground">{item.notes}</Text>
             </View>
           )}
         </View>
