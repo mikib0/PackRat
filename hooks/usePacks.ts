@@ -65,18 +65,11 @@ export function usePacks() {
 export function usePackDetails(id: string) {
   const fetchPack = async () => fetchPackById(id);
 
-  const packQuery = useQuery({
+  return useQuery({
     queryKey: ['pack', id],
     queryFn: fetchPack,
     enabled: !!id,
   });
-
-  return {
-    pack: packQuery.data,
-    isLoading: packQuery.isLoading,
-    isError: packQuery.isError,
-    error: packQuery.error,
-  };
 }
 
 export function useCreatePack() {

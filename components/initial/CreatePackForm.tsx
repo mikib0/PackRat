@@ -17,31 +17,25 @@ import { z } from 'zod';
 import { useCreatePack } from '~/hooks/usePacks';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { PackSchema } from '~/types';
 
 // Define Zod schema
-// const packFormSchema = z.object({
-//   name: z.string().min(1, 'Pack name is required'),
-//   description: z.string().optional(),
-//   category: z.enum([
-//     'hiking',
-//     'backpacking',
-//     'camping',
-//     'climbing',
-//     'winter',
-//     'desert',
-//     'custom',
-//     'water sports',
-//     'skiing',
-//   ]),
-//   baseWeight: z.number().nonnegative().optional(),
-//   totalWeight: z.number().nonnegative().optional(),
-//   items: z.array(PackItemSchema).optional(),
-//   isPublic: z.boolean(),
-//   tags: z.array(z.string()).optional(),
-// });
-
-const packFormSchema = PackSchema.extend({});
+const packFormSchema = z.object({
+  name: z.string().min(1, 'Pack name is required'),
+  description: z.string().optional(),
+  category: z.enum([
+    'hiking',
+    'backpacking',
+    'camping',
+    'climbing',
+    'winter',
+    'desert',
+    'custom',
+    'water sports',
+    'skiing',
+  ]),
+  isPublic: z.boolean(),
+  tags: z.array(z.string()).optional(),
+});
 
 // Type inference
 type PackFormValues = z.infer<typeof packFormSchema>;
@@ -117,15 +111,33 @@ const CreatePackForm = () => {
     },
     onSubmit: async ({ value }) => {
       console.log('Form Submitted:', value);
-      await createPack(value, {
-        onSuccess: (pack) => {
-          console.log('Pack Created:', pack);
-          router.push(`/pack/${pack.id}`);
+      await createPack(
+        {
+          ...value,
+          userId: 'default',
+          items: [],
+          baseWeight: 0,
+          category: value.category as
+            | 'hiking'
+            | 'backpacking'
+            | 'camping'
+            | 'climbing'
+            | 'winter'
+            | 'desert'
+            | 'custom'
+            | 'water sports'
+            | 'skiing',
         },
-        onError: (error) => {
-          console.error('Error Creating Pack:', error);
-        },
-      });
+        {
+          onSuccess: (pack) => {
+            console.log('Pack Created:', pack);
+            router.push(`/pack/${pack.id}`);
+          },
+          onError: (error) => {
+            console.error('Error Creating Pack:', error);
+          },
+        }
+      );
     },
   });
 
@@ -201,25 +213,6 @@ const CreatePackForm = () => {
             </FormField>
           )}
         </form.Field>
-
-        <View className="mb-6">
-          <View className="mb-1 flex-row items-center">
-            <Icon name="scalemass" size={16} color={colors.foreground} />
-            <FormLabel className="ml-2">Pack Weight</FormLabel>
-          </View>
-          <View className="rounded-lg border border-input bg-background p-4">
-            <Text className="text-foreground">
-              Base Weight: <Text className="font-semibold">0g</Text> (will be calculated from items)
-            </Text>
-            <Text className="mt-2 text-foreground">
-              Total Weight: <Text className="font-semibold">0g</Text> (will be calculated from
-              items)
-            </Text>
-            <Text className="mt-2 text-xs text-muted-foreground">
-              Weights will be automatically calculated when you add items to your pack
-            </Text>
-          </View>
-        </View>
 
         <form.Field name="isPublic">
           {(field) => (

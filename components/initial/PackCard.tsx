@@ -10,6 +10,10 @@ type PackCardProps = {
 };
 
 export default function PackCard({ pack, onPress }: PackCardProps) {
+  // Safely check if weights exist and are greater than 0
+  const hasBaseWeight = typeof pack.baseWeight === 'number' && pack.baseWeight > 0;
+  const hasTotalWeight = typeof pack.totalWeight === 'number' && pack.totalWeight > 0;
+
   return (
     <Pressable
       className="mb-4 overflow-hidden rounded-xl bg-card shadow-sm"
@@ -31,25 +35,27 @@ export default function PackCard({ pack, onPress }: PackCardProps) {
 
         <View className="flex-row items-center justify-between">
           <View className="flex-row space-x-2">
-            {pack.baseWeight && <WeightBadge weight={pack.baseWeight} unit="g" type="base" />}
-            {pack.totalWeight && <WeightBadge weight={pack.totalWeight} unit="g" type="total" />}
+            {hasBaseWeight ? (
+              <WeightBadge weight={pack.baseWeight ?? 0} unit="g" type="base" />
+            ) : null}
+            {hasTotalWeight ? (
+              <WeightBadge weight={pack.totalWeight ?? 0} unit="g" type="total" />
+            ) : null}
           </View>
-          {pack.items && isArray(pack.items) && pack.items.length > 0 && (
-            // <Text className="text-xs text-foreground">{pack.items.length} items</Text>
-            <></>
-          )}
+          {pack.items && isArray(pack.items) && pack.items.length > 0 ? (
+            <Text className="text-xs text-foreground">{pack.items.length} items</Text>
+          ) : null}
         </View>
 
-        {pack.tags && isArray(pack.tags) && pack.tags.length > 0 && (
+        {pack.tags && isArray(pack.tags) && pack.tags.length > 0 ? (
           <View className="mt-3 flex-row flex-wrap">
             {pack.tags.map((tag, index) => (
               <View key={index} className="mb-1 mr-2 rounded-full bg-background px-2 py-1">
-                {/* <Text className="text-xs text-foreground">#{tag}</Text> */}
-                <></>
+                <Text className="text-xs text-foreground">#{tag}</Text>
               </View>
             ))}
           </View>
-        )}
+        ) : null}
       </View>
     </Pressable>
   );
