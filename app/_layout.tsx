@@ -1,14 +1,15 @@
-import '../global.css';
-import 'expo-dev-client';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { Icon } from '@roninoss/icons';
+import 'expo-dev-client';
 import { Link, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, View } from 'react-native';
+import '../global.css';
 
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { cn } from '~/lib/cn';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
+import { Providers } from '~/providers';
 import { NAV_THEME } from '~/theme';
 
 export {
@@ -26,17 +27,16 @@ export default function RootLayout() {
         key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
         style={isDarkColorScheme ? 'light' : 'dark'}
       />
-      {/* WRAP YOUR APP WITH ANY ADDITIONAL PROVIDERS HERE */}
-      {/* <ExampleProvider> */}
-
-      <NavThemeProvider value={NAV_THEME[colorScheme]}>
-        <Stack screenOptions={SCREEN_OPTIONS}>
-          <Stack.Screen name="index" options={INDEX_OPTIONS} />
-          <Stack.Screen name="modal" options={MODAL_OPTIONS} />
-        </Stack>
-      </NavThemeProvider>
-
-      {/* </ExampleProvider> */}
+      <Providers>
+        <NavThemeProvider value={NAV_THEME[colorScheme]}>
+          <Stack screenOptions={SCREEN_OPTIONS}>
+            <Stack.Screen name="index" options={INDEX_OPTIONS} />
+            <Stack.Screen name="modal" options={MODAL_OPTIONS} />
+            <Stack.Screen name="consent-modal" options={CONSENT_MODAL_OPTIONS} />
+            <Stack.Screen name="packs/index" options={PACK_LIST_OPTIONS} />
+          </Stack>
+        </NavThemeProvider>
+      </Providers>
     </>
   );
 }
@@ -70,5 +70,17 @@ const MODAL_OPTIONS = {
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
   title: 'Settings',
+  headerRight: () => <ThemeToggle />,
+} as const;
+
+const CONSENT_MODAL_OPTIONS = {
+  presentation: 'modal',
+  animation: 'fade_from_bottom', // for android
+  headerRight: () => <ThemeToggle />,
+} as const;
+
+const PACK_LIST_OPTIONS = {
+  title: 'My Packs',
+  headerLargeTitle: true,
   headerRight: () => <ThemeToggle />,
 } as const;

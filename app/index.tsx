@@ -1,11 +1,15 @@
 import { useHeaderHeight } from '@react-navigation/elements';
 import { Icon } from '@roninoss/icons';
 import { FlashList } from '@shopify/flash-list';
+import { useRouter } from 'expo-router';
 import { cssInterop } from 'nativewind';
 import * as React from 'react';
-import { Linking, useWindowDimensions, View, Alert } from 'react-native';
+import { useState } from 'react';
+import { Linking, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Card } from '~/components/Card';
 
+import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
@@ -16,11 +20,18 @@ cssInterop(FlashList, {
 });
 
 export default function Screen() {
+  const [hasSeenConsent, setHasSeenConsent] = useState(false);
+
   const searchValue = useHeaderSearchBar({ hideWhenScrolling: COMPONENTS.length === 0 });
+  // const [searchValue, setSearchValue] = useState('');
 
   const data = searchValue
     ? COMPONENTS.filter((c) => c.name.toLowerCase().includes(searchValue.toLowerCase()))
     : COMPONENTS;
+
+  if (!hasSeenConsent) {
+    // return <Redirect href="/consent-modal" />;
+  }
 
   return (
     <FlashList
@@ -84,18 +95,23 @@ function renderItem({ item }: { item: ComponentItem }) {
   );
 }
 
-function Card({ children, title }: { children: React.ReactNode; title: string }) {
-  return (
-    <View className="px-4">
-      <View className="gap-4 rounded-xl border border-border bg-card p-4 pb-6 shadow-sm shadow-black/10 dark:shadow-none">
-        <Text className="text-center text-sm font-medium tracking-wider opacity-60">{title}</Text>
-        {children}
-      </View>
-    </View>
-  );
-}
-
 const COMPONENTS: ComponentItem[] = [
+  {
+    name: 'Links',
+    component: function LinksExample() {
+      const router = useRouter();
+      return (
+        <View className="gap-2">
+          <Button onPress={() => router.push('/packs')}>
+            <Text>Packs</Text>
+          </Button>
+          <Button onPress={() => router.push('/pack/new')}>
+            <Text>New Pack</Text>
+          </Button>
+        </View>
+      );
+    },
+  },
   {
     name: 'Text',
     component: function TextExample() {
@@ -145,6 +161,27 @@ const COMPONENTS: ComponentItem[] = [
         <Text uiTextView selectable>
           Long press or double press this text
         </Text>
+      );
+    },
+  },
+  {
+    name: 'Button',
+    component: function ButtonExample() {
+      return (
+        <View className="gap-4">
+          <Button>
+            <Text>Primary</Text>
+          </Button>
+          <Button variant="secondary">
+            <Text>Secondary</Text>
+          </Button>
+          <Button variant="tonal">
+            <Text>Tertiary</Text>
+          </Button>
+          <Button variant="plain">
+            <Text>Plain</Text>
+          </Button>
+        </View>
       );
     },
   },

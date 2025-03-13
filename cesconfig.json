@@ -1,6 +1,6 @@
 {
   "cesVersion": "2.14.1",
-  "projectName": "my-expo-app",
+  "projectName": "packrat-expo-v2-poc",
   "packages": [
     {
       "name": "nativewindui",
