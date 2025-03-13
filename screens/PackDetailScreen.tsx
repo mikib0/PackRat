@@ -11,8 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Badge } from '~/components/initial/Badge';
 import CategoryBadge from '~/components/initial/CategoryBadge';
+import { Chip } from '~/components/initial/Chip';
 import PackItemCard from '~/components/initial/PackItemCard';
 import WeightBadge from '~/components/initial/WeightBadge';
 import { Button } from '~/components/nativewindui/Button';
@@ -77,29 +77,33 @@ export default function PackDetailScreen() {
 
           <View className="mb-4 flex-row justify-between">
             <View>
-              <Text className="mb-1 text-xs text-muted-foreground">BASE WEIGHT</Text>
+              <Text className="mb-1 text-xs uppercase text-muted-foreground">BASE WEIGHT</Text>
               <WeightBadge weight={pack.baseWeight || 0} unit="g" type="base" />
             </View>
 
             <View>
-              <Text className="mb-1 text-xs text-muted-foreground">TOTAL WEIGHT</Text>
+              <Text className="mb-1 text-xs uppercase text-muted-foreground">TOTAL WEIGHT</Text>
               <WeightBadge weight={pack.totalWeight || 0} unit="g" type="total" />
             </View>
 
             <View>
-              <Text className="mb-1 text-xs text-muted-foreground">ITEMS</Text>
-              <Badge className="text-center text-xs" variant="default">
+              <Text className="mb-1 text-xs uppercase text-muted-foreground">ITEMS</Text>
+              <Chip textClassName="text-center text-xs" variant="secondary">
                 {pack.items.length}
-              </Badge>
+              </Chip>
             </View>
           </View>
 
           {pack.tags && pack.tags.length > 0 && (
             <View className="flex-row flex-wrap">
               {pack.tags.map((tag, index) => (
-                <Badge key={index} className="mb-1 mr-2 text-center text-xs" variant="default">
+                <Chip
+                  key={index}
+                  className="mb-1 mr-2"
+                  textClassName="text-xs text-center"
+                  variant="outline">
                   #{tag}
-                </Badge>
+                </Chip>
               ))}
             </View>
           )}

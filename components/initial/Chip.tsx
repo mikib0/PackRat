@@ -2,23 +2,23 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { cn } from '~/lib/cn';
 
-export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'worn' | 'consumable';
+export type ChipVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'worn' | 'consumable';
 
-export interface BadgeProps {
+export interface ChipProps {
   children: React.ReactNode;
-  variant?: BadgeVariant;
+  variant?: ChipVariant;
   className?: string;
   textClassName?: string;
   prefix?: string;
 }
 
-export function Badge({
+export function Chip({
   children,
   variant = 'default',
   className,
   textClassName,
   prefix,
-}: BadgeProps) {
+}: ChipProps) {
   return (
     <View
       className={cn(
