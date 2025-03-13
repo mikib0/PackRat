@@ -1,17 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { mockPacks } from '../data/mockData';
+import { packListAtom } from '~/atoms/packListAtoms';
+import { store } from '~/atoms/store';
 import type { Pack } from '../types';
 
 // In a real app, these would be API calls
 const fetchPacks = async (): Promise<Pack[]> => {
+  const packs = store.get(packListAtom);
+
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 500));
-  return mockPacks;
+
+  return packs;
 };
 
 const fetchPackById = async (id: string): Promise<Pack | undefined> => {
   await new Promise((resolve) => setTimeout(resolve, 300));
-  return mockPacks.find((pack) => pack.id === id);
+  const packs = store.get(packListAtom);
+  return packs.find((pack) => pack.id === id);
 };
 
 const createPack = async (pack: Omit<Pack, 'id' | 'createdAt' | 'updatedAt'>): Promise<Pack> => {
@@ -22,25 +27,35 @@ const createPack = async (pack: Omit<Pack, 'id' | 'createdAt' | 'updatedAt'>): P
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+  const packs = store.get(packListAtom);
+  store.set(packListAtom, [...packs, newPack]);
   return newPack;
 };
 
 const updatePack = async (pack: Pack): Promise<Pack> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
-  return {
+  const updatedPack = {
     ...pack,
     updatedAt: new Date().toISOString(),
   };
+  const packs = store.get(packListAtom);
+  store.set(
+    packListAtom,
+    packs.map((p) => (p.id === pack.id ? updatedPack : p))
+  );
+  return updatedPack;
 };
 
 const deletePack = async (id: string): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
-  // In a real app, you would delete from your API
+  const packs = store.get(packListAtom);
+  store.set(
+    packListAtom,
+    packs.filter((pack) => pack.id !== id)
+  );
 };
 
 export function usePacks() {
-  const queryClient = useQueryClient();
-
   return useQuery({
     queryKey: ['packs'],
     queryFn: fetchPacks,

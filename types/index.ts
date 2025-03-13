@@ -61,8 +61,8 @@ export const PackSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   category: PackCategorySchema,
-  baseWeight: z.number().nonnegative().optional(), // Weight without consumables
-  totalWeight: z.number().nonnegative().optional(), // Total weight including consumables
+  baseWeight: z.number().nonnegative().optional(), // Weight without consumables (computed)
+  totalWeight: z.number().nonnegative().optional(), // Total weight including consumables (computed)
   items: z.array(PackItemSchema),
   userId: z.string(),
   createdAt: z.string().datetime(),

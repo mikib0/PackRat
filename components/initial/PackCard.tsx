@@ -1,3 +1,4 @@
+import { isArray } from 'radash';
 import { Image, Pressable, Text, View } from 'react-native';
 import type { Pack } from '~/types';
 import CategoryBadge from './CategoryBadge';
@@ -33,15 +34,18 @@ export default function PackCard({ pack, onPress }: PackCardProps) {
             {pack.baseWeight && <WeightBadge weight={pack.baseWeight} unit="g" type="base" />}
             {pack.totalWeight && <WeightBadge weight={pack.totalWeight} unit="g" type="total" />}
           </View>
-
-          <Text className="text-xs text-foreground">{pack.items.length} items</Text>
+          {pack.items && isArray(pack.items) && pack.items.length > 0 && (
+            // <Text className="text-xs text-foreground">{pack.items.length} items</Text>
+            <></>
+          )}
         </View>
 
-        {pack.tags && pack.tags.length > 0 && (
+        {pack.tags && isArray(pack.tags) && pack.tags.length > 0 && (
           <View className="mt-3 flex-row flex-wrap">
             {pack.tags.map((tag, index) => (
               <View key={index} className="mb-1 mr-2 rounded-full bg-background px-2 py-1">
-                <Text className="text-xs text-foreground">#{tag}</Text>
+                {/* <Text className="text-xs text-foreground">#{tag}</Text> */}
+                <></>
               </View>
             ))}
           </View>
