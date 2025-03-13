@@ -638,14 +638,12 @@ export const mockPackItems: PackItem[] = [
 ];
 
 // --- Packs ---
-export const mockPacks: Pack[] = [
+export const mockPacks: Omit<Pack, 'baseWeight' | 'totalWeight'>[] = [
   {
     id: '1',
     name: 'Trailblazer Expedition',
     description: 'My ultralight expedition setup for long treks.',
     category: 'backpacking',
-    baseWeight: 2710, // Sum of non-consumable, non-worn items
-    totalWeight: 3910, // Including worn (backpack) and consumables (energy bars)
     items: mockPackItems.filter((item) => item.packId === '1'),
     userId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
@@ -659,8 +657,6 @@ export const mockPacks: Pack[] = [
     name: 'Weekend Getaway',
     description: 'Perfect setup for a short escape to nature.',
     category: 'hiking',
-    baseWeight: 4500, // Sum of all items (none are worn/consumable here)
-    totalWeight: 4500,
     items: mockPackItems.filter((item) => item.packId === '2'),
     userId: '2',
     createdAt: '2023-03-10T00:00:00.000Z',
@@ -674,8 +670,6 @@ export const mockPacks: Pack[] = [
     name: 'Family Camping Trip',
     description: 'All the essentials for a family adventure.',
     category: 'camping',
-    baseWeight: 11800, // Sum of all non-consumable, non-worn items
-    totalWeight: 11800,
     items: mockPackItems.filter((item) => item.packId === '3'),
     userId: '3',
     createdAt: '2023-04-20T00:00:00.000Z',
@@ -689,8 +683,6 @@ export const mockPacks: Pack[] = [
     name: 'Mountain Climbing',
     description: 'Gear up for challenging ascents.',
     category: 'climbing',
-    baseWeight: 3850, // Non-worn items only
-    totalWeight: 4650, // Plus worn climbing shoes
     items: mockPackItems.filter((item) => item.packId === '4'),
     userId: '4',
     createdAt: '2023-05-05T00:00:00.000Z',
@@ -704,8 +696,6 @@ export const mockPacks: Pack[] = [
     name: 'Water Adventures',
     description: 'Everything for your water-based escapades.',
     category: 'water sports',
-    baseWeight: 2100, // Dry bags and paddle
-    totalWeight: 5300, // Plus worn life jacket and wetsuit
     items: mockPackItems.filter((item) => item.packId === '5'),
     userId: '5',
     createdAt: '2023-06-01T00:00:00.000Z',
@@ -719,8 +709,6 @@ export const mockPacks: Pack[] = [
     name: 'Backcountry Skiing',
     description: 'Essential gear for off-piste adventures.',
     category: 'skiing',
-    baseWeight: 3400, // Beacon + skis
-    totalWeight: 3550, // Plus worn ski goggles
     items: mockPackItems.filter((item) => item.packId === '6'),
     userId: '6',
     createdAt: '2023-06-15T00:00:00.000Z',

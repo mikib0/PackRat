@@ -1,14 +1,21 @@
 import { FlatList, SafeAreaView, Text, View } from 'react-native';
 import PackCard from '~/components/initial/PackCard';
 import UserAvatar from '~/components/initial/UserAvatar';
+import { usePacks } from '~/hooks/usePacks';
 import type { Pack } from '~/types';
-import { currentUser, mockPacks } from '../data/mockData';
+import { currentUser } from '../data/mockData';
 
-export default function HomeScreen({ navigation }: any) {
+export default function HomeScreen() {
+  const { data: packs, isLoading } = usePacks();
+
   const handlePackPress = (pack: Pack) => {
     // In a real app, you would navigate to the pack details screen
     console.log('Navigate to pack details:', pack.id);
   };
+
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -20,7 +27,7 @@ export default function HomeScreen({ navigation }: any) {
       </View>
 
       <FlatList
-        data={mockPacks}
+        data={packs}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View className="px-4 pt-4">
@@ -29,7 +36,7 @@ export default function HomeScreen({ navigation }: any) {
         )}
         ListHeaderComponent={
           <View className="px-4 pb-2 pt-4">
-            <Text className="text-gray-500">Showing {mockPacks.length} packs</Text>
+            <Text className="text-gray-500">Showing {packs?.length} packs</Text>
           </View>
         }
         ListEmptyComponent={
