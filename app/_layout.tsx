@@ -86,14 +86,14 @@ const CONSENT_MODAL_OPTIONS = {
 } as const;
 
 const PACK_NEW_OPTIONS = {
-  title: 'New Pack',
+  title: 'Create New Pack',
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
   headerRight: () => <ThemeToggle />,
 } as const;
 
 const ITEM_NEW_OPTIONS = {
-  title: 'New Item',
+  title: 'Create New Item',
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
 } as const;
