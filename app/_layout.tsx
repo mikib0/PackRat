@@ -38,6 +38,7 @@ export default function RootLayout() {
             <Stack.Screen name="pack/new" options={PACK_NEW_OPTIONS} />
             <Stack.Screen name="item/index" options={ITEM_LIST_OPTIONS} />
             <Stack.Screen name="item/[id]" options={ITEM_DETAIL_OPTIONS} />
+            <Stack.Screen name="item/new" options={ITEM_NEW_OPTIONS} />
           </Stack>
         </NavThemeProvider>
       </Providers>
@@ -89,6 +90,12 @@ const PACK_NEW_OPTIONS = {
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
   headerRight: () => <ThemeToggle />,
+} as const;
+
+const ITEM_NEW_OPTIONS = {
+  title: 'New Item',
+  presentation: 'modal',
+  animation: 'fade_from_bottom', // for android
 } as const;
 
 // MAIN SCREENS

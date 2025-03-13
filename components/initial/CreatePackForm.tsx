@@ -127,6 +127,9 @@ const CreatePackForm = () => {
         {
           onSuccess: (pack) => {
             console.log('Pack Created:', pack);
+
+            // We are inside a modal, so we need to pop the current screen and then push the new one
+            router.back();
             router.push(`/pack/${pack.id}`);
           },
           onError: (error) => {
