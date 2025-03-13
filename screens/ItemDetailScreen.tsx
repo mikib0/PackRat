@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { Image, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { Chip } from '~/components/initial/Chip';
 import WeightBadge from '~/components/initial/WeightBadge';
-import { cn } from '~/lib/cn';
 import { mockPackItems } from '../data/mockData';
 
 export default function ItemDetailScreen() {
@@ -34,42 +34,34 @@ export default function ItemDetailScreen() {
 
           <View className="mb-4 flex-row justify-between">
             <View>
-              <Text className="mb-1 text-xs text-muted-foreground">WEIGHT (EACH)</Text>
+              <Text className="mb-1 text-xs uppercase text-muted-foreground">WEIGHT (EACH)</Text>
               <WeightBadge weight={item.weight} unit={item.weightUnit} />
             </View>
 
             <View>
-              <Text className="mb-1 text-xs text-muted-foreground">QUANTITY</Text>
-              <View className="rounded-full bg-muted px-2 py-1">
-                <Text className="text-xs font-medium text-foreground">{item.quantity}</Text>
-              </View>
+              <Text className="mb-1 text-xs uppercase text-muted-foreground">QUANTITY</Text>
+              <Chip textClassName="text-center text-xs" variant="secondary">
+                {item.quantity}
+              </Chip>
             </View>
 
             <View>
-              <Text className="mb-1 text-xs text-muted-foreground">TOTAL WEIGHT</Text>
+              <Text className="mb-1 text-xs uppercase text-muted-foreground">TOTAL WEIGHT</Text>
               <WeightBadge weight={item.weight * item.quantity} unit={item.weightUnit} />
             </View>
           </View>
 
           <View className="mb-4 flex-row space-x-3">
             <View className="flex-row items-center">
-              <View
-                className={cn(
-                  'mr-1 h-4 w-4 rounded-full',
-                  item.consumable ? 'bg-amber-500' : 'bg-muted'
-                )}
-              />
-              <Text className="text-foreground">Consumable</Text>
+              <Chip textClassName="text-center text-xs" variant="consumable">
+                Consumable
+              </Chip>
             </View>
 
             <View className="flex-row items-center">
-              <View
-                className={cn(
-                  'mr-1 h-4 w-4 rounded-full',
-                  item.worn ? 'bg-emerald-500' : 'bg-muted'
-                )}
-              />
-              <Text className="text-foreground">Worn</Text>
+              <Chip textClassName="text-center text-xs" variant="worn">
+                Worn
+              </Chip>
             </View>
           </View>
 
