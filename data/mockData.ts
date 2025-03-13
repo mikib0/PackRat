@@ -1,4 +1,3 @@
-import { calculatePackWeight } from '~/lib/utils/calculate-pack-weight';
 import type { Pack, PackItem, User } from '../types';
 
 // --- Users ---
@@ -639,15 +638,12 @@ export const mockPackItems: PackItem[] = [
 ];
 
 // --- Packs ---
-export const mockPacks: Pack[] = [
+export const mockPacks: Omit<Pack, 'baseWeight' | 'totalWeight'>[] = [
   {
     id: '1',
     name: 'Trailblazer Expedition',
     description: 'My ultralight expedition setup for long treks.',
     category: 'backpacking',
-    baseWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '1')).baseWeight, // Sum of non-consumable, non-worn items
-    totalWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '1'))
-      .totalWeight, // Including worn (backpack) and consumables (energy bars)
     items: mockPackItems.filter((item) => item.packId === '1'),
     userId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
@@ -661,9 +657,6 @@ export const mockPacks: Pack[] = [
     name: 'Weekend Getaway',
     description: 'Perfect setup for a short escape to nature.',
     category: 'hiking',
-    baseWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '2')).baseWeight, // Sum of all items (none are worn/consumable here)
-    totalWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '2'))
-      .totalWeight,
     items: mockPackItems.filter((item) => item.packId === '2'),
     userId: '2',
     createdAt: '2023-03-10T00:00:00.000Z',
@@ -677,9 +670,6 @@ export const mockPacks: Pack[] = [
     name: 'Family Camping Trip',
     description: 'All the essentials for a family adventure.',
     category: 'camping',
-    baseWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '3')).baseWeight, // Sum of all non-consumable, non-worn items
-    totalWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '3'))
-      .totalWeight,
     items: mockPackItems.filter((item) => item.packId === '3'),
     userId: '3',
     createdAt: '2023-04-20T00:00:00.000Z',
@@ -693,9 +683,6 @@ export const mockPacks: Pack[] = [
     name: 'Mountain Climbing',
     description: 'Gear up for challenging ascents.',
     category: 'climbing',
-    baseWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '4')).baseWeight, // Non-worn items only
-    totalWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '4'))
-      .totalWeight, // Plus worn climbing shoes
     items: mockPackItems.filter((item) => item.packId === '4'),
     userId: '4',
     createdAt: '2023-05-05T00:00:00.000Z',
@@ -709,9 +696,6 @@ export const mockPacks: Pack[] = [
     name: 'Water Adventures',
     description: 'Everything for your water-based escapades.',
     category: 'water sports',
-    baseWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '5')).baseWeight, // Dry bags and paddle
-    totalWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '5'))
-      .totalWeight, // Plus worn life jacket and wetsuit
     items: mockPackItems.filter((item) => item.packId === '5'),
     userId: '5',
     createdAt: '2023-06-01T00:00:00.000Z',
@@ -725,9 +709,6 @@ export const mockPacks: Pack[] = [
     name: 'Backcountry Skiing',
     description: 'Essential gear for off-piste adventures.',
     category: 'skiing',
-    baseWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '6')).baseWeight, // Beacon + skis
-    totalWeight: calculatePackWeight(mockPackItems.filter((item) => item.packId === '6'))
-      .totalWeight, // Plus worn ski goggles
     items: mockPackItems.filter((item) => item.packId === '6'),
     userId: '6',
     createdAt: '2023-06-15T00:00:00.000Z',

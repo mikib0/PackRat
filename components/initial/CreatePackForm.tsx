@@ -21,7 +21,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 // Define Zod schema
 const packFormSchema = z.object({
   name: z.string().min(1, 'Pack name is required'),
-  description: z.string().optional(),
+  description: z.string(),
   category: z.enum([
     'hiking',
     'backpacking',
@@ -34,7 +34,7 @@ const packFormSchema = z.object({
     'skiing',
   ]),
   isPublic: z.boolean(),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string()),
 });
 
 // Type inference
@@ -99,12 +99,8 @@ const CreatePackForm = () => {
       name: '',
       description: '',
       category: 'hiking',
-      baseWeight: 0,
-      totalWeight: 0,
       isPublic: false,
-      tags: [],
-      items: [],
-      userId: 'default',
+      tags: ['hiking'],
     },
     validators: {
       onChange: packFormSchema,
