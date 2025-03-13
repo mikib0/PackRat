@@ -30,6 +30,7 @@ export default function RootLayout() {
       <Providers>
         <NavThemeProvider value={NAV_THEME[colorScheme]}>
           <Stack screenOptions={SCREEN_OPTIONS}>
+            <Stack.Screen name="(tabs)" options={TABS_OPTIONS} /> 
             <Stack.Screen name="index" options={INDEX_OPTIONS} />
             <Stack.Screen name="modal" options={MODAL_OPTIONS} />
             <Stack.Screen name="consent-modal" options={CONSENT_MODAL_OPTIONS} />
@@ -70,6 +71,10 @@ function SettingsIcon() {
     </Link>
   );
 }
+
+const TABS_OPTIONS = {
+  headerShown: false,
+} as const;
 
 // MODALS
 const MODAL_OPTIONS = {

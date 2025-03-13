@@ -1,3 +1,5 @@
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { ErrorBoundary } from '~/components/initial/ErrorBoundary';
 import { JotaiProvider } from './JotaiProvider';
 import { TanstackProvider } from './TanstackProvider';
@@ -6,7 +8,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
       <JotaiProvider>
-        <TanstackProvider>{children}</TanstackProvider>
+        <TanstackProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <KeyboardProvider>{children}</KeyboardProvider>
+          </GestureHandlerRootView>
+        </TanstackProvider>
       </JotaiProvider>
     </ErrorBoundary>
   );

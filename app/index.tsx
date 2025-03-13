@@ -102,12 +102,43 @@ const COMPONENTS: ComponentItem[] = [
       const router = useRouter();
       return (
         <View className="gap-2">
-          <Button onPress={() => router.push('/packs')}>
-            <Text>Packs</Text>
-          </Button>
-          <Button onPress={() => router.push('/pack/new')}>
-            <Text>New Pack</Text>
-          </Button>
+          <View className="gap-2">
+            <Text>
+              <Text>Main Screens</Text>
+            </Text>
+            <Button onPress={() => router.push('/dashboard')}>
+              <Text>Dashboard</Text>
+            </Button>
+            <Button onPress={() => router.push('/packs')}>
+              <Text>Packs</Text>
+            </Button>
+          </View>
+          <View className="gap-2">
+            <Text>
+              <Text>Modals</Text>
+            </Text>
+            <Button onPress={() => router.push('/pack/new')}>
+              <Text>New Pack</Text>
+            </Button>
+            <Button onPress={() => router.push('/item/new')}>
+              <Text>New Item</Text>
+            </Button>
+          </View>
+          <View className="gap-2">
+            <Text>Additional Screens</Text>
+            <Button onPress={() => router.push('/settings')}>
+              <Text>Settings</Text>
+            </Button>
+            <Button onPress={() => router.push('/auth')}>
+              <Text>Login</Text>
+            </Button>
+            <Button onPress={() => router.push('/messages/conversations')}>
+              <Text>Messages (Conversations)</Text>
+            </Button>
+            <Button onPress={() => router.push('/messages/chat')}>
+              <Text>Messages (Chat)</Text>
+            </Button>
+          </View>
         </View>
       );
     },
