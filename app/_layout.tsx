@@ -1,7 +1,7 @@
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { Icon } from '@roninoss/icons';
 import 'expo-dev-client';
-import { Link, Stack } from 'expo-router';
+import { Link, Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, View } from 'react-native';
 import '../global.css';
@@ -35,6 +35,7 @@ export default function RootLayout() {
             <Stack.Screen name="consent-modal" options={CONSENT_MODAL_OPTIONS} />
             <Stack.Screen name="packs/index" options={PACK_LIST_OPTIONS} />
             <Stack.Screen name="pack/[id]" options={PACK_DETAIL_OPTIONS} />
+            <Stack.Screen name="pack/new" options={PACK_DETAIL_OPTIONS} />
             <Stack.Screen name="item/index" options={ITEM_LIST_OPTIONS} />
             <Stack.Screen name="item/[id]" options={ITEM_DETAIL_OPTIONS} />
           </Stack>
@@ -108,7 +109,20 @@ const ITEM_LIST_OPTIONS = {
 // DETAIL SCREENS
 const PACK_DETAIL_OPTIONS = {
   title: 'Pack Details',
-  headerRight: () => <ThemeToggle />,
+  headerRight: () => {
+    const { colors } = useColorScheme();
+    const router = useRouter();
+    return (
+      <View className="flex-row items-center gap-2">
+        <Pressable onPress={() => router.push('/pack/edit')}>
+          <Icon name="pencil-box-outline" color={colors.foreground} />
+        </Pressable>
+        <Pressable onPress={() => router.push('/item/new')}>
+          <Icon name="plus" color={colors.foreground} />
+        </Pressable>
+      </View>
+    );
+  },
 } as const;
 
 const ITEM_DETAIL_OPTIONS = {

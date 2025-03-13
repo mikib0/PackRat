@@ -18,6 +18,7 @@
     "@rn-primitives/slot": "^1.1.0",
     "@roninoss/icons": "^0.0.4",
     "@shopify/flash-list": "1.7.3",
+    "@tanstack/react-form": "^1.0.5",
     "@tanstack/react-query": "^5.67.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -43,7 +44,8 @@
     "react-native-screens": "~4.4.0",
     "react-native-uitextview": "^1.1.4",
     "react-native-web": "~0.19.10",
-    "tailwind-merge": "^2.2.1"
+    "tailwind-merge": "^2.2.1",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "ajv": "^8.12.0",
