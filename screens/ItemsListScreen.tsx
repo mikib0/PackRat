@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { searchValueAtom } from '~/atoms/itemListAtoms';
 import { ItemCard } from '~/components/initial/ItemCard';
+import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 import { useItems } from '../hooks/useItems';
 import type { Item, ItemCategory } from '../types';
 
@@ -47,6 +48,11 @@ export function ItemListScreen() {
   const [activeFilter, setActiveFilter] = useState<
     ItemCategory | 'all' | 'pack-items' | 'plain-items'
   >('all');
+
+  useHeaderSearchBar({
+    hideWhenScrolling: false,
+    onChangeText: (text) => setSearchValue(String(text)),
+  });
 
   const handleItemPress = (item: Item) => {
     // Navigate to item detail screen

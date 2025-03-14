@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { searchValueAtom } from '~/atoms/packListAtoms';
 import { PackCard } from '~/components/initial/PackCard';
+import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 import { usePacks } from '../hooks/usePacks';
 import type { Pack, PackCategory } from '../types';
 
@@ -39,6 +40,11 @@ export function PackListScreen() {
   const { data: packs, isLoading, isError, refetch } = usePacks();
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
   const [activeFilter, setActiveFilter] = useState<PackCategory | 'all'>('all');
+
+  useHeaderSearchBar({
+    hideWhenScrolling: false,
+    onChangeText: (text) => setSearchValue(String(text)),
+  });
 
   const handlePackPress = (pack: Pack) => {
     // Navigate to pack detail screen
