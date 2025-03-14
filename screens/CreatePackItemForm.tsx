@@ -3,21 +3,22 @@
 import { Icon } from '@roninoss/icons';
 import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'expo-router';
-import type React from 'react';
 import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   Switch,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { z } from 'zod';
+import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
+import { SegmentedControl } from '~/components/nativewindui/SegmentedControl';
+import { TextField } from '~/components/nativewindui/TextField';
 import { useCreateItem } from '~/hooks/usePackItems';
-import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { WeightUnit } from '~/types';
 
@@ -46,42 +47,6 @@ type ItemFormValues = z.infer<typeof itemFormSchema>;
 
 // Weight units
 const WEIGHT_UNITS: WeightUnit[] = ['g', 'oz', 'kg', 'lb'];
-
-// Validation message display
-const FieldError = ({ field }: { field: any }) => (
-  <>
-    {field.state.meta.isTouched && field.state.meta.errors.length ? (
-      <Text className="ml-1 mt-1 text-xs text-destructive">
-        {field.state.meta.errors.map((err: any) => err.message).join(', ')}
-      </Text>
-    ) : null}
-  </>
-);
-
-// Form label component
-const FormLabel = ({
-  children,
-  required,
-  className,
-}: {
-  children: React.ReactNode;
-  required?: boolean;
-  className?: string;
-}) => (
-  <Text className={cn('text-foreground/80 mb-2 ml-1 text-sm font-medium', className)}>
-    {children}
-    {required && <Text className="text-destructive"> *</Text>}
-  </Text>
-);
-
-// Form field wrapper
-const FormField = ({
-  children,
-  className = '',
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => <View className={cn('mb-6', className)}>{children}</View>;
 
 const CreatePackItemForm = ({ packId, existingItem }: { packId: string; existingItem?: any }) => {
   const router = useRouter();
@@ -140,228 +105,241 @@ const CreatePackItemForm = ({ packId, existingItem }: { packId: string; existing
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       className="flex-1">
-      <View className="flex-row items-center border-b border-border bg-background px-4 py-3">
-        <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Icon name="chevron-left" size={24} color={colors.foreground} />
-        </TouchableOpacity>
-        <Text className="flex-1 text-xl font-semibold text-foreground">
-          {isEditing ? 'Edit Item' : 'Add New Item'}
-        </Text>
-        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-          {([canSubmit, isSubmitting]) => (
-            <TouchableOpacity
-              onPress={() => form.handleSubmit()}
-              disabled={!canSubmit || isSubmitting}
-              className={`rounded-lg px-4 py-1.5 ${!canSubmit || isSubmitting ? 'bg-primary/70' : 'bg-primary'}`}>
-              <Text className="font-medium text-primary-foreground">
-                {isSubmitting ? 'Saving...' : 'Save'}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </form.Subscribe>
-      </View>
+      <ScrollView contentContainerClassName="p-8">
+        <Form>
+          <FormSection
+            ios={{ title: 'Item Details' }}
+            footnote="Enter the basic information about your item">
+            <form.Field name="name">
+              {(field) => (
+                <FormItem>
+                  <TextField
+                    placeholder="Item Name"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChangeText={field.handleChange}
+                    errorMessage={field.state.meta.errors.map((err: any) => err.message).join(', ')}
+                    leftView={
+                      <View className="ios:pl-2 justify-center pl-2">
+                        <Icon name="backpack" size={16} color={colors.grey3} />
+                      </View>
+                    }
+                  />
+                </FormItem>
+              )}
+            </form.Field>
 
-      <ScrollView className="flex-1 p-4">
-        <form.Field name="name">
-          {(field) => (
-            <FormField>
-              <FormLabel required>Name</FormLabel>
-              <TextInput
-                className="rounded-lg border border-input bg-background p-3 text-foreground"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChangeText={field.handleChange}
-                placeholder="Item name"
-                placeholderTextColor="text-muted-foreground"
-              />
-              <FieldError field={field} />
-            </FormField>
-          )}
-        </form.Field>
+            <form.Field name="description">
+              {(field) => (
+                <FormItem>
+                  <TextField
+                    placeholder="Description"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChangeText={field.handleChange}
+                    multiline
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                    leftView={
+                      <View className="ios:pl-2 justify-center pl-2">
+                        <Icon name="information" size={16} color={colors.grey3} />
+                      </View>
+                    }
+                  />
+                </FormItem>
+              )}
+            </form.Field>
 
-        <form.Field name="description">
-          {(field) => (
-            <FormField>
-              <FormLabel>Description</FormLabel>
-              <TextInput
-                className="rounded-lg border border-input bg-background p-3 text-foreground"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChangeText={field.handleChange}
-                placeholder="Brief description"
-                placeholderTextColor="text-muted-foreground"
-                multiline
-              />
-            </FormField>
-          )}
-        </form.Field>
+            <form.Field name="category">
+              {(field) => (
+                <FormItem>
+                  <TextField
+                    placeholder="Category (e.g., Shelter, Cooking)"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChangeText={field.handleChange}
+                    leftView={
+                      <View className="ios:pl-2 justify-center pl-2">
+                        <Icon name="tag" size={16} color={colors.grey3} />
+                      </View>
+                    }
+                  />
+                </FormItem>
+              )}
+            </form.Field>
+          </FormSection>
 
-        <View className="mb-6 flex-row">
-          <form.Field name="weight">
-            {(field) => (
-              <View className="mr-2 flex-1">
-                <FormLabel required>Weight</FormLabel>
-                <TextInput
-                  className="rounded-lg border border-input bg-background p-3 text-foreground"
-                  value={field.state.value.toString()}
-                  onBlur={field.handleBlur}
-                  onChangeText={field.handleChange}
-                  placeholder="0.0"
-                  placeholderTextColor="text-muted-foreground"
-                  keyboardType="numeric"
-                />
-                <FieldError field={field} />
-              </View>
-            )}
-          </form.Field>
+          <FormSection ios={{ title: 'Weight & Quantity' }} footnote="Specify the weight details">
+            <form.Field name="weight">
+              {(field) => (
+                <FormItem>
+                  <TextField
+                    placeholder="Weight"
+                    value={field.state.value.toString()}
+                    onBlur={field.handleBlur}
+                    onChangeText={field.handleChange}
+                    keyboardType="numeric"
+                    errorMessage={field.state.meta.errors.map((err: any) => err.message).join(', ')}
+                    leftView={
+                      <View className="ios:pl-2 justify-center pl-2">
+                        <Icon name="dumbbell" size={16} color={colors.grey3} />
+                      </View>
+                    }
+                  />
+                </FormItem>
+              )}
+            </form.Field>
 
-          <form.Field name="weightUnit">
-            {(field) => (
-              <View className="w-24">
-                <FormLabel>Unit</FormLabel>
-                <View className="overflow-hidden rounded-lg border border-input bg-background">
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    {WEIGHT_UNITS.map((unit) => (
-                      <TouchableOpacity
-                        key={unit}
-                        className={`px-3 py-2 ${field.state.value === unit ? 'bg-primary' : 'bg-background'}`}
-                        onPress={() => field.handleChange(unit)}>
-                        <Text
-                          className={
-                            field.state.value === unit
-                              ? 'text-primary-foreground'
-                              : 'text-foreground'
-                          }>
-                          {unit}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </View>
-              </View>
-            )}
-          </form.Field>
+            <form.Field name="weightUnit">
+              {(field) => (
+                <FormItem>
+                  <View className="px-2 py-2">
+                    <Text className="text-foreground/70 mb-2 text-sm">Unit</Text>
+                    <SegmentedControl
+                      values={WEIGHT_UNITS}
+                      selectedIndex={WEIGHT_UNITS.indexOf(field.state.value)}
+                      onIndexChange={(index) => {
+                        field.handleChange(WEIGHT_UNITS[index]);
+                      }}
+                    />
+                  </View>
+                </FormItem>
+              )}
+            </form.Field>
 
-          <form.Field name="quantity">
-            {(field) => (
-              <View className="ml-2 w-20">
-                <FormLabel>Qty</FormLabel>
-                <TextInput
-                  className="rounded-lg border border-input bg-background p-3 text-foreground"
-                  value={field.state.value.toString()}
-                  onBlur={field.handleBlur}
-                  onChangeText={field.handleChange}
-                  placeholder="1"
-                  placeholderTextColor="text-muted-foreground"
-                  keyboardType="numeric"
-                />
-                <FieldError field={field} />
-              </View>
-            )}
-          </form.Field>
-        </View>
+            <form.Field name="quantity">
+              {(field) => (
+                <FormItem>
+                  <TextField
+                    placeholder="Quantity"
+                    value={field.state.value.toString()}
+                    onBlur={field.handleBlur}
+                    onChangeText={field.handleChange}
+                    keyboardType="numeric"
+                    errorMessage={field.state.meta.errors.map((err: any) => err.message).join(', ')}
+                    leftView={
+                      <View className="ios:pl-2 justify-center pl-2">
+                        <Icon name="hash" size={16} color={colors.grey3} />
+                      </View>
+                    }
+                  />
+                </FormItem>
+              )}
+            </form.Field>
+          </FormSection>
 
-        <form.Field name="category">
-          {(field) => (
-            <FormField>
-              <FormLabel>Category</FormLabel>
-              <TextInput
-                className="rounded-lg border border-input bg-background p-3 text-foreground"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChangeText={field.handleChange}
-                placeholder="e.g., Shelter, Cooking, Clothing"
-                placeholderTextColor="text-muted-foreground"
-              />
-            </FormField>
-          )}
-        </form.Field>
-
-        <FormField>
-          <FormLabel>Properties</FormLabel>
-          <View className="rounded-lg border border-input bg-background p-3">
+          <FormSection ios={{ title: 'Properties' }} footnote="Special item properties">
             <form.Field name="consumable">
               {(field) => (
-                <View className="mb-3 flex-row items-center justify-between">
-                  <Text className="text-foreground">Consumable</Text>
-                  <Switch
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                    trackColor={{
-                      false: 'hsl(var(--muted))',
-                      true: 'hsl(var(--primary))',
-                    }}
-                    ios_backgroundColor="hsl(var(--muted))"
-                  />
-                </View>
+                <FormItem>
+                  <View className="flex-row items-center justify-between p-4">
+                    <View className="flex-row items-center">
+                      <Icon name="silverware-fork-knife" size={18} color={colors.foreground} />
+                      <Text className="ml-2 font-medium text-foreground">Consumable</Text>
+                    </View>
+                    <Switch
+                      value={field.state.value}
+                      onValueChange={field.handleChange}
+                      trackColor={{
+                        false: 'hsl(var(--muted))',
+                        true: 'hsl(var(--primary))',
+                      }}
+                      ios_backgroundColor="hsl(var(--muted))"
+                    />
+                  </View>
+                </FormItem>
               )}
             </form.Field>
 
             <form.Field name="worn">
               {(field) => (
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-foreground">Worn (not carried)</Text>
-                  <Switch
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                    trackColor={{
-                      false: 'hsl(var(--muted))',
-                      true: 'hsl(var(--primary))',
-                    }}
-                    ios_backgroundColor="hsl(var(--muted))"
-                  />
-                </View>
+                <FormItem>
+                  <View className="flex-row items-center justify-between p-4">
+                    <View className="flex-row items-center">
+                      <Icon name="account-circle" size={18} color={colors.foreground} />
+                      <Text className="ml-2 font-medium text-foreground">Worn (not carried)</Text>
+                    </View>
+                    <Switch
+                      value={field.state.value}
+                      onValueChange={field.handleChange}
+                      trackColor={{
+                        false: 'hsl(var(--muted))',
+                        true: 'hsl(var(--primary))',
+                      }}
+                      ios_backgroundColor="hsl(var(--muted))"
+                    />
+                  </View>
+                </FormItem>
               )}
             </form.Field>
-          </View>
-        </FormField>
+          </FormSection>
 
-        <form.Field name="image">
-          {(field) => (
-            <FormField>
-              <FormLabel>Image</FormLabel>
-              {field.state.value ? (
-                <View className="relative">
-                  <Image
-                    source={{ uri: field.state.value }}
-                    className="h-48 w-full rounded-lg"
-                    resizeMode="cover"
-                  />
-                  <TouchableOpacity
-                    className="absolute right-2 top-2 rounded-full bg-black bg-opacity-50 p-1"
-                    onPress={handleRemoveImage}>
-                    <Icon name="close" size={20} color="#ffffff" />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  className="h-48 items-center justify-center rounded-lg border border-dashed border-input bg-background p-4"
-                  onPress={handleAddImage}>
-                  <Icon name="camera" size={32} color={colors.foreground} />
-                  <Text className="mt-2 text-muted-foreground">Tap to add an image</Text>
-                </TouchableOpacity>
+          <FormSection ios={{ title: 'Image' }} footnote="Add an image of your item (optional)">
+            <form.Field name="image">
+              {(field) => (
+                <FormItem>
+                  {field.state.value ? (
+                    <View className="relative">
+                      <Image
+                        source={{ uri: field.state.value }}
+                        className="h-48 w-full rounded-lg"
+                        resizeMode="cover"
+                      />
+                      <TouchableOpacity
+                        className="absolute right-2 top-2 rounded-full bg-black bg-opacity-50 p-1"
+                        onPress={handleRemoveImage}>
+                        <Icon name="close" size={20} color="#ffffff" />
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      className="h-48 items-center justify-center rounded-lg border border-dashed border-input bg-background p-4"
+                      onPress={handleAddImage}>
+                      <Icon name="camera" size={32} color={colors.foreground} />
+                      <Text className="mt-2 text-muted-foreground">Tap to add an image</Text>
+                    </TouchableOpacity>
+                  )}
+                </FormItem>
               )}
-            </FormField>
-          )}
-        </form.Field>
+            </form.Field>
+          </FormSection>
 
-        <form.Field name="notes">
-          {(field) => (
-            <FormField>
-              <FormLabel>Notes</FormLabel>
-              <TextInput
-                className="h-24 rounded-lg border border-input bg-background p-3 text-foreground"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChangeText={field.handleChange}
-                placeholder="Additional notes about this item"
-                placeholderTextColor="text-muted-foreground"
-                multiline
-                textAlignVertical="top"
-              />
-            </FormField>
+          <FormSection ios={{ title: 'Notes' }} footnote="Additional information">
+            <form.Field name="notes">
+              {(field) => (
+                <FormItem>
+                  <TextField
+                    placeholder="Additional notes about this item"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChangeText={field.handleChange}
+                    multiline
+                    numberOfLines={4}
+                    textAlignVertical="top"
+                    leftView={
+                      <View className="ios:pl-2 justify-center pl-2">
+                        <Icon name="note-text-outline" size={16} color={colors.grey3} />
+                      </View>
+                    }
+                  />
+                </FormItem>
+              )}
+            </form.Field>
+          </FormSection>
+        </Form>
+
+        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
+            <Pressable
+              onPress={() => form.handleSubmit()}
+              disabled={!canSubmit || isSubmitting}
+              className={`mt-6 rounded-lg px-4 py-3.5 ${!canSubmit || isSubmitting ? 'bg-primary/70' : 'bg-primary'}`}>
+              <Text className="text-center text-base font-semibold text-primary-foreground">
+                {isSubmitting ? 'Saving...' : isEditing ? 'Update Item' : 'Add Item'}
+              </Text>
+            </Pressable>
           )}
-        </form.Field>
+        </form.Subscribe>
       </ScrollView>
     </KeyboardAvoidingView>
   );
