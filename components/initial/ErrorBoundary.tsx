@@ -1,7 +1,12 @@
+'use client';
+
+import { Icon } from '@roninoss/icons';
 import { router } from 'expo-router';
-import React, { ErrorInfo } from 'react';
+import type React from 'react';
+import type { ErrorInfo } from 'react';
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 import { Pressable, Text, View } from 'react-native';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 type ErrorBoundaryProps = {
   children: React.ReactNode;
@@ -11,24 +16,39 @@ type ErrorBoundaryProps = {
 };
 
 const DefaultFallback = ({ resetErrorBoundary }: { resetErrorBoundary: () => void }) => {
+  const { colors } = useColorScheme();
+
   return (
-    <View className="flex-1 items-center justify-center bg-white p-4">
-      <View className="w-full max-w-md rounded-lg bg-red-50 p-6">
-        <Text className="mb-2 text-lg font-semibold text-red-800">Something went wrong</Text>
-        <Text className="mb-4 text-red-700">
-          The application encountered an unexpected error. You can try again or go back to the home
-          screen.
-        </Text>
-        <View className="flex-row gap-3">
-          <Pressable
-            onPress={() => router.replace('/')}
-            className="flex-1 items-center rounded-md bg-red-100 py-3">
-            <Text className="font-medium text-red-800">Go Home</Text>
-          </Pressable>
+    <View className="flex-1 items-center justify-center bg-background px-6 pt-12">
+      <View className="flex-1 items-center justify-center">
+        {/* Icon */}
+        <Icon name="exclamation" size={48} color={colors.destructive} />
+
+        {/* Content */}
+        <View className="mt-6 w-full max-w-sm">
+          <Text className="text-center text-xl font-bold text-foreground">
+            Something went wrong
+          </Text>
+          <Text className="mt-2 text-center text-base text-muted-foreground">
+            The application encountered an unexpected error. You can try again or go back to the
+            home screen.
+          </Text>
+        </View>
+
+        {/* Actions */}
+        <View className="mt-10 w-full max-w-sm">
           <Pressable
             onPress={resetErrorBoundary}
-            className="flex-1 items-center rounded-md bg-red-600 py-3">
-            <Text className="font-medium text-white">Try Again</Text>
+            className="mb-4 w-full items-center justify-center rounded-lg bg-primary py-3.5"
+            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            <Text className="font-medium text-primary-foreground">Try Again</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.replace('/')}
+            className="w-full items-center justify-center rounded-lg border border-border py-3.5"
+            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            <Text className="font-medium text-foreground">Go Home</Text>
           </Pressable>
         </View>
       </View>
