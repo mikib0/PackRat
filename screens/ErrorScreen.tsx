@@ -43,7 +43,7 @@ export function ErrorScreen({
 
   return (
     <View className="flex-1 bg-background px-6 pt-12">
-      <View className="flex-1 items-center justify-center space-y-4">
+      <View className="flex-1 items-center justify-center gap-4">
         {/* Icon */}
         <Icon name={icon} size={48} color={getIconColor()} />
 
@@ -54,7 +54,7 @@ export function ErrorScreen({
         </View>
 
         {/* Actions */}
-        <View className="mt-4 w-full max-w-sm space-y-2">
+        <View className="mt-4 w-full max-w-sm gap-2">
           {onRetry && (
             <Button onPress={onRetry} variant="primary" className="h-12 w-full">
               <Text className="font-medium text-primary-foreground">Try Again</Text>

@@ -55,7 +55,7 @@ export function ItemDetailScreen() {
             </View>
           </View>
 
-          <View className="mb-4 flex-row space-x-3">
+          <View className="mb-4 flex-row gap-3">
             <View className="flex-row items-center">
               <Chip textClassName="text-center text-xs" variant="consumable">
                 Consumable

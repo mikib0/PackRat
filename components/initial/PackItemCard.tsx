@@ -39,7 +39,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
           </Text>
         )}
 
-        <View className="mt-2 flex-row space-x-2">
+        <View className="mt-2 flex-row gap-2">
           {item.quantity > 1 && (
             <View className="rounded-full bg-muted px-2 py-0.5">
               <Text className="text-xs text-muted-foreground">Qty: {item.quantity}</Text>

@@ -34,7 +34,7 @@ export function PackCard({ pack, onPress }: PackCardProps) {
         )}
 
         <View className="flex-row items-center justify-between">
-          <View className="flex-row space-x-2">
+          <View className="flex-row gap-2">
             {hasBaseWeight ? (
               <WeightBadge weight={pack.baseWeight ?? 0} unit="g" type="base" />
             ) : null}
