@@ -1,8 +1,8 @@
 import { Icon, MaterialIconName } from '@roninoss/icons';
 import { Image, Pressable, Text, View } from 'react-native';
+import { CategoryBadge } from '~/components/initial/CategoryBadge';
+import { WeightBadge } from '~/components/initial/WeightBadge';
 import type { Item } from '~/types';
-import { CategoryBadge } from '../initial/CategoryBadge';
-import { WeightBadge } from '../initial/WeightBadge';
 
 type ItemCardProps = {
   item: Item;
