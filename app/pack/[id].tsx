@@ -1,4 +1,4 @@
-import PackDetailScreen from '~/screens/PackDetailScreen';
+import { PackDetailScreen } from '~/screens/PackDetailScreen';
 
 export default function PackDetailScreenRoute() {
   return <PackDetailScreen />;

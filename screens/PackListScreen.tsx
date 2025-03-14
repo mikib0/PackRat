@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { searchValueAtom } from '~/atoms/packListAtoms';
-import PackCard from '~/components/initial/PackCard';
+import { PackCard } from '~/components/initial/PackCard';
 import { usePacks } from '../hooks/usePacks';
 import type { Pack, PackCategory } from '../types';
 
@@ -34,7 +34,7 @@ const filterOptions: FilterOption[] = [
   { label: 'Custom', value: 'custom' },
 ];
 
-export default function PackListScreen() {
+export function PackListScreen() {
   const router = useRouter();
   const { data: packs, isLoading, isError, refetch } = usePacks();
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);

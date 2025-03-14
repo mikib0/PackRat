@@ -1,11 +1,11 @@
 import { FlatList, SafeAreaView, Text, View } from 'react-native';
-import PackCard from '~/components/initial/PackCard';
-import UserAvatar from '~/components/initial/UserAvatar';
+import { PackCard } from '~/components/initial/PackCard';
+import { UserAvatar } from '~/components/initial/UserAvatar';
 import { usePacks } from '~/hooks/usePacks';
 import type { Pack } from '~/types';
 import { currentUser } from '../data/mockData';
 
-export default function HomeScreen() {
+export function HomeScreen() {
   const { data: packs, isLoading } = usePacks();
 
   const handlePackPress = (pack: Pack) => {

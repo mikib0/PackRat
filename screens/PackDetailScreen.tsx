@@ -11,16 +11,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import CategoryBadge from '~/components/initial/CategoryBadge';
+import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { Chip } from '~/components/initial/Chip';
-import PackItemCard from '~/components/initial/PackItemCard';
-import WeightBadge from '~/components/initial/WeightBadge';
+import { PackItemCard } from '~/components/initial/PackItemCard';
+import { WeightBadge } from '~/components/initial/WeightBadge';
 import { Button } from '~/components/nativewindui/Button';
 import { usePackDetails } from '~/hooks/usePacks';
 import { cn } from '~/lib/cn';
 import type { PackItem } from '~/types';
 
-export default function PackDetailScreen() {
+export function PackDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
 

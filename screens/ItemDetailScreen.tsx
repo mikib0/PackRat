@@ -1,10 +1,10 @@
 import { useLocalSearchParams } from 'expo-router';
 import { Image, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Chip } from '~/components/initial/Chip';
-import WeightBadge from '~/components/initial/WeightBadge';
+import { WeightBadge } from '~/components/initial/WeightBadge';
 import { mockPackItems } from '../data/mockData';
 
-export default function ItemDetailScreen() {
+export function ItemDetailScreen() {
   const { id: itemId } = useLocalSearchParams();
 
   const item = mockPackItems.find((i) => i.id === itemId);

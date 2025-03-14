@@ -56,7 +56,7 @@ const CATEGORIES = [
   { value: 'skiing', label: 'Skiing' },
 ];
 
-const CreatePackForm = () => {
+export const CreatePackForm = () => {
   const router = useRouter();
   const { colors } = useColorScheme();
   const { mutateAsync: createPack, isPending } = useCreatePack();
@@ -225,5 +225,3 @@ const CreatePackForm = () => {
     </KeyboardAvoidingView>
   );
 };
-
-export default CreatePackForm;

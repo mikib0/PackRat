@@ -106,7 +106,7 @@ const COMPONENTS: ComponentItem[] = [
             <Text>
               <Text>Main Screens</Text>
             </Text>
-            <Button onPress={() => router.push('/dashboard')}>
+            <Button onPress={() => router.push('/')}>
               <Text>Dashboard</Text>
             </Button>
             <Button onPress={() => router.push('/packs')}>

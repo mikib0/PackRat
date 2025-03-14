@@ -9,7 +9,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 
 const ROOT_STYLE: ViewStyle = { flex: 1 };
 
-export default function WelcomeConsentScreen() {
+export function WelcomeConsentScreen() {
   const { colors } = useColorScheme();
   return (
     <SafeAreaView style={ROOT_STYLE}>
@@ -20,7 +20,7 @@ export default function WelcomeConsentScreen() {
           </Text>
           <Text
             variant="largeTitle"
-            className="ios:text-left ios:font-black text-primary text-center font-bold">
+            className="ios:text-left ios:font-black text-center font-bold text-primary">
             Application
           </Text>
         </View>

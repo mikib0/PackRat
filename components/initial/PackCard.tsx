@@ -1,15 +1,15 @@
 import { isArray } from 'radash';
 import { Image, Pressable, Text, View } from 'react-native';
 import type { Pack } from '~/types';
-import CategoryBadge from './CategoryBadge';
-import WeightBadge from './WeightBadge';
+import { CategoryBadge } from './CategoryBadge';
+import { WeightBadge } from './WeightBadge';
 
 type PackCardProps = {
   pack: Pack;
   onPress: (pack: Pack) => void;
 };
 
-export default function PackCard({ pack, onPress }: PackCardProps) {
+export function PackCard({ pack, onPress }: PackCardProps) {
   // Safely check if weights exist and are greater than 0
   const hasBaseWeight = typeof pack.baseWeight === 'number' && pack.baseWeight > 0;
   const hasTotalWeight = typeof pack.totalWeight === 'number' && pack.totalWeight > 0;

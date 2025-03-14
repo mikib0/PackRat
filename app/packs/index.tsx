@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { searchValueAtom } from '~/atoms/packListAtoms';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
-import PackListScreen from '../../screens/PackListScreen';
+import { PackListScreen } from '~/screens/PackListScreen';
 
 export default function PacksScreen() {
   const { colors, colorScheme } = useColorScheme();

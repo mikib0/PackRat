@@ -48,7 +48,13 @@ type ItemFormValues = z.infer<typeof itemFormSchema>;
 // Weight units
 const WEIGHT_UNITS: WeightUnit[] = ['g', 'oz', 'kg', 'lb'];
 
-const CreatePackItemForm = ({ packId, existingItem }: { packId: string; existingItem?: any }) => {
+export const CreatePackItemForm = ({
+  packId,
+  existingItem,
+}: {
+  packId: string;
+  existingItem?: any;
+}) => {
   const router = useRouter();
   const { colors } = useColorScheme();
   const { mutateAsync: createItem, isPending } = useCreateItem();
@@ -344,5 +350,3 @@ const CreatePackItemForm = ({ packId, existingItem }: { packId: string; existing
     </KeyboardAvoidingView>
   );
 };
-
-export default CreatePackItemForm;
