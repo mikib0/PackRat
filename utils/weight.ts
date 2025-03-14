@@ -1,4 +1,4 @@
-import type { Item, WeightUnit } from '~/types';
+import type { PackItem, WeightUnit } from '~/types';
 
 // Convert weight between units
 export const convertWeight = (weight: number, from: WeightUnit, to: WeightUnit): number => {
@@ -25,7 +25,7 @@ export const formatWeight = (weight: number, unit: WeightUnit): string => {
 };
 
 // Calculate base weight (non-consumable, non-worn items)
-export const calculateBaseWeight = (items: Item[], unit: WeightUnit = 'g'): number => {
+export const calculateBaseWeight = (items: PackItem[], unit: WeightUnit = 'g'): number => {
   return items
     .filter((item) => !item.consumable && !item.worn)
     .reduce((total, item) => {
@@ -35,7 +35,7 @@ export const calculateBaseWeight = (items: Item[], unit: WeightUnit = 'g'): numb
 };
 
 // Calculate total weight
-export const calculateTotalWeight = (items: Item[], unit: WeightUnit = 'g'): number => {
+export const calculateTotalWeight = (items: PackItem[], unit: WeightUnit = 'g'): number => {
   return items.reduce((total, item) => {
     const weightInTargetUnit = convertWeight(item.weight * item.quantity, item.weightUnit, unit);
     return total + weightInTargetUnit;

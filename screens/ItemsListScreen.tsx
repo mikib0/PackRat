@@ -15,9 +15,10 @@ import {
 } from 'react-native';
 import { searchValueAtom } from '~/atoms/itemListAtoms';
 import { ItemCard } from '~/components/initial/ItemCard';
+import { useCatalogItems } from '~/hooks/useItems';
+import { useAllPackItems } from '~/hooks/usePackItems';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
-import { useItems } from '../hooks/useItems';
-import type { Item, ItemCategory } from '../types';
+import type { CatalogItem, ItemCategory, PackItem } from '~/types';
 
 type FilterOption = {
   label: string;
@@ -43,7 +44,28 @@ const filterOptions: FilterOption[] = [
 
 export function ItemListScreen() {
   const router = useRouter();
-  const { data: items, isLoading, isError, refetch } = useItems();
+
+  const {
+    data: catalogItems,
+    isLoading: isCatalogItemsLoading,
+    isError: isCatalogItemsError,
+    refetch: refetchCatalogItems,
+  } = useCatalogItems();
+  const {
+    data: packItems,
+    isLoading: isPackItemsLoading,
+    isError: isPackItemsError,
+    refetch: refetchPackItems,
+  } = useAllPackItems();
+
+  const combinedItems = [...(catalogItems || []), ...(packItems || [])];
+  const isError = isCatalogItemsError || isPackItemsError;
+  const isLoading = isCatalogItemsLoading || isPackItemsLoading;
+  const refetch = () => {
+    refetchCatalogItems();
+    refetchPackItems();
+  };
+
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
   const [activeFilter, setActiveFilter] = useState<
     ItemCategory | 'all' | 'pack-items' | 'plain-items'
@@ -54,7 +76,7 @@ export function ItemListScreen() {
     onChangeText: (text) => setSearchValue(String(text)),
   });
 
-  const handleItemPress = (item: Item) => {
+  const handleItemPress = (item: PackItem | CatalogItem) => {
     // Navigate to item detail screen
     router.push({ pathname: '/item/[id]', params: { id: item.id } });
   };
@@ -64,7 +86,7 @@ export function ItemListScreen() {
     router.push({ pathname: '/item/new' });
   };
 
-  const filteredItems = items?.filter((item) => {
+  const filteredItems = combinedItems?.filter((item) => {
     // Filter by search value
     if (searchValue && !item.name.toLowerCase().includes(searchValue.toLowerCase())) {
       return false;
@@ -74,9 +96,9 @@ export function ItemListScreen() {
     if (activeFilter === 'all') {
       return true;
     } else if (activeFilter === 'pack-items') {
-      return item.packId !== undefined;
+      return 'packId' in item && item.packId !== undefined;
     } else if (activeFilter === 'plain-items') {
-      return item.packId === undefined;
+      return !('packId' in item) || item.packId === undefined;
     } else {
       return item.category === activeFilter;
     }

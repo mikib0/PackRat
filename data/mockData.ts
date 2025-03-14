@@ -1,4 +1,4 @@
-import type { Item, Pack, User } from '../types';
+import { CatalogItem, Pack, PackItem, User } from '~/types';
 
 // --- Users ---
 export const mockUsers: User[] = [
@@ -94,30 +94,97 @@ export const mockUsers: User[] = [
   },
 ];
 
-// --- Items ---
-export const mockItems: Item[] = [
+// --- Catalog Items ---
+export const mockCatalogItems: CatalogItem[] = [
   {
-    id: '1',
-    name: 'Tent',
-    description: 'A tent for camping',
-    weight: 1000,
+    id: 'c1',
+    name: 'UltraLite Shelter',
+    description: 'Compact ultralight shelter for 2-person use.',
+    defaultWeight: 1200,
     weightUnit: 'g',
-    quantity: 1,
     category: 'shelter',
-    consumable: false,
-    worn: false,
     image: 'https://placehold.co/400x300/png',
-    notes: 'A tent for camping',
-    packId: '1',
-    createdAt: '2023-02-01T00:00:00.000Z',
-    updatedAt: '2023-02-01T00:00:00.000Z',
-    userId: '1',
+    createdAt: '2023-01-01T00:00:00.000Z',
+    updatedAt: '2023-01-01T00:00:00.000Z',
+    usageCount: 3,
+  },
+  {
+    id: 'c2',
+    name: 'Arctic Down Sleeping Bag',
+    description: 'High-performance sleeping bag rated for cold nights.',
+    defaultWeight: 800,
+    weightUnit: 'g',
+    category: 'sleep',
+    image: 'https://placehold.co/400x300/png',
+    createdAt: '2023-01-01T00:00:00.000Z',
+    updatedAt: '2023-01-01T00:00:00.000Z',
+    usageCount: 2,
+  },
+  {
+    id: 'c3',
+    name: 'Summit Pro Pack',
+    description: 'Ergonomic backpack with excellent support.',
+    defaultWeight: 900,
+    weightUnit: 'g',
+    category: 'miscellaneous',
+    image: 'https://placehold.co/400x300/png',
+    createdAt: '2023-01-15T00:00:00.000Z',
+    updatedAt: '2023-01-15T00:00:00.000Z',
+    usageCount: 1,
+  },
+  {
+    id: 'c4',
+    name: 'Jetboil Flash Stove',
+    description: 'Rapid boiling stove for quick meals.',
+    defaultWeight: 300,
+    weightUnit: 'g',
+    category: 'kitchen',
+    image: 'https://placehold.co/400x300/png',
+    createdAt: '2023-01-20T00:00:00.000Z',
+    updatedAt: '2023-01-20T00:00:00.000Z',
+    usageCount: 1,
+  },
+  {
+    id: 'c5',
+    name: 'BrightBeam Headlamp',
+    description: 'LED headlamp with adjustable brightness.',
+    defaultWeight: 70,
+    weightUnit: 'g',
+    category: 'electronics',
+    image: 'https://placehold.co/400x300/png',
+    createdAt: '2023-01-25T00:00:00.000Z',
+    updatedAt: '2023-01-25T00:00:00.000Z',
+    usageCount: 1,
+  },
+  {
+    id: 'c6',
+    name: 'TechSmart Jacket',
+    description: 'Innovative jacket with smart features for urban explorers.',
+    defaultWeight: 500,
+    weightUnit: 'g',
+    category: 'clothing',
+    image: 'https://placehold.co/400x300/png',
+    createdAt: '2023-02-10T00:00:00.000Z',
+    updatedAt: '2023-02-10T00:00:00.000Z',
+    usageCount: 1,
+  },
+  {
+    id: 'c7',
+    name: 'City Commuter Backpack',
+    description: 'Compact and stylish backpack for city adventures.',
+    defaultWeight: 800,
+    weightUnit: 'g',
+    category: 'miscellaneous',
+    image: 'https://placehold.co/400x300/png',
+    createdAt: '2023-02-12T00:00:00.000Z',
+    updatedAt: '2023-02-12T00:00:00.000Z',
+    usageCount: 1,
   },
 ];
 
 // --- Pack Items ---
-export const mockPackItems: Item[] = [
-  // Pack 1: Trailblazer Expedition
+export const mockPackItems: PackItem[] = [
+  // Pack 1: Trailblazer Expedition (User 1)
   {
     id: '101',
     name: 'UltraLite Shelter',
@@ -131,6 +198,7 @@ export const mockPackItems: Item[] = [
     image: 'https://placehold.co/400x300/png',
     notes: 'Designed for minimalists.',
     packId: '1',
+    catalogItemId: 'c1',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
     userId: '1',
@@ -148,6 +216,7 @@ export const mockPackItems: Item[] = [
     image: 'https://placehold.co/400x300/png',
     notes: 'Insulated with premium down.',
     packId: '1',
+    catalogItemId: 'c2',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
     userId: '1',
@@ -165,6 +234,7 @@ export const mockPackItems: Item[] = [
     image: 'https://placehold.co/400x300/png',
     notes: 'Features adjustable straps and compartments.',
     packId: '1',
+    catalogItemId: 'c3',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
     userId: '1',
@@ -216,6 +286,7 @@ export const mockPackItems: Item[] = [
     image: 'https://placehold.co/400x300/png',
     notes: 'Efficient fuel usage.',
     packId: '1',
+    catalogItemId: 'c4',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
     userId: '1',
@@ -233,6 +304,7 @@ export const mockPackItems: Item[] = [
     image: 'https://placehold.co/400x300/png',
     notes: 'Long battery life.',
     packId: '1',
+    catalogItemId: 'c5',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
     userId: '1',
@@ -254,8 +326,7 @@ export const mockPackItems: Item[] = [
     updatedAt: '2023-02-01T00:00:00.000Z',
     userId: '1',
   },
-
-  // Pack 2: Weekend Getaway
+  // Pack 2: Weekend Getaway (User 2)
   {
     id: '201',
     name: 'REI Quarter Dome Tent',
@@ -375,8 +446,7 @@ export const mockPackItems: Item[] = [
     updatedAt: '2023-03-10T00:00:00.000Z',
     userId: '2',
   },
-
-  // Pack 3: Family Camping Trip
+  // Pack 3: Family Camping Trip (User 3)
   {
     id: '301',
     name: 'Family Dome Tent',
@@ -462,8 +532,7 @@ export const mockPackItems: Item[] = [
     updatedAt: '2023-04-20T00:00:00.000Z',
     userId: '3',
   },
-
-  // Pack 4: Mountain Climbing
+  // Pack 4: Mountain Climbing (User 4)
   {
     id: '401',
     name: 'Dynamic Climb Rope',
@@ -566,8 +635,7 @@ export const mockPackItems: Item[] = [
     updatedAt: '2023-05-05T00:00:00.000Z',
     userId: '4',
   },
-
-  // Pack 5: Water Adventures
+  // Pack 5: Water Adventures (User 5)
   {
     id: '501',
     name: 'SafeFloat Life Jacket',
@@ -636,8 +704,7 @@ export const mockPackItems: Item[] = [
     updatedAt: '2023-06-01T00:00:00.000Z',
     userId: '5',
   },
-
-  // Pack 6: Backcountry Skiing
+  // Pack 6: Backcountry Skiing (User 6)
   {
     id: '601',
     name: 'ClearView Ski Goggles',
@@ -688,6 +755,43 @@ export const mockPackItems: Item[] = [
     createdAt: '2023-06-15T00:00:00.000Z',
     updatedAt: '2023-06-15T00:00:00.000Z',
     userId: '6',
+  },
+  // Pack 7: Urban Explorer (User 10) - New Additional Pack
+  {
+    id: '701',
+    name: 'TechSmart Jacket',
+    description: 'Innovative jacket with smart features for urban explorers.',
+    weight: 500,
+    weightUnit: 'g',
+    quantity: 1,
+    category: 'Clothing',
+    consumable: false,
+    worn: false,
+    image: 'https://placehold.co/400x300/png',
+    notes: 'Lightweight and weather-resistant.',
+    packId: '7',
+    catalogItemId: 'c6',
+    createdAt: '2023-07-01T00:00:00.000Z',
+    updatedAt: '2023-07-01T00:00:00.000Z',
+    userId: '10',
+  },
+  {
+    id: '702',
+    name: 'City Commuter Backpack',
+    description: 'Compact and stylish backpack for city adventures.',
+    weight: 800,
+    weightUnit: 'g',
+    quantity: 1,
+    category: 'Accessories',
+    consumable: false,
+    worn: false,
+    image: 'https://placehold.co/400x300/png',
+    notes: 'Spacious with multiple compartments.',
+    packId: '7',
+    catalogItemId: 'c7',
+    createdAt: '2023-07-01T00:00:00.000Z',
+    updatedAt: '2023-07-01T00:00:00.000Z',
+    userId: '10',
   },
 ];
 
@@ -770,6 +874,19 @@ export const mockPacks: Omit<Pack, 'baseWeight' | 'totalWeight'>[] = [
     isPublic: false,
     image: 'https://placehold.co/400x300/png',
     tags: ['skiing', 'backcountry', 'winter'],
+  },
+  {
+    id: '7',
+    name: 'Urban Explorer',
+    description: 'Gear for navigating the urban jungle.',
+    category: 'custom',
+    items: mockPackItems.filter((item) => item.packId === '7'),
+    userId: '10',
+    createdAt: '2023-07-01T00:00:00.000Z',
+    updatedAt: '2023-07-01T00:00:00.000Z',
+    isPublic: true,
+    image: 'https://placehold.co/400x300/png',
+    tags: ['urban', 'tech', 'style'],
   },
 ];
 

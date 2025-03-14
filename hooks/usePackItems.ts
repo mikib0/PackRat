@@ -2,26 +2,31 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { packListAtom } from '~/atoms/packListAtoms';
 import { store } from '~/atoms/store';
 import { computePackWeights } from '~/lib/utils/compute-pack';
-import type { Item, Pack, WeightUnit } from '~/types';
+import type { Pack, PackItem, WeightUnit } from '~/types';
 
 // Helper function to get items for a specific pack
-const getPackItems = (packId: string): Item[] => {
+const getPackItems = (packId: string): PackItem[] => {
   const packs = store.get(packListAtom);
   const pack = packs.find((p) => p.id === packId);
   return pack?.items || [];
 };
 
 // In a real app, these would be API calls
-const fetchPackItems = async (packId: string): Promise<Item[]> => {
+const fetchPackItems = async (packId: string): Promise<PackItem[]> => {
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 500));
   return getPackItems(packId);
 };
 
-const fetchItemById = async (id: string, packId: string): Promise<Item | undefined> => {
+const fetchItemById = async (id: string, packId: string): Promise<PackItem | undefined> => {
   await new Promise((resolve) => setTimeout(resolve, 300));
   const items = getPackItems(packId);
   return items.find((item) => item.id === id);
+};
+
+const fetchAllPackItems = async (): Promise<PackItem[]> => {
+  const packs = store.get(packListAtom);
+  return packs.flatMap((pack) => pack.items || []);
 };
 
 // Type for item creation/update
@@ -40,7 +45,7 @@ interface ItemInput {
   image: string | null;
 }
 
-const createOrUpdateItem = async (itemData: ItemInput): Promise<Item> => {
+const createOrUpdateItem = async (itemData: ItemInput): Promise<PackItem> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   const isUpdate = !!itemData.id;
@@ -59,7 +64,7 @@ const createOrUpdateItem = async (itemData: ItemInput): Promise<Item> => {
     throw new Error(`Pack with ID ${itemData.packId} has no items`);
   }
   let updatedPack: Pack;
-  let resultItem: Item;
+  let resultItem: PackItem;
 
   if (isUpdate) {
     // Update existing item
@@ -69,7 +74,7 @@ const createOrUpdateItem = async (itemData: ItemInput): Promise<Item> => {
       updatedAt: now,
       // Preserve createdAt from the original item
       createdAt: pack.items.find((i) => i.id === itemData.id)?.createdAt || now,
-    } as Item;
+    } as PackItem;
 
     updatedPack = {
       ...pack,
@@ -83,7 +88,7 @@ const createOrUpdateItem = async (itemData: ItemInput): Promise<Item> => {
       id: `item-${Date.now()}`,
       createdAt: now,
       updatedAt: now,
-    } as Item;
+    } as PackItem;
 
     updatedPack = {
       ...pack,
@@ -136,7 +141,7 @@ const deleteItem = async ({ id, packId }: { id: string; packId: string }): Promi
 };
 
 // Hook for fetching items for a pack
-export function useItems(packId: string) {
+export function usePackItems(packId: string) {
   return useQuery({
     queryKey: ['packItems', packId],
     queryFn: () => fetchPackItems(packId),
@@ -145,11 +150,19 @@ export function useItems(packId: string) {
 }
 
 // Hook for fetching a single item
-export function useItem(itemId: string | undefined, packId: string | undefined) {
+export function usePackItem(itemId: string | undefined, packId: string | undefined) {
   return useQuery({
     queryKey: ['packItem', itemId, packId],
     queryFn: () => fetchItemById(itemId as string, packId as string),
     enabled: !!itemId && !!packId,
+  });
+}
+
+// Hook for fetching all pack items
+export function useAllPackItems() {
+  return useQuery({
+    queryKey: ['packItems'],
+    queryFn: () => fetchAllPackItems(),
   });
 }
 

@@ -2,19 +2,32 @@ import { Icon, MaterialIconName } from '@roninoss/icons';
 import { Image, Pressable, Text, View } from 'react-native';
 import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { WeightBadge } from '~/components/initial/WeightBadge';
-import type { Item } from '~/types';
+import { cn } from '~/lib/cn';
+import {
+  calculateTotalWeight,
+  getQuantity,
+  isConsumable,
+  isPackItem,
+  isWorn,
+  shouldShowQuantity,
+} from '~/lib/utils/itemCalculations';
+import type { CatalogItem, PackItem } from '~/types';
 
 type ItemCardProps = {
-  item: Item;
-  onPress: (item: Item) => void;
+  item: CatalogItem | PackItem;
+  onPress: (item: CatalogItem | PackItem) => void;
 };
 
 export function ItemCard({ item, onPress }: ItemCardProps) {
-  // Calculate total weight (weight × quantity)
-  const totalWeight = item.weight * item.quantity;
+  // Get weight unit
+  const weightUnit = item.weightUnit;
 
-  // Check if item belongs to a pack
-  const isPackItem = !!item.packId;
+  // Use the utility functions
+  const totalWeight = calculateTotalWeight(item);
+  const quantity = getQuantity(item);
+  const isItemConsumable = isConsumable(item);
+  const showQuantity = shouldShowQuantity(item);
+  const isItemWorn = isWorn(item);
 
   return (
     <Pressable
@@ -34,23 +47,27 @@ export function ItemCard({ item, onPress }: ItemCardProps) {
         )}
 
         <View className="flex-1 p-4">
-          <View className="mb-1 flex-row items-center justify-between">
+          <View className="mb-1 flex-row flex-wrap items-center justify-between">
             <Text className="text-base font-semibold text-foreground">{item.name}</Text>
-            {isPackItem && (
-              <View className="bg-primary/20 rounded-full px-2 py-0.5">
-                <Text className="text-xs text-primary">Pack Item</Text>
-              </View>
-            )}
+            <View
+              className={cn(
+                'rounded-full px-2 py-0.5',
+                isPackItem(item) ? 'bg-primary/20' : 'bg-secondary/20'
+              )}>
+              <Text className="text-xs text-primary">
+                {isPackItem(item) ? 'Pack Item' : 'Catalog Item'}
+              </Text>
+            </View>
           </View>
 
           <View className="mb-2 flex-row items-center">
             <CategoryBadge category={item.category} />
-            {item.consumable && (
+            {isItemConsumable && (
               <View className="ml-2 rounded-full bg-amber-100 px-2 py-0.5">
                 <Text className="text-xs text-amber-800">Consumable</Text>
               </View>
             )}
-            {item.worn && (
+            {isItemWorn && (
               <View className="ml-2 rounded-full bg-blue-100 px-2 py-0.5">
                 <Text className="text-xs text-blue-800">Worn</Text>
               </View>
@@ -58,8 +75,8 @@ export function ItemCard({ item, onPress }: ItemCardProps) {
           </View>
 
           <View className="flex-row items-center justify-between">
-            <WeightBadge weight={totalWeight} unit={item.weightUnit} type="total" />
-            <Text className="text-xs text-foreground">Qty: {item.quantity}</Text>
+            <WeightBadge weight={totalWeight} unit={weightUnit} type="total" />
+            {showQuantity && <Text className="text-xs text-foreground">Qty: {quantity}</Text>}
           </View>
         </View>
       </View>

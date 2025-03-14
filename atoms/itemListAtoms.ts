@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
-import { mockItems } from '~/data/mockData';
-import type { Item } from '~/types';
+import { mockCatalogItems } from '~/data/mockData';
+import type { CatalogItem } from '~/types';
 
-export const itemListAtom = atom<Item[]>([...mockItems]);
+export const catalogItemListAtom = atom<CatalogItem[]>([...mockCatalogItems]);
 export const searchValueAtom = atom('');

@@ -1,15 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import { itemListAtom } from '~/atoms/itemListAtoms';
+import { catalogItemListAtom } from '~/atoms/itemListAtoms';
 import { store } from '~/atoms/store';
 
 const fetchItems = async () => {
-  const items = store.get(itemListAtom);
+  const items = store.get(catalogItemListAtom);
   return items;
 };
 
-export function useItems() {
+export function useCatalogItems() {
   return useQuery({
-    queryKey: ['items'],
+    queryKey: ['catalogItems'],
     queryFn: fetchItems,
   });
 }

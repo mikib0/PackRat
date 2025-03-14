@@ -1,7 +1,8 @@
 'use client';
 import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { Button } from '~/components/nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
 
 type NotFoundScreenProps = {
@@ -30,7 +31,7 @@ export function NotFoundScreen({
 
   return (
     <View className="flex-1 items-center justify-center px-6">
-      <View className="items-center">
+      <View className="items-center gap-4">
         <View className="mb-6 h-20 w-20 items-center justify-center rounded-full">
           <Icon name="exclamation" size={40} color={colors.foreground} />
         </View>
@@ -39,12 +40,13 @@ export function NotFoundScreen({
 
         <Text className="mb-8 max-w-xs text-center">{message}</Text>
 
-        <TouchableOpacity
+        <Button
           onPress={handleBackPress}
-          className="flex-row items-center rounded-full px-5 py-3">
+          variant="primary"
+          className="h-12 flex-row items-center gap-2">
           <Icon name="chevron-left" size={18} color={colors.foreground} />
           <Text className="font-medium">{backButtonLabel}</Text>
-        </TouchableOpacity>
+        </Button>
       </View>
     </View>
   );

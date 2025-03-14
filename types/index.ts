@@ -50,26 +50,44 @@ export const WeightUnitSchema = z.enum(['g', 'oz', 'kg', 'lb']);
 
 export type WeightUnit = z.infer<typeof WeightUnitSchema>;
 
-// --- Item Schema ---
-export const ItemSchema = z.object({
+// --- Catalog Item Schema ---
+export const CatalogItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  defaultWeight: z.number().nonnegative(),
+  weightUnit: WeightUnitSchema,
+  category: z.string(),
+  image: z.string().url().optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  // Optional computed field for UI display
+  usageCount: z.number().int().nonnegative().optional(),
+});
+
+export type CatalogItem = z.infer<typeof CatalogItemSchema>;
+
+// --- Pack Item Schema ---
+export const PackItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
   weight: z.number().nonnegative(),
   weightUnit: WeightUnitSchema,
   quantity: z.number().int().positive(),
-  category: z.string(), // Using string instead of ItemCategory to allow for more flexibility
+  category: z.string(),
   consumable: z.boolean(),
   worn: z.boolean(),
   image: z.string().url().optional(),
   notes: z.string().optional(),
-  packId: z.string().optional(), // Optional - if present, it's a pack item
+  packId: z.string(),
+  catalogItemId: z.string().optional(), // Reference to original catalog item
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   userId: z.string(),
 });
 
-export type Item = z.infer<typeof ItemSchema>;
+export type PackItem = z.infer<typeof PackItemSchema>;
 
 // --- Pack Schema ---
 export const PackSchema = z.object({
@@ -79,7 +97,7 @@ export const PackSchema = z.object({
   category: PackCategorySchema,
   baseWeight: z.number().nonnegative().optional(), // Weight without consumables (computed)
   totalWeight: z.number().nonnegative().optional(), // Total weight including consumables (computed)
-  items: z.array(ItemSchema).optional(),
+  items: z.array(PackItemSchema).optional(),
   userId: z.string(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -93,4 +111,5 @@ export type Pack = z.infer<typeof PackSchema>;
 // --- Arrays for Mock Data Validation ---
 export const UsersArraySchema = z.array(UserSchema);
 export const PacksArraySchema = z.array(PackSchema);
-export const ItemsArraySchema = z.array(ItemSchema);
+export const CatalogItemsArraySchema = z.array(CatalogItemSchema);
+export const PackItemsArraySchema = z.array(PackItemSchema);

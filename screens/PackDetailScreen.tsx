@@ -19,7 +19,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { usePackDetails } from '~/hooks/usePacks';
 import { cn } from '~/lib/cn';
 import { NotFoundScreen } from '~/screens/NotFoundScreen';
-import type { Item } from '~/types';
+import type { PackItem } from '~/types';
 import { ErrorScreen } from './ErrorScreen';
 import { LoadingSpinnerScreen } from './LoadingSpinnerScreen';
 
@@ -31,7 +31,7 @@ export function PackDetailScreen() {
 
   const { data: pack, isLoading, isError, refetch } = usePackDetails(id as string);
 
-  const handleItemPress = (item: Item) => {
+  const handleItemPress = (item: PackItem) => {
     if (!item.id) return;
     router.push(`/item/${item.id}`);
   };
