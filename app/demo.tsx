@@ -135,10 +135,10 @@ const COMPONENTS: ComponentItem[] = [
             <Button onPress={() => router.push('/auth')}>
               <Text>Login</Text>
             </Button>
-            <Button onPress={() => router.push('/messages/conversations')}>
+            <Button onPress={() => router.push('/messages-ios/conversations')}>
               <Text>Messages (Conversations)</Text>
             </Button>
-            <Button onPress={() => router.push('/messages/chat')}>
+            <Button onPress={() => router.push('/messages-ios/chat-ios')}>
               <Text>Messages (Chat)</Text>
             </Button>
           </View>
