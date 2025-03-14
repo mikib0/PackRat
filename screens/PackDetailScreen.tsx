@@ -15,12 +15,13 @@ import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { Chip } from '~/components/initial/Chip';
 import { PackItemCard } from '~/components/initial/PackItemCard';
 import { WeightBadge } from '~/components/initial/WeightBadge';
-import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { Button } from '~/components/nativewindui/Button';
 import { usePackDetails } from '~/hooks/usePacks';
 import { cn } from '~/lib/cn';
 import { NotFoundScreen } from '~/screens/NotFoundScreen';
 import type { Item } from '~/types';
+import { ErrorScreen } from './ErrorScreen';
+import { LoadingSpinnerScreen } from './LoadingSpinnerScreen';
 
 export function PackDetailScreen() {
   const router = useRouter();
@@ -30,36 +31,13 @@ export function PackDetailScreen() {
 
   const { data: pack, isLoading, isError, refetch } = usePackDetails(id as string);
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator />
-      </View>
-    );
-  }
-
-  if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Error loading pack</Text>
-      </View>
-    );
-  }
-
-  if (!pack) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <NotFoundScreen title="Pack not found" message="Please try again later." />
-      </SafeAreaView>
-    );
-  }
-
   const handleItemPress = (item: Item) => {
+    if (!item.id) return;
     router.push(`/item/${item.id}`);
   };
 
   const filteredItems = () => {
-    if (!pack.items) return [];
+    if (!pack?.items) return [];
 
     switch (activeTab) {
       case 'worn':
@@ -78,6 +56,29 @@ export function PackDetailScreen() {
       activeTab === tab ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground'
     );
   };
+
+  if (isLoading) {
+    return <LoadingSpinnerScreen />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorScreen
+        title="Error loading pack"
+        message="Please try again later."
+        onRetry={refetch}
+        variant="destructive"
+      />
+    );
+  }
+
+  if (!pack) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <NotFoundScreen title="Pack not found" message="Please try again later." />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
