@@ -15,23 +15,41 @@ import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { Chip } from '~/components/initial/Chip';
 import { PackItemCard } from '~/components/initial/PackItemCard';
 import { WeightBadge } from '~/components/initial/WeightBadge';
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { Button } from '~/components/nativewindui/Button';
 import { usePackDetails } from '~/hooks/usePacks';
 import { cn } from '~/lib/cn';
+import { NotFoundScreen } from '~/screens/NotFoundScreen';
 import type { Item } from '~/types';
 
 export function PackDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
 
-  const { data: pack } = usePackDetails(id as string);
-
   const [activeTab, setActiveTab] = useState('all');
+
+  const { data: pack, isLoading, isError, refetch } = usePackDetails(id as string);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>Error loading pack</Text>
+      </View>
+    );
+  }
 
   if (!pack) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center">
-        <Text>Pack not found</Text>
+        <NotFoundScreen title="Pack not found" message="Please try again later." />
       </SafeAreaView>
     );
   }
