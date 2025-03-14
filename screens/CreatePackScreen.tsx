@@ -1,10 +1,10 @@
 import { ScrollView } from 'react-native';
-import { CreatePackForm } from '~/components/initial/CreatePackForm';
+import { PackForm } from '~/components/initial/PackForm';
 
 export function CreatePackScreen() {
   return (
     <ScrollView className="w-full bg-background">
-      <CreatePackForm />
+      <PackForm />
     </ScrollView>
   );
 }

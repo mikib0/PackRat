@@ -1,7 +1,7 @@
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { Icon } from '@roninoss/icons';
 import 'expo-dev-client';
-import { Link, Stack, useRouter } from 'expo-router';
+import { Link, Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, View } from 'react-native';
 import '../global.css';
@@ -36,7 +36,8 @@ export default function RootLayout() {
             <Stack.Screen name="modal" options={MODAL_OPTIONS} />
             <Stack.Screen name="consent-modal" options={CONSENT_MODAL_OPTIONS} />
             <Stack.Screen name="packs/index" options={PACK_LIST_OPTIONS} />
-            <Stack.Screen name="pack/[id]" options={PACK_DETAIL_OPTIONS} />
+            <Stack.Screen name="pack/[id]/index" options={PACK_DETAIL_OPTIONS} />
+            <Stack.Screen name="pack/[id]/edit" options={PACK_EDIT_OPTIONS} />
             <Stack.Screen name="pack/new" options={PACK_NEW_OPTIONS} />
             <Stack.Screen name="item/index" options={ITEM_LIST_OPTIONS} />
             <Stack.Screen name="item/[id]" options={ITEM_DETAIL_OPTIONS} />
@@ -88,14 +89,12 @@ const MODAL_OPTIONS = {
 const CONSENT_MODAL_OPTIONS = {
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
-  headerRight: () => <ThemeToggle />,
 } as const;
 
 const PACK_NEW_OPTIONS = {
   title: 'Create New Pack',
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
-  headerRight: () => <ThemeToggle />,
 } as const;
 
 const ITEM_NEW_OPTIONS = {
@@ -128,7 +127,6 @@ const PACK_LIST_OPTIONS = {
 const ITEM_LIST_OPTIONS = {
   title: 'My Items',
   headerLargeTitle: true,
-  headerRight: () => <ThemeToggle />,
 } as const;
 
 // DETAIL SCREENS
@@ -137,9 +135,10 @@ const PACK_DETAIL_OPTIONS = {
   headerRight: () => {
     const { colors } = useColorScheme();
     const router = useRouter();
+    const { id } = useLocalSearchParams();
     return (
       <View className="flex-row items-center gap-2">
-        <Pressable onPress={() => router.push('/pack/edit')}>
+        <Pressable onPress={() => router.push({ pathname: '/pack/[id]/edit', params: { id } })}>
           <Icon name="pencil-box-outline" color={colors.foreground} />
         </Pressable>
         <Pressable onPress={() => router.push('/item/new')}>
@@ -150,7 +149,10 @@ const PACK_DETAIL_OPTIONS = {
   },
 } as const;
 
+const PACK_EDIT_OPTIONS = {
+  title: 'Edit Pack',
+} as const;
+
 const ITEM_DETAIL_OPTIONS = {
   title: 'Item Details',
-  headerRight: () => <ThemeToggle />,
 } as const;

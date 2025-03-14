@@ -19,8 +19,8 @@ import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { TextField } from '~/components/nativewindui/TextField';
 import { useCreatePack } from '~/hooks/usePacks';
 import { useColorScheme } from '~/lib/useColorScheme';
+import type { Pack } from '~/types';
 import { Button } from '../nativewindui/Button';
-
 // Define Zod schema
 const packFormSchema = z.object({
   name: z.string().min(1, 'Pack name is required'),
@@ -56,18 +56,18 @@ const CATEGORIES = [
   { value: 'skiing', label: 'Skiing' },
 ];
 
-export const CreatePackForm = () => {
+export const PackForm = ({ pack }: { pack?: Pack }) => {
   const router = useRouter();
   const { colors } = useColorScheme();
   const { mutateAsync: createPack, isPending } = useCreatePack();
 
   const form = useForm({
     defaultValues: {
-      name: '',
-      description: '',
-      category: 'hiking',
-      isPublic: false,
-      tags: ['hiking'],
+      name: pack?.name || '',
+      description: pack?.description || '',
+      category: pack?.category || 'hiking',
+      isPublic: pack?.isPublic || false,
+      tags: pack?.tags || ['hiking'],
     },
     validators: {
       onChange: packFormSchema,
