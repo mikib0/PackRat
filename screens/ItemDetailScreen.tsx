@@ -2,18 +2,22 @@ import { useLocalSearchParams } from 'expo-router';
 import { Image, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Chip } from '~/components/initial/Chip';
 import { WeightBadge } from '~/components/initial/WeightBadge';
-import { mockPackItems } from '../data/mockData';
+import { useItems } from '~/hooks/useItems';
+import { NotFoundScreen } from './NotFoundScreen';
 
 export function ItemDetailScreen() {
   const { id: itemId } = useLocalSearchParams();
 
-  const item = mockPackItems.find((i) => i.id === itemId);
+  const { data: items } = useItems();
+  const item = items?.find((i) => i.id === itemId);
 
   if (!item) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <Text>Item not found</Text>
-      </SafeAreaView>
+      <NotFoundScreen
+        title="Item Not Found"
+        message="The item you're looking for doesn't exist or has been moved."
+        backButtonLabel="Go Back"
+      />
     );
   }
 

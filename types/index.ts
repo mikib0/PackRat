@@ -14,7 +14,6 @@ export const UserSchema = z.object({
 export type User = z.infer<typeof UserSchema>;
 
 // --- Pack Category Enum ---
-// Expanded to include missing categories ("water sports" and "skiing")
 export const PackCategorySchema = z.enum([
   'hiking',
   'backpacking',
@@ -29,31 +28,48 @@ export const PackCategorySchema = z.enum([
 
 export type PackCategory = z.infer<typeof PackCategorySchema>;
 
+// --- Item Category Enum ---
+export const ItemCategorySchema = z.enum([
+  'clothing',
+  'shelter',
+  'sleep',
+  'kitchen',
+  'water',
+  'electronics',
+  'first-aid',
+  'navigation',
+  'tools',
+  'consumables',
+  'miscellaneous',
+]);
+
+export type ItemCategory = z.infer<typeof ItemCategorySchema>;
+
 // --- Weight Unit Enum ---
 export const WeightUnitSchema = z.enum(['g', 'oz', 'kg', 'lb']);
 
 export type WeightUnit = z.infer<typeof WeightUnitSchema>;
 
-// --- Pack Item Schema ---
-// If needed, you can also create an enum for pack item categories.
-export const PackItemSchema = z.object({
+// --- Item Schema ---
+export const ItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
   weight: z.number().nonnegative(),
   weightUnit: WeightUnitSchema,
   quantity: z.number().int().positive(),
-  category: z.string(), // Consider defining an enum if this field becomes standardized.
+  category: z.string(), // Using string instead of ItemCategory to allow for more flexibility
   consumable: z.boolean(),
   worn: z.boolean(),
   image: z.string().url().optional(),
   notes: z.string().optional(),
-  packId: z.string(),
+  packId: z.string().optional(), // Optional - if present, it's a pack item
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  userId: z.string(),
 });
 
-export type PackItem = z.infer<typeof PackItemSchema>;
+export type Item = z.infer<typeof ItemSchema>;
 
 // --- Pack Schema ---
 export const PackSchema = z.object({
@@ -63,7 +79,7 @@ export const PackSchema = z.object({
   category: PackCategorySchema,
   baseWeight: z.number().nonnegative().optional(), // Weight without consumables (computed)
   totalWeight: z.number().nonnegative().optional(), // Total weight including consumables (computed)
-  items: z.array(PackItemSchema),
+  items: z.array(ItemSchema).optional(),
   userId: z.string(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -77,4 +93,4 @@ export type Pack = z.infer<typeof PackSchema>;
 // --- Arrays for Mock Data Validation ---
 export const UsersArraySchema = z.array(UserSchema);
 export const PacksArraySchema = z.array(PackSchema);
-export const PackItemsArraySchema = z.array(PackItemSchema);
+export const ItemsArraySchema = z.array(ItemSchema);

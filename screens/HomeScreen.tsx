@@ -1,11 +1,13 @@
+import { useAtomValue } from 'jotai';
 import { FlatList, SafeAreaView, Text, View } from 'react-native';
+import { authAtom } from '~/atoms/authAtoms';
 import { PackCard } from '~/components/initial/PackCard';
 import { UserAvatar } from '~/components/initial/UserAvatar';
 import { usePacks } from '~/hooks/usePacks';
 import type { Pack } from '~/types';
-import { currentUser } from '../data/mockData';
 
 export function HomeScreen() {
+  const user = useAtomValue(authAtom);
   const { data: packs, isLoading } = usePacks();
 
   const handlePackPress = (pack: Pack) => {
@@ -17,12 +19,16 @@ export function HomeScreen() {
     return <Text>Loading...</Text>;
   }
 
+  if (!user) {
+    return <Text>User not found</Text>;
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="border-b border-gray-200 bg-white px-4 py-3">
         <View className="flex-row items-center justify-between">
           <Text className="text-2xl font-bold text-gray-900">My Packs</Text>
-          <UserAvatar user={currentUser} size="sm" />
+          <UserAvatar user={user} size="sm" />
         </View>
       </View>
 

@@ -1,4 +1,4 @@
-import type { Pack, PackItem, User } from '../types';
+import type { Item, Pack, User } from '../types';
 
 // --- Users ---
 export const mockUsers: User[] = [
@@ -94,8 +94,29 @@ export const mockUsers: User[] = [
   },
 ];
 
+// --- Items ---
+export const mockItems: Item[] = [
+  {
+    id: '1',
+    name: 'Tent',
+    description: 'A tent for camping',
+    weight: 1000,
+    weightUnit: 'g',
+    quantity: 1,
+    category: 'shelter',
+    consumable: false,
+    worn: false,
+    image: 'https://placehold.co/400x300/png',
+    notes: 'A tent for camping',
+    packId: '1',
+    createdAt: '2023-02-01T00:00:00.000Z',
+    updatedAt: '2023-02-01T00:00:00.000Z',
+    userId: '1',
+  },
+];
+
 // --- Pack Items ---
-export const mockPackItems: PackItem[] = [
+export const mockPackItems: Item[] = [
   // Pack 1: Trailblazer Expedition
   {
     id: '101',
@@ -112,6 +133,7 @@ export const mockPackItems: PackItem[] = [
     packId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
+    userId: '1',
   },
   {
     id: '102',
@@ -128,6 +150,7 @@ export const mockPackItems: PackItem[] = [
     packId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
+    userId: '1',
   },
   {
     id: '103',
@@ -144,6 +167,7 @@ export const mockPackItems: PackItem[] = [
     packId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
+    userId: '1',
   },
   {
     id: '104',
@@ -160,6 +184,7 @@ export const mockPackItems: PackItem[] = [
     packId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
+    userId: '1',
   },
   {
     id: '105',
@@ -176,6 +201,7 @@ export const mockPackItems: PackItem[] = [
     packId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
+    userId: '1',
   },
   {
     id: '106',
@@ -192,6 +218,7 @@ export const mockPackItems: PackItem[] = [
     packId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
+    userId: '1',
   },
   {
     id: '107',
@@ -208,6 +235,7 @@ export const mockPackItems: PackItem[] = [
     packId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
+    userId: '1',
   },
   {
     id: '108',
@@ -224,6 +252,7 @@ export const mockPackItems: PackItem[] = [
     packId: '1',
     createdAt: '2023-02-01T00:00:00.000Z',
     updatedAt: '2023-02-01T00:00:00.000Z',
+    userId: '1',
   },
 
   // Pack 2: Weekend Getaway
@@ -242,6 +271,7 @@ export const mockPackItems: PackItem[] = [
     packId: '2',
     createdAt: '2023-03-10T00:00:00.000Z',
     updatedAt: '2023-03-10T00:00:00.000Z',
+    userId: '2',
   },
   {
     id: '202',
@@ -258,6 +288,7 @@ export const mockPackItems: PackItem[] = [
     packId: '2',
     createdAt: '2023-03-10T00:00:00.000Z',
     updatedAt: '2023-03-10T00:00:00.000Z',
+    userId: '2',
   },
   {
     id: '203',
@@ -274,6 +305,7 @@ export const mockPackItems: PackItem[] = [
     packId: '2',
     createdAt: '2023-03-10T00:00:00.000Z',
     updatedAt: '2023-03-10T00:00:00.000Z',
+    userId: '2',
   },
   {
     id: '204',
@@ -290,6 +322,7 @@ export const mockPackItems: PackItem[] = [
     packId: '2',
     createdAt: '2023-03-10T00:00:00.000Z',
     updatedAt: '2023-03-10T00:00:00.000Z',
+    userId: '2',
   },
   {
     id: '205',
@@ -306,6 +339,7 @@ export const mockPackItems: PackItem[] = [
     packId: '2',
     createdAt: '2023-03-10T00:00:00.000Z',
     updatedAt: '2023-03-10T00:00:00.000Z',
+    userId: '2',
   },
   {
     id: '206',
@@ -322,6 +356,7 @@ export const mockPackItems: PackItem[] = [
     packId: '2',
     createdAt: '2023-03-10T00:00:00.000Z',
     updatedAt: '2023-03-10T00:00:00.000Z',
+    userId: '2',
   },
   {
     id: '207',
@@ -338,6 +373,7 @@ export const mockPackItems: PackItem[] = [
     packId: '2',
     createdAt: '2023-03-10T00:00:00.000Z',
     updatedAt: '2023-03-10T00:00:00.000Z',
+    userId: '2',
   },
 
   // Pack 3: Family Camping Trip
@@ -356,6 +392,7 @@ export const mockPackItems: PackItem[] = [
     packId: '3',
     createdAt: '2023-04-20T00:00:00.000Z',
     updatedAt: '2023-04-20T00:00:00.000Z',
+    userId: '3',
   },
   {
     id: '302',
@@ -372,6 +409,7 @@ export const mockPackItems: PackItem[] = [
     packId: '3',
     createdAt: '2023-04-20T00:00:00.000Z',
     updatedAt: '2023-04-20T00:00:00.000Z',
+    userId: '3',
   },
   {
     id: '303',
@@ -388,6 +426,7 @@ export const mockPackItems: PackItem[] = [
     packId: '3',
     createdAt: '2023-04-20T00:00:00.000Z',
     updatedAt: '2023-04-20T00:00:00.000Z',
+    userId: '3',
   },
   {
     id: '304',
@@ -404,6 +443,7 @@ export const mockPackItems: PackItem[] = [
     packId: '3',
     createdAt: '2023-04-20T00:00:00.000Z',
     updatedAt: '2023-04-20T00:00:00.000Z',
+    userId: '3',
   },
   {
     id: '305',
@@ -420,6 +460,7 @@ export const mockPackItems: PackItem[] = [
     packId: '3',
     createdAt: '2023-04-20T00:00:00.000Z',
     updatedAt: '2023-04-20T00:00:00.000Z',
+    userId: '3',
   },
 
   // Pack 4: Mountain Climbing
@@ -438,6 +479,7 @@ export const mockPackItems: PackItem[] = [
     packId: '4',
     createdAt: '2023-05-05T00:00:00.000Z',
     updatedAt: '2023-05-05T00:00:00.000Z',
+    userId: '4',
   },
   {
     id: '402',
@@ -454,6 +496,7 @@ export const mockPackItems: PackItem[] = [
     packId: '4',
     createdAt: '2023-05-05T00:00:00.000Z',
     updatedAt: '2023-05-05T00:00:00.000Z',
+    userId: '4',
   },
   {
     id: '403',
@@ -470,6 +513,7 @@ export const mockPackItems: PackItem[] = [
     packId: '4',
     createdAt: '2023-05-05T00:00:00.000Z',
     updatedAt: '2023-05-05T00:00:00.000Z',
+    userId: '4',
   },
   {
     id: '404',
@@ -486,6 +530,7 @@ export const mockPackItems: PackItem[] = [
     packId: '4',
     createdAt: '2023-05-05T00:00:00.000Z',
     updatedAt: '2023-05-05T00:00:00.000Z',
+    userId: '4',
   },
   {
     id: '405',
@@ -502,6 +547,7 @@ export const mockPackItems: PackItem[] = [
     packId: '4',
     createdAt: '2023-05-05T00:00:00.000Z',
     updatedAt: '2023-05-05T00:00:00.000Z',
+    userId: '4',
   },
   {
     id: '406',
@@ -518,6 +564,7 @@ export const mockPackItems: PackItem[] = [
     packId: '4',
     createdAt: '2023-05-05T00:00:00.000Z',
     updatedAt: '2023-05-05T00:00:00.000Z',
+    userId: '4',
   },
 
   // Pack 5: Water Adventures
@@ -536,6 +583,7 @@ export const mockPackItems: PackItem[] = [
     packId: '5',
     createdAt: '2023-06-01T00:00:00.000Z',
     updatedAt: '2023-06-01T00:00:00.000Z',
+    userId: '5',
   },
   {
     id: '502',
@@ -552,6 +600,7 @@ export const mockPackItems: PackItem[] = [
     packId: '5',
     createdAt: '2023-06-01T00:00:00.000Z',
     updatedAt: '2023-06-01T00:00:00.000Z',
+    userId: '5',
   },
   {
     id: '503',
@@ -568,6 +617,7 @@ export const mockPackItems: PackItem[] = [
     packId: '5',
     createdAt: '2023-06-01T00:00:00.000Z',
     updatedAt: '2023-06-01T00:00:00.000Z',
+    userId: '5',
   },
   {
     id: '504',
@@ -584,6 +634,7 @@ export const mockPackItems: PackItem[] = [
     packId: '5',
     createdAt: '2023-06-01T00:00:00.000Z',
     updatedAt: '2023-06-01T00:00:00.000Z',
+    userId: '5',
   },
 
   // Pack 6: Backcountry Skiing
@@ -602,6 +653,7 @@ export const mockPackItems: PackItem[] = [
     packId: '6',
     createdAt: '2023-06-15T00:00:00.000Z',
     updatedAt: '2023-06-15T00:00:00.000Z',
+    userId: '6',
   },
   {
     id: '602',
@@ -618,6 +670,7 @@ export const mockPackItems: PackItem[] = [
     packId: '6',
     createdAt: '2023-06-15T00:00:00.000Z',
     updatedAt: '2023-06-15T00:00:00.000Z',
+    userId: '6',
   },
   {
     id: '603',
@@ -634,6 +687,7 @@ export const mockPackItems: PackItem[] = [
     packId: '6',
     createdAt: '2023-06-15T00:00:00.000Z',
     updatedAt: '2023-06-15T00:00:00.000Z',
+    userId: '6',
   },
 ];
 

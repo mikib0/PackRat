@@ -1,11 +1,11 @@
 import { Image, Pressable, Text, View } from 'react-native';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { cn } from '~/lib/cn';
-import type { PackItem } from '~/types';
+import type { Item } from '~/types';
 
 type PackItemCardProps = {
-  item: PackItem;
-  onPress: (item: PackItem) => void;
+  item: Item;
+  onPress: (item: Item) => void;
 };
 
 export function PackItemCard({ item, onPress }: PackItemCardProps) {

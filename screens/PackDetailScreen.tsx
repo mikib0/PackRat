@@ -18,7 +18,7 @@ import { WeightBadge } from '~/components/initial/WeightBadge';
 import { Button } from '~/components/nativewindui/Button';
 import { usePackDetails } from '~/hooks/usePacks';
 import { cn } from '~/lib/cn';
-import type { PackItem } from '~/types';
+import type { Item } from '~/types';
 
 export function PackDetailScreen() {
   const router = useRouter();
@@ -36,11 +36,13 @@ export function PackDetailScreen() {
     );
   }
 
-  const handleItemPress = (item: PackItem) => {
+  const handleItemPress = (item: Item) => {
     router.push(`/item/${item.id}`);
   };
 
   const filteredItems = () => {
+    if (!pack.items) return [];
+
     switch (activeTab) {
       case 'worn':
         return pack.items.filter((item) => item.worn);
@@ -90,7 +92,7 @@ export function PackDetailScreen() {
             <View>
               <Text className="mb-1 text-xs uppercase text-muted-foreground">ITEMS</Text>
               <Chip textClassName="text-center text-xs" variant="secondary">
-                {pack.items.length}
+                {pack.items?.length || 0}
               </Chip>
             </View>
           </View>

@@ -33,6 +33,10 @@ const convertFromGrams = (grams: number, unit: WeightUnit): number => {
 };
 
 export const computePackWeights = (pack: Pack, preferredUnit: WeightUnit = 'g'): Pack => {
+  if (!pack.items) {
+    throw new Error(`Pack with ID ${pack.id} has no items`);
+  }
+
   // Initialize weights
   let baseWeightGrams = 0;
   let totalWeightGrams = 0;

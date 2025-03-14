@@ -2,23 +2,23 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { packListAtom } from '~/atoms/packListAtoms';
 import { store } from '~/atoms/store';
 import { computePackWeights } from '~/lib/utils/compute-pack';
-import type { Pack, PackItem, WeightUnit } from '~/types';
+import type { Item, Pack, WeightUnit } from '~/types';
 
 // Helper function to get items for a specific pack
-const getPackItems = (packId: string): PackItem[] => {
+const getPackItems = (packId: string): Item[] => {
   const packs = store.get(packListAtom);
   const pack = packs.find((p) => p.id === packId);
   return pack?.items || [];
 };
 
 // In a real app, these would be API calls
-const fetchPackItems = async (packId: string): Promise<PackItem[]> => {
+const fetchPackItems = async (packId: string): Promise<Item[]> => {
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 500));
   return getPackItems(packId);
 };
 
-const fetchItemById = async (id: string, packId: string): Promise<PackItem | undefined> => {
+const fetchItemById = async (id: string, packId: string): Promise<Item | undefined> => {
   await new Promise((resolve) => setTimeout(resolve, 300));
   const items = getPackItems(packId);
   return items.find((item) => item.id === id);
@@ -40,7 +40,7 @@ interface ItemInput {
   image: string | null;
 }
 
-const createOrUpdateItem = async (itemData: ItemInput): Promise<PackItem> => {
+const createOrUpdateItem = async (itemData: ItemInput): Promise<Item> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   const isUpdate = !!itemData.id;
@@ -55,8 +55,11 @@ const createOrUpdateItem = async (itemData: ItemInput): Promise<PackItem> => {
   }
 
   const pack = packs[packIndex];
+  if (!pack.items) {
+    throw new Error(`Pack with ID ${itemData.packId} has no items`);
+  }
   let updatedPack: Pack;
-  let resultItem: PackItem;
+  let resultItem: Item;
 
   if (isUpdate) {
     // Update existing item
@@ -66,7 +69,7 @@ const createOrUpdateItem = async (itemData: ItemInput): Promise<PackItem> => {
       updatedAt: now,
       // Preserve createdAt from the original item
       createdAt: pack.items.find((i) => i.id === itemData.id)?.createdAt || now,
-    } as PackItem;
+    } as Item;
 
     updatedPack = {
       ...pack,
@@ -80,7 +83,7 @@ const createOrUpdateItem = async (itemData: ItemInput): Promise<PackItem> => {
       id: `item-${Date.now()}`,
       createdAt: now,
       updatedAt: now,
-    } as PackItem;
+    } as Item;
 
     updatedPack = {
       ...pack,
@@ -113,6 +116,10 @@ const deleteItem = async ({ id, packId }: { id: string; packId: string }): Promi
 
   // Remove the item from the pack
   const pack = packs[packIndex];
+  if (!pack.items) {
+    throw new Error(`Pack with ID ${packId} has no items`);
+  }
+
   const updatedPack = {
     ...pack,
     items: pack.items.filter((i) => i.id !== id),

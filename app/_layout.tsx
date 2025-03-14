@@ -39,6 +39,7 @@ export default function RootLayout() {
             <Stack.Screen name="pack/[id]/index" options={PACK_DETAIL_OPTIONS} />
             <Stack.Screen name="pack/[id]/edit" options={PACK_EDIT_OPTIONS} />
             <Stack.Screen name="pack/new" options={PACK_NEW_OPTIONS} />
+            <Stack.Screen name="items/index" options={ITEM_LIST_OPTIONS} />
             <Stack.Screen name="item/index" options={ITEM_LIST_OPTIONS} />
             <Stack.Screen name="item/[id]" options={ITEM_DETAIL_OPTIONS} />
             <Stack.Screen name="item/new" options={ITEM_NEW_OPTIONS} />
