@@ -225,7 +225,7 @@ export const CreatePackItemForm = ({
                     errorMessage={field.state.meta.errors.map((err: any) => err.message).join(', ')}
                     leftView={
                       <View className="ios:pl-2 justify-center pl-2">
-                        <Icon name="hash" size={16} color={colors.grey3} />
+                        <Icon name="circle-outline" size={16} color={colors.grey3} />
                       </View>
                     }
                   />

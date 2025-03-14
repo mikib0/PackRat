@@ -19,7 +19,7 @@ import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { TextField } from '~/components/nativewindui/TextField';
 import { useCreatePack } from '~/hooks/usePacks';
 import { useColorScheme } from '~/lib/useColorScheme';
-import type { Pack } from '~/types';
+import type { Pack, PackCategory } from '~/types';
 import { Button } from '../nativewindui/Button';
 // Define Zod schema
 const packFormSchema = z.object({
@@ -167,10 +167,10 @@ export const PackForm = ({ pack }: { pack?: Pack }) => {
                       })
                     )}
                     onItemPress={(item) => {
-                      field.handleChange(item.actionKey);
+                      field.handleChange(item.actionKey as PackCategory);
                     }}>
                     <Button className="my-2 w-full" variant="plain">
-                      <View className="w-full flex-row items-center justify-between">
+                      <View className="w-full flex-row items-center justify-between capitalize">
                         <Text>{field.state.value || 'Select Category'}</Text>
                         <Icon name="chevron-down" size={16} color={colors.grey3} />
                       </View>

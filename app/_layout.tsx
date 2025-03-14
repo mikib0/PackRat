@@ -136,9 +136,12 @@ const PACK_DETAIL_OPTIONS = {
     const { colors } = useColorScheme();
     const router = useRouter();
     const { id } = useLocalSearchParams();
+    const effectiveId = Array.isArray(id) ? id[0] : id;
+
     return (
       <View className="flex-row items-center gap-2">
-        <Pressable onPress={() => router.push({ pathname: '/pack/[id]/edit', params: { id } })}>
+        <Pressable
+          onPress={() => router.push({ pathname: '/pack/[id]/edit', params: { id: effectiveId } })}>
           <Icon name="pencil-box-outline" color={colors.foreground} />
         </Pressable>
         <Pressable onPress={() => router.push('/item/new')}>
