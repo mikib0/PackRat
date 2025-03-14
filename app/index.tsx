@@ -1,219 +1,252 @@
-import { useHeaderHeight } from '@react-navigation/elements';
-import { Icon } from '@roninoss/icons';
-import { FlashList } from '@shopify/flash-list';
-import { useRouter } from 'expo-router';
-import { cssInterop } from 'nativewind';
-import * as React from 'react';
-import { useState } from 'react';
-import { Linking, useWindowDimensions, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Card } from '~/components/Card';
+import { Icon, type MaterialIconName } from '@roninoss/icons';
+import { Link } from 'expo-router';
+import type React from 'react';
+import { Pressable, View } from 'react-native';
 
-import { Button } from '~/components/nativewindui/Button';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
+import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
+import {
+  ESTIMATED_ITEM_HEIGHT,
+  List,
+  type ListDataItem,
+  ListItem,
+  type ListRenderItemInfo,
+  ListSectionHeader,
+} from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
+import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 
-cssInterop(FlashList, {
-  className: 'style',
-  contentContainerClassName: 'contentContainerStyle',
-});
-
-export default function Screen() {
-  const [hasSeenConsent, setHasSeenConsent] = useState(false);
-
-  const searchValue = useHeaderSearchBar({ hideWhenScrolling: COMPONENTS.length === 0 });
-  // const [searchValue, setSearchValue] = useState('');
-
-  const data = searchValue
-    ? COMPONENTS.filter((c) => c.name.toLowerCase().includes(searchValue.toLowerCase()))
-    : COMPONENTS;
-
-  if (!hasSeenConsent) {
-    // return <Redirect href="/consent-modal" />;
-  }
-
+function SettingsIcon() {
+  const { colors } = useColorScheme();
   return (
-    <FlashList
-      contentInsetAdjustmentBehavior="automatic"
-      keyboardShouldPersistTaps="handled"
-      data={data}
-      estimatedItemSize={200}
-      contentContainerClassName="py-4 android:pb-12"
-      extraData={searchValue}
-      removeClippedSubviews={false} // used for selecting text on android
-      keyExtractor={keyExtractor}
-      ItemSeparatorComponent={renderItemSeparator}
-      renderItem={renderItem}
-      ListEmptyComponent={COMPONENTS.length === 0 ? ListEmptyComponent : undefined}
+    <Link href="/modal" asChild>
+      <Pressable className="opacity-80">
+        {({ pressed }) => (
+          <View className={cn(pressed ? 'opacity-50' : 'opacity-90')}>
+            <Icon name="cog-outline" color={colors.foreground} />
+          </View>
+        )}
+      </Pressable>
+    </Link>
+  );
+}
+
+function DemoIcon() {
+  const { colors } = useColorScheme();
+  return (
+    <Link href="/demo" asChild>
+      <Pressable className="opacity-80">
+        {({ pressed }) => (
+          <View className={cn(pressed ? 'opacity-50' : 'opacity-90')}>
+            <Icon name="tag-outline" color={colors.foreground} />
+          </View>
+        )}
+      </Pressable>
+    </Link>
+  );
+}
+export default function DashboardScreen() {
+  const { colors } = useColorScheme();
+  return (
+    <>
+      <LargeTitleHeader
+        title="Dashboard"
+        searchBar={{ iosHideWhenScrolling: true }}
+        rightView={() => (
+          <View className="flex-row gap-2 pr-2">
+            <DemoIcon />
+            <SettingsIcon />
+          </View>
+        )}
+      />
+      <List
+        contentContainerClassName="pt-4"
+        contentInsetAdjustmentBehavior="automatic"
+        variant="insets"
+        data={DATA}
+        estimatedItemSize={ESTIMATED_ITEM_HEIGHT.titleOnly}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        sectionHeaderAsGap
+      />
+    </>
+  );
+}
+
+function renderItem<T extends (typeof DATA)[number]>(info: ListRenderItemInfo<T>) {
+  if (typeof info.item === 'string') {
+    return <ListSectionHeader {...info} />;
+  }
+  return (
+    <ListItem
+      className={cn(
+        'ios:pl-0 pl-2',
+        info.index === 0 && 'ios:border-t-0 border-border/25 dark:border-border/80 border-t'
+      )}
+      titleClassName="text-lg"
+      leftView={info.item.leftView}
+      rightView={
+        <View className="flex-1 flex-row items-center justify-center gap-2 px-4">
+          {info.item.rightText && (
+            <Text variant="callout" className="ios:px-0 px-2 text-muted-foreground">
+              {info.item.rightText}
+            </Text>
+          )}
+          {info.item.badge && (
+            <View className="h-5 w-5 items-center justify-center rounded-full bg-primary">
+              <Text variant="footnote" className="font-bold leading-4 text-primary-foreground">
+                {info.item.badge}
+              </Text>
+            </View>
+          )}
+          <ChevronRight />
+        </View>
+      }
+      {...info}
+      onPress={() => console.log('onPress')}
     />
   );
 }
 
-function ListEmptyComponent() {
-  const insets = useSafeAreaInsets();
-  const dimensions = useWindowDimensions();
-  const headerHeight = useHeaderHeight();
+function ChevronRight() {
   const { colors } = useColorScheme();
-  const height = dimensions.height - headerHeight - insets.bottom - insets.top;
+  return <Icon name="chevron-right" size={17} color={colors.grey} />;
+}
 
+function IconView({ className, name }: { className?: string; name: MaterialIconName }) {
   return (
-    <View style={{ height }} className="flex-1 items-center justify-center gap-1 px-12">
-      <Icon name="file-plus-outline" size={42} color={colors.grey} />
-      <Text variant="title3" className="pb-1 text-center font-semibold">
-        No Components Installed
-      </Text>
-      <Text color="tertiary" variant="subhead" className="pb-4 text-center">
-        You can install any of the free components from the{' '}
-        <Text
-          onPress={() => Linking.openURL('https://nativewindui.com')}
-          variant="subhead"
-          className="text-primary">
-          NativeWindUI
-        </Text>
-        {' website.'}
-      </Text>
+    <View className="px-3">
+      <View className={cn('h-6 w-6 items-center justify-center rounded-md', className)}>
+        <Icon name={name} size={15} color="white" />
+      </View>
     </View>
   );
 }
 
-type ComponentItem = { name: string; component: React.FC };
-
-function keyExtractor(item: ComponentItem) {
-  return item.name;
+function keyExtractor(item: (Omit<ListDataItem, string> & { id: string }) | string) {
+  return typeof item === 'string' ? item : item.id;
 }
 
-function renderItemSeparator() {
-  return <View className="p-2" />;
-}
+type MockData =
+  | {
+      id: string;
+      title: string;
+      subTitle?: string;
+      leftView?: React.ReactNode;
+      rightText?: string;
+      badge?: number;
+    }
+  | string;
 
-function renderItem({ item }: { item: ComponentItem }) {
-  return (
-    <Card title={item.name}>
-      <item.component />
-    </Card>
-  );
-}
-
-const COMPONENTS: ComponentItem[] = [
+const DATA: MockData[] = [
   {
-    name: 'Links',
-    component: function LinksExample() {
-      const router = useRouter();
-      return (
-        <View className="gap-2">
-          <View className="gap-2">
-            <Text>
-              <Text>Main Screens</Text>
-            </Text>
-            <Button onPress={() => router.push('/dashboard')}>
-              <Text>Dashboard</Text>
-            </Button>
-            <Button onPress={() => router.push('/packs')}>
-              <Text>Packs</Text>
-            </Button>
-          </View>
-          <View className="gap-2">
-            <Text>
-              <Text>Modals</Text>
-            </Text>
-            <Button onPress={() => router.push('/pack/new')}>
-              <Text>New Pack</Text>
-            </Button>
-            <Button onPress={() => router.push('/item/new')}>
-              <Text>New Item</Text>
-            </Button>
-          </View>
-          <View className="gap-2">
-            <Text>Additional Screens</Text>
-            <Button onPress={() => router.push('/settings')}>
-              <Text>Settings</Text>
-            </Button>
-            <Button onPress={() => router.push('/auth')}>
-              <Text>Login</Text>
-            </Button>
-            <Button onPress={() => router.push('/messages/conversations')}>
-              <Text>Messages (Conversations)</Text>
-            </Button>
-            <Button onPress={() => router.push('/messages/chat')}>
-              <Text>Messages (Chat)</Text>
-            </Button>
-          </View>
-        </View>
-      );
-    },
+    id: '1',
+    title: 'Current Pack',
+    subTitle: 'Appalachian Trail 2024',
+    leftView: (
+      <View className="px-3">
+        <Avatar alt="Current pack avatar">
+          <AvatarImage
+            source={{
+              uri: 'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=400&auto=format&fit=crop',
+            }}
+          />
+          <AvatarFallback>
+            <Text>AT</Text>
+          </AvatarFallback>
+        </Avatar>
+      </View>
+    ),
+    rightText: '12.4 lbs',
   },
   {
-    name: 'Text',
-    component: function TextExample() {
-      return (
-        <View className="gap-2">
-          <Text variant="largeTitle" className="text-center">
-            Large Title
-          </Text>
-          <Text variant="title1" className="text-center">
-            Title 1
-          </Text>
-          <Text variant="title2" className="text-center">
-            Title 2
-          </Text>
-          <Text variant="title3" className="text-center">
-            Title 3
-          </Text>
-          <Text variant="heading" className="text-center">
-            Heading
-          </Text>
-          <Text variant="body" className="text-center">
-            Body
-          </Text>
-          <Text variant="callout" className="text-center">
-            Callout
-          </Text>
-          <Text variant="subhead" className="text-center">
-            Subhead
-          </Text>
-          <Text variant="footnote" className="text-center">
-            Footnote
-          </Text>
-          <Text variant="caption1" className="text-center">
-            Caption 1
-          </Text>
-          <Text variant="caption2" className="text-center">
-            Caption 2
-          </Text>
-        </View>
-      );
-    },
+    id: '2',
+    title: 'Recent Packs',
+    leftView: (
+      <View className="flex-row px-3">
+        <Avatar alt="Weekend pack avatar" className="h-6 w-6">
+          <AvatarImage
+            source={{
+              uri: 'https://images.unsplash.com/photo-1533873984035-25970ab07461?q=80&w=400&auto=format&fit=crop',
+            }}
+          />
+          <AvatarFallback>
+            <Text>WP</Text>
+          </AvatarFallback>
+        </Avatar>
+        <Avatar alt="Day hike pack avatar" className="-ml-2 h-6 w-6">
+          <AvatarImage
+            source={{
+              uri: 'https://images.unsplash.com/photo-1501554728187-ce583db33af7?q=80&w=400&auto=format&fit=crop',
+            }}
+          />
+          <AvatarFallback>
+            <Text>DH</Text>
+          </AvatarFallback>
+        </Avatar>
+      </View>
+    ),
+    badge: 3,
+  },
+  'gap 1',
+  {
+    id: '3',
+    title: 'Pack Stats',
+    leftView: <IconView name="chart-pie" className="bg-blue-500" />,
   },
   {
-    name: 'Selectable Text',
-    component: function SelectableTextExample() {
-      return (
-        <Text uiTextView selectable>
-          Long press or double press this text
-        </Text>
-      );
-    },
+    id: '4',
+    title: 'Weight Analysis',
+    leftView: <IconView name="ruler" className="bg-blue-600" />,
+    rightText: 'Base: 8.2 lbs',
   },
   {
-    name: 'Button',
-    component: function ButtonExample() {
-      return (
-        <View className="gap-4">
-          <Button>
-            <Text>Primary</Text>
-          </Button>
-          <Button variant="secondary">
-            <Text>Secondary</Text>
-          </Button>
-          <Button variant="tonal">
-            <Text>Tertiary</Text>
-          </Button>
-          <Button variant="plain">
-            <Text>Plain</Text>
-          </Button>
-        </View>
-      );
-    },
+    id: '5',
+    title: 'Pack Categories',
+    leftView: <IconView name="puzzle" className="bg-green-500" />,
+    badge: 7,
+  },
+  'gap 2',
+  {
+    id: '6',
+    title: 'Upcoming Trips',
+    leftView: <IconView name="map" className="bg-red-500" />,
+    badge: 2,
+  },
+  {
+    id: '7',
+    title: 'Weather Alerts',
+    leftView: <IconView name="weather-rainy" className="bg-amber-500" />,
+    rightText: '2 active',
+  },
+  {
+    id: '8',
+    title: 'Trail Conditions',
+    leftView: <IconView name="soccer-field" className="bg-violet-500" />,
+  },
+  'gap 3',
+  {
+    id: '9',
+    title: 'Gear Inventory',
+    leftView: <IconView name="backpack" className="bg-gray-500" />,
+    rightText: '42 items',
+  },
+  {
+    id: '10',
+    title: 'Shopping List',
+    leftView: <IconView name="cart-outline" className="bg-gray-600" />,
+    badge: 5,
+  },
+  {
+    id: '11',
+    title: 'Shared Packs',
+    leftView: <IconView name="account-multiple" className="bg-sky-500" />,
+  },
+  {
+    id: '12',
+    title: 'Pack Templates',
+    leftView: <IconView name="file-document-multiple" className="bg-sky-400" />,
+    rightText: '4 templates',
   },
 ];

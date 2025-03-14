@@ -30,8 +30,9 @@ export default function RootLayout() {
       <Providers>
         <NavThemeProvider value={NAV_THEME[colorScheme]}>
           <Stack screenOptions={SCREEN_OPTIONS}>
-            <Stack.Screen name="(tabs)" options={TABS_OPTIONS} /> 
+            <Stack.Screen name="(tabs)" options={TABS_OPTIONS} />
             <Stack.Screen name="index" options={INDEX_OPTIONS} />
+            <Stack.Screen name="demo" options={DEMO_OPTIONS} />
             <Stack.Screen name="modal" options={MODAL_OPTIONS} />
             <Stack.Screen name="consent-modal" options={CONSENT_MODAL_OPTIONS} />
             <Stack.Screen name="packs/index" options={PACK_LIST_OPTIONS} />
@@ -53,7 +54,7 @@ const SCREEN_OPTIONS = {
 
 const INDEX_OPTIONS = {
   headerLargeTitle: true,
-  title: 'NativeWindUI',
+  title: 'Dashboard',
   headerRight: () => <SettingsIcon />,
 } as const;
 
@@ -104,6 +105,11 @@ const ITEM_NEW_OPTIONS = {
 } as const;
 
 // MAIN SCREENS
+const DEMO_OPTIONS = {
+  title: 'Demo',
+  headerRight: () => <ThemeToggle />,
+} as const;
+
 const PACK_LIST_OPTIONS = {
   title: 'My Packs',
   headerLargeTitle: true,
