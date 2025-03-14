@@ -1,3 +1,4 @@
+import { PortalHost } from '@rn-primitives/portal';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { ErrorBoundary } from '~/components/initial/ErrorBoundary';
@@ -10,7 +11,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <JotaiProvider>
         <TanstackProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <KeyboardProvider>{children}</KeyboardProvider>
+            <KeyboardProvider>
+              {children}
+              <PortalHost />
+            </KeyboardProvider>
           </GestureHandlerRootView>
         </TanstackProvider>
       </JotaiProvider>
