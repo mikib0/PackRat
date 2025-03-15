@@ -44,7 +44,8 @@ export default function RootLayout() {
             <Stack.Screen name="pack/new" options={PACK_NEW_OPTIONS} />
             <Stack.Screen name="items/index" options={ITEM_LIST_OPTIONS} />
             <Stack.Screen name="item/index" options={ITEM_LIST_OPTIONS} />
-            <Stack.Screen name="item/[id]" options={ITEM_DETAIL_OPTIONS} />
+            <Stack.Screen name="item/[id]/index" options={ITEM_DETAIL_OPTIONS} />
+            <Stack.Screen name="item/[id]/edit" options={ITEM_EDIT_OPTIONS} />
             <Stack.Screen name="item/new" options={ITEM_NEW_OPTIONS} />
           </Stack>
         </NavThemeProvider>
@@ -170,4 +171,8 @@ const PACK_EDIT_OPTIONS = {
 
 const ITEM_DETAIL_OPTIONS = {
   title: 'Item Details',
+} as const;
+
+const ITEM_EDIT_OPTIONS = {
+  title: 'Edit Item',
 } as const;

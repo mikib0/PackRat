@@ -2,6 +2,11 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { cn } from '~/lib/cn';
 import type { PackItem } from '~/types';
+import { Alert } from '../nativewindui/Alert';
+import { Button } from '../nativewindui/Button';
+import { Icon } from '@roninoss/icons';
+import { useDeleteItem } from '~/hooks/usePackItems';
+import { useRouter } from 'expo-router';
 
 type PackItemCardProps = {
   item: PackItem;
@@ -9,6 +14,9 @@ type PackItemCardProps = {
 };
 
 export function PackItemCard({ item, onPress }: PackItemCardProps) {
+  const router = useRouter();
+  const deleteItem = useDeleteItem();
+
   return (
     <Pressable
       className="mb-3 flex-row overflow-hidden rounded-lg bg-card shadow-sm"
@@ -39,24 +47,58 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
           </Text>
         )}
 
-        <View className="mt-2 flex-row gap-2">
-          {item.quantity > 1 && (
-            <View className="rounded-full bg-muted px-2 py-0.5">
-              <Text className="text-xs text-muted-foreground">Qty: {item.quantity}</Text>
-            </View>
-          )}
+        <View className="flex-row items-baseline justify-between">
+          <View className="mt-2 flex-row gap-2">
+            {item.quantity > 1 && (
+              <View className="rounded-full bg-muted px-2 py-0.5">
+                <Text className="text-xs text-muted-foreground">Qty: {item.quantity}</Text>
+              </View>
+            )}
 
-          {item.consumable && (
-            <View className={cn('rounded-full px-2 py-0.5', 'bg-amber-100')}>
-              <Text className={cn('text-xs', 'text-amber-600')}>Consumable</Text>
-            </View>
-          )}
+            {item.consumable && (
+              <View className={cn('rounded-full px-2 py-0.5', 'bg-amber-100')}>
+                <Text className={cn('text-xs', 'text-amber-600')}>Consumable</Text>
+              </View>
+            )}
 
-          {item.worn && (
-            <View className={cn('rounded-full px-2 py-0.5', 'bg-emerald-100')}>
-              <Text className={cn('text-xs', 'text-emerald-600')}>Worn</Text>
-            </View>
-          )}
+            {item.worn && (
+              <View className={cn('rounded-full px-2 py-0.5', 'bg-emerald-100')}>
+                <Text className={cn('text-xs', 'text-emerald-600')}>Worn</Text>
+              </View>
+            )}
+          </View>
+          <View className="flex-row gap-[.4]">
+            <Alert
+              title="Delete item?"
+              message="Are you sure you want to delete this item?"
+              buttons={[
+                {
+                  text: 'Cancel',
+                  style: 'cancel',
+                },
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    deleteItem.mutate(item);
+                  },
+                },
+              ]}>
+              <Button variant="plain" size="icon">
+                <Icon name="trash-can" size={21} />
+              </Button>
+            </Alert>
+            <Button
+              variant="plain"
+              size="icon"
+              onPress={() =>
+                router.push({
+                  pathname: '/item/[id]/edit',
+                  params: { id: item.id, packId: item.packId },
+                })
+              }>
+              <Icon name="pencil-box-outline" size={21} />
+            </Button>
+          </View>
         </View>
       </View>
     </Pressable>

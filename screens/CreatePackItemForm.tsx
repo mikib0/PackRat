@@ -18,7 +18,7 @@ import { z } from 'zod';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { SegmentedControl } from '~/components/nativewindui/SegmentedControl';
 import { TextField } from '~/components/nativewindui/TextField';
-import { useCreateItem } from '~/hooks/usePackItems';
+import { useCreateOrUpdateItem } from '~/hooks/usePackItems';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { WeightUnit } from '~/types';
 
@@ -48,11 +48,16 @@ type ItemFormValues = z.infer<typeof itemFormSchema>;
 // Weight units
 const WEIGHT_UNITS: WeightUnit[] = ['g', 'oz', 'kg', 'lb'];
 
-export const CreatePackItemForm = () => {
+export const CreatePackItemForm = ({
+  packId,
+  existingItem,
+}: {
+  packId: string;
+  existingItem?: any;
+}) => {
   const router = useRouter();
   const { colors } = useColorScheme();
-  const { mutateAsync: createItem, isPending } = useCreateItem();
-  const { packId, existingItem } = useLocalSearchParams();
+  const { mutateAsync: createOrUpdateItem, isPending } = useCreateOrUpdateItem();
   const isEditing = !!existingItem;
 
   const form = useForm({
@@ -73,7 +78,7 @@ export const CreatePackItemForm = () => {
     },
     onSubmit: async ({ value }) => {
       console.log('Form Submitted:', value);
-      await createItem(
+      await createOrUpdateItem(
         {
           ...value,
           packId,
