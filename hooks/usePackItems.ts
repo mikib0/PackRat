@@ -167,7 +167,7 @@ export function useAllPackItems() {
 }
 
 // Hook for creating/updating an item
-export function useCreateItem() {
+export function useCreateOrUpdateItem() {
   const queryClient = useQueryClient();
 
   return useMutation({

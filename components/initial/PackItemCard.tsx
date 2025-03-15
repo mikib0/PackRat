@@ -6,6 +6,7 @@ import { Alert } from '../nativewindui/Alert';
 import { Button } from '../nativewindui/Button';
 import { Icon } from '@roninoss/icons';
 import { useDeleteItem } from '~/hooks/usePackItems';
+import { useRouter } from 'expo-router';
 
 type PackItemCardProps = {
   item: PackItem;
@@ -13,6 +14,7 @@ type PackItemCardProps = {
 };
 
 export function PackItemCard({ item, onPress }: PackItemCardProps) {
+  const router = useRouter();
   const deleteItem = useDeleteItem();
 
   return (
@@ -65,25 +67,38 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
               </View>
             )}
           </View>
-          <Alert
-            title="Delete item?"
-            message="Are you sure you want to delete this item?"
-            buttons={[
-              {
-                text: 'Cancel',
-                style: 'cancel',
-              },
-              {
-                text: 'OK',
-                onPress: () => {
-                  deleteItem.mutate(item);
+          <View className="flex-row gap-[.4]">
+            <Alert
+              title="Delete item?"
+              message="Are you sure you want to delete this item?"
+              buttons={[
+                {
+                  text: 'Cancel',
+                  style: 'cancel',
                 },
-              },
-            ]}>
-            <Button variant="plain" size="icon">
-              <Icon name="trash-can" size={21} />
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    deleteItem.mutate(item);
+                  },
+                },
+              ]}>
+              <Button variant="plain" size="icon">
+                <Icon name="trash-can" size={21} />
+              </Button>
+            </Alert>
+            <Button
+              variant="plain"
+              size="icon"
+              onPress={() =>
+                router.push({
+                  pathname: '/item/[id]/edit',
+                  params: { id: item.id, packId: item.packId },
+                })
+              }>
+              <Icon name="pencil-box-outline" size={21} />
             </Button>
-          </Alert>
+          </View>
         </View>
       </View>
     </Pressable>
