@@ -31,19 +31,14 @@ export default function RootLayout() {
         <NavThemeProvider value={NAV_THEME[colorScheme]}>
           <Stack screenOptions={SCREEN_OPTIONS}>
             <Stack.Screen name="(tabs)" options={TABS_OPTIONS} />
-            <Stack.Screen name="index" options={INDEX_OPTIONS} />
-            <Stack.Screen name="demo" options={DEMO_OPTIONS} />
             <Stack.Screen name="modal" options={MODAL_OPTIONS} />
             <Stack.Screen name="consent-modal" options={CONSENT_MODAL_OPTIONS} />
-            <Stack.Screen name="packs/index" options={PACK_LIST_OPTIONS} />
             <Stack.Screen
               name="pack/[id]/index"
               options={({ route }) => getPackDetailOptions({ route })}
             />
             <Stack.Screen name="pack/[id]/edit" options={PACK_EDIT_OPTIONS} />
             <Stack.Screen name="pack/new" options={PACK_NEW_OPTIONS} />
-            <Stack.Screen name="items/index" options={ITEM_LIST_OPTIONS} />
-            <Stack.Screen name="item/index" options={ITEM_LIST_OPTIONS} />
             <Stack.Screen name="item/[id]/index" options={ITEM_DETAIL_OPTIONS} />
             <Stack.Screen name="item/[id]/edit" options={ITEM_EDIT_OPTIONS} />
             <Stack.Screen name="item/new" options={ITEM_NEW_OPTIONS} />
@@ -57,27 +52,6 @@ export default function RootLayout() {
 const SCREEN_OPTIONS = {
   animation: 'ios_from_right', // for android
 } as const;
-
-const INDEX_OPTIONS = {
-  headerLargeTitle: true,
-  title: 'Dashboard',
-  headerRight: () => <SettingsIcon />,
-} as const;
-
-function SettingsIcon() {
-  const { colors } = useColorScheme();
-  return (
-    <Link href="/modal" asChild>
-      <Pressable className="opacity-80">
-        {({ pressed }) => (
-          <View className={cn(pressed ? 'opacity-50' : 'opacity-90')}>
-            <Icon name="cog-outline" color={colors.foreground} />
-          </View>
-        )}
-      </Pressable>
-    </Link>
-  );
-}
 
 const TABS_OPTIONS = {
   headerShown: false,
@@ -106,32 +80,6 @@ const ITEM_NEW_OPTIONS = {
   title: 'Create New Item',
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
-} as const;
-
-// MAIN SCREENS
-const DEMO_OPTIONS = {
-  title: 'Demo',
-  headerRight: () => <ThemeToggle />,
-} as const;
-
-const PACK_LIST_OPTIONS = {
-  title: 'My Packs',
-  headerLargeTitle: true,
-  headerRight: () => {
-    const { colors } = useColorScheme();
-    return (
-      <Link href="/pack/new" asChild>
-        <Pressable>
-          <Icon name="plus" color={colors.foreground} />
-        </Pressable>
-      </Link>
-    );
-  },
-} as const;
-
-const ITEM_LIST_OPTIONS = {
-  title: 'My Items',
-  headerLargeTitle: true,
 } as const;
 
 // DETAIL SCREENS
