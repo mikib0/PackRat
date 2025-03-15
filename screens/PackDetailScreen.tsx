@@ -16,12 +16,14 @@ import { Chip } from '~/components/initial/Chip';
 import { PackItemCard } from '~/components/initial/PackItemCard';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { Button } from '~/components/nativewindui/Button';
-import { usePackDetails } from '~/hooks/usePacks';
+import { useDeletePack, usePackDetails } from '~/hooks/usePacks';
 import { cn } from '~/lib/cn';
 import { NotFoundScreen } from '~/screens/NotFoundScreen';
 import type { PackItem } from '~/types';
 import { ErrorScreen } from './ErrorScreen';
 import { LoadingSpinnerScreen } from './LoadingSpinnerScreen';
+import { Icon } from '@roninoss/icons';
+import { Alert } from '~/components/nativewindui/Alert';
 
 export function PackDetailScreen() {
   const router = useRouter();
@@ -30,6 +32,7 @@ export function PackDetailScreen() {
   const [activeTab, setActiveTab] = useState('all');
 
   const { data: pack, isLoading, isError, refetch } = usePackDetails(id as string);
+  const deletePack = useDeletePack();
 
   const handleItemPress = (item: PackItem) => {
     if (!item.id) return;
@@ -116,19 +119,51 @@ export function PackDetailScreen() {
             </View>
           </View>
 
-          {pack.tags && pack.tags.length > 0 && (
-            <View className="flex-row flex-wrap">
-              {pack.tags.map((tag, index) => (
-                <Chip
-                  key={index}
-                  className="mb-1 mr-2"
-                  textClassName="text-xs text-center"
-                  variant="outline">
-                  #{tag}
-                </Chip>
-              ))}
-            </View>
-          )}
+          <View className="flex-row justify-between">
+            {pack.tags && pack.tags.length > 0 && (
+              <View className="flex-row flex-wrap">
+                {pack.tags.map((tag, index) => (
+                  <Chip
+                    key={index}
+                    className="mb-1 mr-2"
+                    textClassName="text-xs text-center"
+                    variant="outline">
+                    #{tag}
+                  </Chip>
+                ))}
+              </View>
+            )}
+            <Alert
+              title="Delete pack?"
+              message="Are you sure you want to delete this pack? This action cannot be undone."
+              buttons={[
+                {
+                  text: 'Cancel',
+                  style: 'cancel',
+                },
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    deletePack.mutate(pack.id, {
+                      onSuccess: () => {
+                        // If we're on the pack detail screen, navigate back
+                        if (router.canGoBack()) {
+                          router.back();
+                        }
+                      },
+                    });
+                  },
+                },
+              ]}>
+              <Button variant="plain" size="icon">
+                <Icon
+                  name="trash-can"
+                  // color={Platform.OS === 'ios' ? colors.primary : colors.foreground}
+                  size={21}
+                />
+              </Button>
+            </Alert>
+          </View>
         </View>
 
         <View className="bg-card">
