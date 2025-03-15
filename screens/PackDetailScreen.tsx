@@ -164,7 +164,9 @@ export function PackDetailScreen() {
             scrollEnabled={false}
           />
 
-          <Button className="m-4" onPress={() => router.push('/item/new')}>
+          <Button
+            className="m-4"
+            onPress={() => router.push({ pathname: '/item/new', params: { packId: pack.id } })}>
             <Text>Add New Item</Text>
           </Button>
         </View>
