@@ -2,7 +2,7 @@ import { ConfigContext, ExpoConfig } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   name: 'packrat-expo-v2-poc',
-  slug: 'packrat-expo-v2-poc',
+  slug: 'packrat-v2',
   version: '1.0.0',
   scheme: 'packrat-expo-v2-poc',
   web: {
@@ -35,4 +35,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     package: 'com.andrewbierman.myexpoapp',
   },
+  extra: {
+    eas: {
+      projectId: 'e2be0630-0e40-4e0a-9d95-739b3955c7cd',
+    },
+  },
+
+  owner: 'packrat',
 });
