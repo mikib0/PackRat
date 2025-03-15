@@ -10,8 +10,6 @@ export function EditPackScreen() {
 
   const { data: pack, isLoading } = usePackDetails(effectiveId);
 
-  console.log('pack', pack, isLoading, id);
-
   if (isLoading) {
     return <ActivityIndicator />;
   }

@@ -36,7 +36,10 @@ export default function RootLayout() {
             <Stack.Screen name="modal" options={MODAL_OPTIONS} />
             <Stack.Screen name="consent-modal" options={CONSENT_MODAL_OPTIONS} />
             <Stack.Screen name="packs/index" options={PACK_LIST_OPTIONS} />
-            <Stack.Screen name="pack/[id]/index" options={PACK_DETAIL_OPTIONS} />
+            <Stack.Screen
+              name="pack/[id]/index"
+              options={({ route }) => getPackDetailOptions({ route })}
+            />
             <Stack.Screen name="pack/[id]/edit" options={PACK_EDIT_OPTIONS} />
             <Stack.Screen name="pack/new" options={PACK_NEW_OPTIONS} />
             <Stack.Screen name="items/index" options={ITEM_LIST_OPTIONS} />
@@ -131,27 +134,35 @@ const ITEM_LIST_OPTIONS = {
 } as const;
 
 // DETAIL SCREENS
-const PACK_DETAIL_OPTIONS = {
-  title: 'Pack Details',
-  headerRight: () => {
-    const { colors } = useColorScheme();
-    const router = useRouter();
-    const { id } = useLocalSearchParams();
-    const effectiveId = Array.isArray(id) ? id[0] : id;
+function getPackDetailOptions({
+  route,
+}: {
+  route: {
+    params?: {
+      id?: string;
+    };
+  };
+}) {
+  return {
+    title: 'Pack Details',
+    headerRight: () => {
+      const { colors } = useColorScheme();
+      const router = useRouter();
+      const id = route.params?.id;
 
-    return (
-      <View className="flex-row items-center gap-2">
-        <Pressable
-          onPress={() => router.push({ pathname: '/pack/[id]/edit', params: { id: effectiveId } })}>
-          <Icon name="pencil-box-outline" color={colors.foreground} />
-        </Pressable>
-        <Pressable onPress={() => router.push('/item/new')}>
-          <Icon name="plus" color={colors.foreground} />
-        </Pressable>
-      </View>
-    );
-  },
-} as const;
+      return (
+        <View className="flex-row items-center gap-2">
+          <Pressable onPress={() => router.push({ pathname: '/pack/[id]/edit', params: { id } })}>
+            <Icon name="pencil-box-outline" color={colors.foreground} />
+          </Pressable>
+          <Pressable onPress={() => router.push('/item/new')}>
+            <Icon name="plus" color={colors.foreground} />
+          </Pressable>
+        </View>
+      );
+    },
+  };
+}
 
 const PACK_EDIT_OPTIONS = {
   title: 'Edit Pack',

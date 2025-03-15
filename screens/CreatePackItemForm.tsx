@@ -2,7 +2,7 @@
 
 import { Icon } from '@roninoss/icons';
 import { useForm } from '@tanstack/react-form';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Image,
   KeyboardAvoidingView,
@@ -48,16 +48,11 @@ type ItemFormValues = z.infer<typeof itemFormSchema>;
 // Weight units
 const WEIGHT_UNITS: WeightUnit[] = ['g', 'oz', 'kg', 'lb'];
 
-export const CreatePackItemForm = ({
-  packId,
-  existingItem,
-}: {
-  packId: string;
-  existingItem?: any;
-}) => {
+export const CreatePackItemForm = () => {
   const router = useRouter();
   const { colors } = useColorScheme();
   const { mutateAsync: createItem, isPending } = useCreateItem();
+  const { packId, existingItem } = useLocalSearchParams();
   const isEditing = !!existingItem;
 
   const form = useForm({
