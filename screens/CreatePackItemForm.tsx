@@ -2,7 +2,7 @@
 
 import { Icon } from '@roninoss/icons';
 import { useForm } from '@tanstack/react-form';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Image,
   KeyboardAvoidingView,

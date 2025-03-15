@@ -17,7 +17,7 @@ import { DropdownMenu } from '~/components/nativewindui/DropdownMenu';
 import { createDropdownItem } from '~/components/nativewindui/DropdownMenu/utils';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { TextField } from '~/components/nativewindui/TextField';
-import { useCreatePack } from '~/hooks/usePacks';
+import { useCreatePack, useUpdatePack } from '~/hooks/usePacks';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { Pack, PackCategory } from '~/types';
 import { Button } from '../nativewindui/Button';
@@ -60,6 +60,8 @@ export const PackForm = ({ pack }: { pack?: Pack }) => {
   const router = useRouter();
   const { colors } = useColorScheme();
   const { mutateAsync: createPack, isPending } = useCreatePack();
+  const { mutateAsync: updatePack } = useUpdatePack();
+  const isEditingExistingPack = !!pack;
 
   const form = useForm({
     defaultValues: {
@@ -74,36 +76,54 @@ export const PackForm = ({ pack }: { pack?: Pack }) => {
     },
     onSubmit: async ({ value }) => {
       console.log('Form Submitted:', value);
-      await createPack(
-        {
-          ...value,
-          userId: 'default',
-          items: [],
-          baseWeight: 0,
-          category: value.category as
-            | 'hiking'
-            | 'backpacking'
-            | 'camping'
-            | 'climbing'
-            | 'winter'
-            | 'desert'
-            | 'custom'
-            | 'water sports'
-            | 'skiing',
-        },
-        {
-          onSuccess: (pack) => {
-            console.log('Pack Created:', pack);
+      if (isEditingExistingPack) {
+        await updatePack(
+          {
+            ...pack,
+            ...value,
+          },
+          {
+            onSuccess: (pack) => {
+              // We are inside a modal, so we need to pop the current screen and then push the new one
+              router.back();
+              router.push(`/pack/${pack.id}`);
+            },
+            onError: (error) => {
+              console.error('Error Editing Pack:', error);
+            },
+          }
+        );
+      } else
+        await createPack(
+          {
+            ...value,
+            userId: 'default',
+            items: [],
+            baseWeight: 0,
+            category: value.category as
+              | 'hiking'
+              | 'backpacking'
+              | 'camping'
+              | 'climbing'
+              | 'winter'
+              | 'desert'
+              | 'custom'
+              | 'water sports'
+              | 'skiing',
+          },
+          {
+            onSuccess: (pack) => {
+              console.log('Pack Created:', pack);
 
-            // We are inside a modal, so we need to pop the current screen and then push the new one
-            router.back();
-            router.push(`/pack/${pack.id}`);
-          },
-          onError: (error) => {
-            console.error('Error Creating Pack:', error);
-          },
-        }
-      );
+              // We are inside a modal, so we need to pop the current screen and then push the new one
+              router.back();
+              router.push(`/pack/${pack.id}`);
+            },
+            onError: (error) => {
+              console.error('Error Creating Pack:', error);
+            },
+          }
+        );
     },
   });
 

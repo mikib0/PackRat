@@ -1,8 +1,13 @@
 import { isArray } from 'radash';
 import { Image, Pressable, Text, View } from 'react-native';
 import type { Pack } from '~/types';
-import { CategoryBadge } from './CategoryBadge';
-import { WeightBadge } from './WeightBadge';
+import { CategoryBadge } from '~/components/initial/CategoryBadge';
+import { WeightBadge } from '~/components/initial/WeightBadge';
+import { Icon } from '@roninoss/icons';
+import { useDeletePack } from '~/hooks/usePacks';
+import { useRouter } from 'expo-router';
+import { Alert } from '~/components/nativewindui/Alert';
+import { Button } from '../nativewindui/Button';
 
 type PackCardProps = {
   pack: Pack;
@@ -10,6 +15,8 @@ type PackCardProps = {
 };
 
 export function PackCard({ pack, onPress }: PackCardProps) {
+  const deletePack = useDeletePack();
+
   // Safely check if weights exist and are greater than 0
   const hasBaseWeight = typeof pack.baseWeight === 'number' && pack.baseWeight > 0;
   const hasTotalWeight = typeof pack.totalWeight === 'number' && pack.totalWeight > 0;
@@ -47,15 +54,36 @@ export function PackCard({ pack, onPress }: PackCardProps) {
           ) : null}
         </View>
 
-        {pack.tags && isArray(pack.tags) && pack.tags.length > 0 ? (
-          <View className="mt-3 flex-row flex-wrap">
-            {pack.tags.map((tag, index) => (
-              <View key={index} className="mb-1 mr-2 rounded-full bg-background px-2 py-1">
-                <Text className="text-xs text-foreground">#{tag}</Text>
-              </View>
-            ))}
-          </View>
-        ) : null}
+        <View className="flex-row items-baseline justify-between">
+          {pack.tags && isArray(pack.tags) && pack.tags.length > 0 ? (
+            <View className="mt-3 flex-row flex-wrap">
+              {pack.tags.map((tag, index) => (
+                <View key={index} className="mb-1 mr-2 rounded-full bg-background px-2 py-1">
+                  <Text className="text-xs text-foreground">#{tag}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+          <Alert
+            title="Delete pack?"
+            message="Are you sure you want to delete this pack? This action cannot be undone."
+            buttons={[
+              {
+                text: 'Cancel',
+                style: 'cancel',
+              },
+              {
+                text: 'OK',
+                onPress: () => {
+                  deletePack.mutate(pack.id);
+                },
+              },
+            ]}>
+            <Button variant="plain" size="icon">
+              <Icon name="trash-can" size={21} />
+            </Button>
+          </Alert>
+        </View>
       </View>
     </Pressable>
   );
