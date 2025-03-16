@@ -144,6 +144,9 @@ const COMPONENTS: ComponentItem[] = [
             <Button onPress={() => router.push('/ai-chat')}>
               <Text>AI Chat</Text>
             </Button>
+            <Button onPress={() => router.push('/ai-chat-better-ui')}>
+              <Text>AI Chat (Better UI)</Text>
+            </Button>
           </View>
         </View>
       );
