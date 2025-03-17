@@ -4,7 +4,7 @@ import { useChat } from "@ai-sdk/react"
 import { Icon } from "@roninoss/icons"
 import { FlashList } from "@shopify/flash-list"
 import { BlurView } from "expo-blur"
-import { router, Stack } from "expo-router"
+import { router, Stack, useLocalSearchParams } from "expo-router"
 import { fetch as expoFetch } from "expo/fetch"
 import * as React from "react"
 import {
@@ -17,6 +17,7 @@ import {
   type TextStyle,
   View,
   type ViewStyle,
+  TouchableOpacity, // Import TouchableOpacity
 } from "react-native"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import {
@@ -38,7 +39,7 @@ import { Text } from "~/components/nativewindui/Text"
 import { cn } from "~/lib/cn"
 import { useColorScheme } from "~/lib/useColorScheme"
 import { formatAIResponse } from "~/utils/format-ai-response"
-import { AIChatEmptyState } from "~/components/initial/AiChatEmptyState"
+import { getContextualGreeting, getContextualSuggestions } from "~/utils/chatContextHelpers"
 
 const USER = "User"
 const AI = "PackRat AI"
@@ -66,7 +67,7 @@ type Message = {
 }
 
 // Define the Header component outside so that its reference stays stable.
-function Header() {
+function Header({ contextName }: { contextName?: string }) {
   const insets = useSafeAreaInsets()
   const { colors } = useColorScheme()
 
@@ -83,7 +84,7 @@ function Header() {
             PackRat AI
           </Text>
           <Text variant="caption2" className="text-muted-foreground">
-            Your Hiking Assistant
+            {contextName ? `• ${contextName}` : "Your Hiking Assistant"}
           </Text>
         </View>
         <Button variant="plain" size="icon" className="opacity-0">
@@ -105,7 +106,7 @@ function Header() {
         <View className="flex-1 items-center">
           <Text className="text-lg font-medium">PackRat AI</Text>
           <Text variant="caption2" className="text-muted-foreground">
-            Your Hiking Assistant
+            {contextName ? `Ask About ${contextName}` : "Ask Anything Outdoors"}
           </Text>
         </View>
         <View style={{ width: 40 }} />
@@ -130,18 +131,48 @@ export default function AIChat() {
   const translateX = useSharedValue(0)
   const previousTranslateX = useSharedValue(0)
   const initialTouchLocation = useSharedValue<{ x: number; y: number } | null>(null)
+  const params = useLocalSearchParams()
+  const [showSuggestions, setShowSuggestions] = React.useState(true)
+
+  // Extract context from params
+  const context = {
+    itemId: params.itemId as string,
+    itemName: params.itemName as string,
+    packId: params.packId as string,
+    packName: params.packName as string,
+    contextType: (params.contextType as "item" | "pack" | "general") || "general",
+  }
+
+  // Get contextual information
+  const contextName =
+    context.contextType === "item"
+      ? context.itemName
+      : context.contextType === "pack"
+        ? context.packName
+        : undefined
 
   // Call the chat hook at the top level.
   const { messages, error, handleInputChange, input, setInput, handleSubmit, isLoading } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: "http://localhost:8081/api/chat",
     onError: (error: Error) => console.error(error, "ERROR"),
+    initialMessages: [
+      {
+        id: "1",
+        role: "assistant",
+        content: getContextualGreeting(context),
+      },
+    ],
+    onFinish: () => {
+      // Hide suggestions after user sends a message
+      setShowSuggestions(false)
+    },
   })
 
-  const handleSelectStarter = (text: string) => {
-    setInput(text)
-    // Optional: You could auto-submit after a short delay
-    // setTimeout(() => handleSubmit(), 500);
+  const handleSuggestionPress = (suggestion: string) => {
+    setInput(suggestion)
+    handleSubmit()
+    setShowSuggestions(false)
   }
 
   const toolbarHeightStyle = useAnimatedStyle(() => ({
@@ -216,8 +247,7 @@ export default function AIChat() {
         attachments: [],
       }
     })
-
-    // Add a date separator at the beginning only if we have messages
+    // Add a date separator at the beginning.
     const today = new Date().toLocaleDateString("en-US", {
       weekday: "short",
       day: "2-digit",
@@ -225,14 +255,16 @@ export default function AIChat() {
       year: "numeric",
     })
 
-    return [today, ...formattedMessages.reverse()]
+    console.log('messages', messages)
+
+    return [today, ...formattedMessages]
   }, [messages])
 
   return (
     <>
       <Stack.Screen
         options={{
-          header: () => <Header />,
+          header: () => <Header contextName={contextName} />,
         }}
       />
       <GestureDetector gesture={pan}>
@@ -240,25 +272,44 @@ export default function AIChat() {
           style={[ROOT_STYLE, { backgroundColor: isDarkColorScheme ? colors.background : colors.card }]}
           behavior="padding"
         >
-          <FlashList
-            inverted={!!messages.length}
-            estimatedItemSize={70}
-            ListEmptyComponent={<AIChatEmptyState onSelectStarter={handleSelectStarter} />}
-            ListFooterComponent={<View style={{ height: HEADER_HEIGHT + insets.top }} />}
-            ListHeaderComponent={<Animated.View style={toolbarHeightStyle} />}
-            keyboardDismissMode="on-drag"
-            keyboardShouldPersistTaps="handled"
-            scrollIndicatorInsets={{ bottom: HEADER_HEIGHT + 10, top: insets.bottom + 2 }}
-            data={chatMessages}
-            renderItem={({ item, index }) => {
-              if (typeof item === "string") {
-                return <DateSeparator date={item} />
+            <FlashList
+              // inverted
+              estimatedItemSize={70}
+              ListHeaderComponent={<View style={{ height: HEADER_HEIGHT + insets.top }} />}
+              ListFooterComponent={
+                <>
+                  {showSuggestions && messages.length <= 2 && (
+                    <View className="px-4 py-4">
+                      <Text className="text-xs text-muted-foreground mb-2">SUGGESTIONS</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {getContextualSuggestions(context).map((suggestion, index) => (
+                          <TouchableOpacity
+                            key={index}
+                            onPress={() => handleSuggestionPress(suggestion)}
+                            className="bg-card rounded-full px-3 py-2 border border-border mb-2"
+                          >
+                            <Text className="text-sm text-foreground">{suggestion}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                  <Animated.View style={toolbarHeightStyle} />
+                </>
               }
-              const nextMessage = chatMessages[index - 1]
-              const isSameNextSender = typeof nextMessage !== "string" ? nextMessage?.sender === item.sender : false
-              return <ChatBubble isSameNextSender={isSameNextSender} item={item} translateX={translateX} />
-            }}
-          />
+              keyboardDismissMode="on-drag"
+              keyboardShouldPersistTaps="handled"
+              scrollIndicatorInsets={{ bottom: HEADER_HEIGHT + 10, top: insets.bottom + 2 }}
+              data={chatMessages}
+              renderItem={({ item, index }) => {
+                if (typeof item === "string") {
+                  return <DateSeparator date={item} />
+                }
+                const nextMessage = chatMessages[index - 1]
+                const isSameNextSender = typeof nextMessage !== "string" ? nextMessage?.sender === item.sender : false
+                return <ChatBubble isSameNextSender={isSameNextSender} item={item} translateX={translateX} />
+              }}
+            />
           {error && (
             <View className="absolute bottom-20 left-0 right-0 items-center">
               <View className="bg-destructive/90 mx-4 rounded-lg px-4 py-2">
@@ -273,7 +324,10 @@ export default function AIChat() {
           textInputHeight={textInputHeight}
           input={input}
           handleInputChange={setInput} // Pass the setter directly.
-          handleSubmit={handleSubmit}
+          handleSubmit={() => {
+            handleSubmit()
+            setShowSuggestions(false)
+          }}
           isLoading={isLoading}
         />
       </KeyboardStickyView>
