@@ -1,12 +1,12 @@
-'use client';
+"use client"
 
-import { useChat } from '@ai-sdk/react';
-import { Icon } from '@roninoss/icons';
-import { FlashList } from '@shopify/flash-list';
-import { BlurView } from 'expo-blur';
-import { router, Stack } from 'expo-router';
-import { fetch as expoFetch } from 'expo/fetch';
-import * as React from 'react';
+import { useChat } from "@ai-sdk/react"
+import { Icon } from "@roninoss/icons"
+import { FlashList } from "@shopify/flash-list"
+import { BlurView } from "expo-blur"
+import { router, Stack } from "expo-router"
+import { fetch as expoFetch } from "expo/fetch"
+import * as React from "react"
 import {
   Dimensions,
   type NativeSyntheticEvent,
@@ -17,13 +17,13 @@ import {
   type TextStyle,
   View,
   type ViewStyle,
-} from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+} from "react-native"
+import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import {
   KeyboardAvoidingView,
   KeyboardStickyView,
   useReanimatedKeyboardAnimation,
-} from 'react-native-keyboard-controller';
+} from "react-native-keyboard-controller"
 import Animated, {
   clamp,
   interpolate,
@@ -31,23 +31,24 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '~/components/nativewindui/Button';
-import { Text } from '~/components/nativewindui/Text';
-import { cn } from '~/lib/cn';
-import { useColorScheme } from '~/lib/useColorScheme';
-import { formatAIResponse } from '~/utils/format-ai-response';
+} from "react-native-reanimated"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Button } from "~/components/nativewindui/Button"
+import { Text } from "~/components/nativewindui/Text"
+import { cn } from "~/lib/cn"
+import { useColorScheme } from "~/lib/useColorScheme"
+import { formatAIResponse } from "~/utils/format-ai-response"
+import { AIChatEmptyState } from "~/components/initial/AiChatEmptyState"
 
-const USER = 'User';
-const AI = 'PackRat AI';
-const HEADER_HEIGHT = Platform.select({ ios: 88, default: 64 });
-const dimensions = Dimensions.get('window');
+const USER = "User"
+const AI = "PackRat AI"
+const HEADER_HEIGHT = Platform.select({ ios: 88, default: 64 })
+const dimensions = Dimensions.get("window")
 
 const ROOT_STYLE: ViewStyle = {
   flex: 1,
   minHeight: 2,
-};
+}
 
 const SPRING_CONFIG = {
   damping: 15,
@@ -56,20 +57,20 @@ const SPRING_CONFIG = {
   overshootClamping: false,
   restDisplacementThreshold: 0.01,
   restSpeedThreshold: 0.01,
-};
+}
 
 type Message = {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-};
+  id: string
+  role: "user" | "assistant"
+  content: string
+}
 
 // Define the Header component outside so that its reference stays stable.
 function Header() {
-  const insets = useSafeAreaInsets();
-  const { colors } = useColorScheme();
+  const insets = useSafeAreaInsets()
+  const { colors } = useColorScheme()
 
-  return Platform.OS === 'ios' ? (
+  return Platform.OS === "ios" ? (
     <BlurView intensity={100} style={[HEADER_POSITION_STYLE, { paddingTop: insets.top }]}>
       <View className="flex-row items-center justify-between px-4 pb-2">
         <View className="flex-row items-center">
@@ -93,16 +94,12 @@ function Header() {
   ) : (
     <View
       className="absolute left-0 right-0 top-0 z-50 justify-end bg-card dark:bg-background"
-      style={{ paddingTop: insets.top, height: HEADER_HEIGHT + insets.top }}>
-      <View
-        style={{ height: HEADER_HEIGHT }}
-        className="flex-row items-center justify-between gap-2 px-3 pb-2">
+      style={{ paddingTop: insets.top, height: HEADER_HEIGHT + insets.top }}
+    >
+      <View style={{ height: HEADER_HEIGHT }} className="flex-row items-center justify-between gap-2 px-3 pb-2">
         <View className="flex-row items-center">
           <Button variant="plain" size="icon" className="opacity-70" onPress={router.back}>
-            <Icon
-              color={colors.foreground}
-              name={Platform.select({ ios: 'chevron-left', default: 'arrow-left' })}
-            />
+            <Icon color={colors.foreground} name={Platform.select({ ios: "chevron-left", default: "arrow-left" })} />
           </Button>
         </View>
         <View className="flex-1 items-center">
@@ -114,114 +111,122 @@ function Header() {
         <View style={{ width: 40 }} />
       </View>
     </View>
-  );
+  )
 }
 
 const HEADER_POSITION_STYLE: ViewStyle = {
-  position: 'absolute',
+  position: "absolute",
   zIndex: 50,
   top: 0,
   left: 0,
   right: 0,
-};
+}
 
 export default function AIChat() {
-  const { colors, isDarkColorScheme } = useColorScheme();
-  const insets = useSafeAreaInsets();
-  const { progress } = useReanimatedKeyboardAnimation();
-  const textInputHeight = useSharedValue(17);
-  const translateX = useSharedValue(0);
-  const previousTranslateX = useSharedValue(0);
-  const initialTouchLocation = useSharedValue<{ x: number; y: number } | null>(null);
+  const { colors, isDarkColorScheme } = useColorScheme()
+  const insets = useSafeAreaInsets()
+  const { progress } = useReanimatedKeyboardAnimation()
+  const textInputHeight = useSharedValue(17)
+  const translateX = useSharedValue(0)
+  const previousTranslateX = useSharedValue(0)
+  const initialTouchLocation = useSharedValue<{ x: number; y: number } | null>(null)
 
   // Call the chat hook at the top level.
   const { messages, error, handleInputChange, input, setInput, handleSubmit, isLoading } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
-    api: 'http://localhost:8081/api/chat',
-    onError: (error: Error) => console.error(error, 'ERROR'),
-  });
+    api: "http://localhost:8081/api/chat",
+    onError: (error: Error) => console.error(error, "ERROR"),
+  })
+
+  const handleSelectStarter = (text: string) => {
+    setInput(text)
+    // Optional: You could auto-submit after a short delay
+    // setTimeout(() => handleSubmit(), 500);
+  }
 
   const toolbarHeightStyle = useAnimatedStyle(() => ({
-    height: interpolate(
-      progress.value,
-      [0, 1],
-      [52 + insets.bottom, insets.bottom + textInputHeight.value - 2]
-    ),
-  }));
+    height: interpolate(progress.value, [0, 1], [52 + insets.bottom, insets.bottom + textInputHeight.value - 2]),
+  }))
 
   const pan = Gesture.Pan()
     .minDistance(10)
     .onBegin((evt) => {
-      initialTouchLocation.value = { x: evt.x, y: evt.y };
+      initialTouchLocation.value = { x: evt.x, y: evt.y }
     })
     .onStart(() => {
-      previousTranslateX.value = translateX.value;
+      previousTranslateX.value = translateX.value
     })
     .onTouchesMove((evt, state) => {
       if (!initialTouchLocation.value || !evt.changedTouches.length) {
-        state.fail();
-        return;
+        state.fail()
+        return
       }
-      const xDiff = evt.changedTouches[0].x - initialTouchLocation.value.x;
-      const yDiff = Math.abs(evt.changedTouches[0].y - initialTouchLocation.value.y);
-      const isHorizontalPanning = Math.abs(xDiff) > yDiff;
+      const xDiff = evt.changedTouches[0].x - initialTouchLocation.value.x
+      const yDiff = Math.abs(evt.changedTouches[0].y - initialTouchLocation.value.y)
+      const isHorizontalPanning = Math.abs(xDiff) > yDiff
       if (isHorizontalPanning && xDiff < 0) {
-        state.activate();
+        state.activate()
       } else {
-        state.fail();
+        state.fail()
       }
     })
     .onUpdate((event) => {
-      translateX.value = clamp(event.translationX / 2 + previousTranslateX.value, -75, 0);
+      translateX.value = clamp(event.translationX / 2 + previousTranslateX.value, -75, 0)
     })
     .onEnd((event) => {
-      const right = event.translationX > 0 && translateX.value > 0;
-      const left = event.translationX < 0 && translateX.value < 0;
+      const right = event.translationX > 0 && translateX.value > 0
+      const left = event.translationX < 0 && translateX.value < 0
       if (right) {
         if (translateX.value > dimensions.width / 2) {
-          translateX.value = withSpring(dimensions.width, SPRING_CONFIG);
-          return;
+          translateX.value = withSpring(dimensions.width, SPRING_CONFIG)
+          return
         }
-        translateX.value = withSpring(0, SPRING_CONFIG);
-        return;
+        translateX.value = withSpring(0, SPRING_CONFIG)
+        return
       }
       if (left) {
         if (translateX.value < -dimensions.width / 2) {
-          translateX.value = withSpring(-dimensions.width, SPRING_CONFIG);
-          return;
+          translateX.value = withSpring(-dimensions.width, SPRING_CONFIG)
+          return
         }
-        translateX.value = withSpring(0, SPRING_CONFIG);
-        return;
+        translateX.value = withSpring(0, SPRING_CONFIG)
+        return
       }
-      translateX.value = withSpring(0, SPRING_CONFIG);
-    });
+      translateX.value = withSpring(0, SPRING_CONFIG)
+    })
 
   // Format messages for the UI.
   const chatMessages = React.useMemo(() => {
+    if (messages.length === 0) {
+      return []
+    }
+
     const formattedMessages = messages.map((message) => {
-      const now = new Date();
+      const now = new Date()
       return {
         id: message.id,
-        sender: message.role === 'user' ? USER : AI,
+        sender: message.role === "user" ? USER : AI,
         text: message.content,
-        date: now.toISOString().split('T')[0],
-        time: now.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
+        date: now.toISOString().split("T")[0],
+        time: now.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
         }),
         reactions: {},
         attachments: [],
-      };
-    });
-    // Add a date separator at the beginning.
-    const today = new Date().toLocaleDateString('en-US', {
-      weekday: 'short',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-    return [today, ...formattedMessages.reverse()];
-  }, [messages]);
+      }
+    })
+
+    // Add a date separator at the beginning only if we have messages
+    const today = new Date().toLocaleDateString("en-US", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+
+    return [today, ...formattedMessages.reverse()]
+  }, [messages])
 
   return (
     <>
@@ -232,14 +237,13 @@ export default function AIChat() {
       />
       <GestureDetector gesture={pan}>
         <KeyboardAvoidingView
-          style={[
-            ROOT_STYLE,
-            { backgroundColor: isDarkColorScheme ? colors.background : colors.card },
-          ]}
-          behavior="padding">
+          style={[ROOT_STYLE, { backgroundColor: isDarkColorScheme ? colors.background : colors.card }]}
+          behavior="padding"
+        >
           <FlashList
-            inverted
+            inverted={!!messages.length}
             estimatedItemSize={70}
+            ListEmptyComponent={<AIChatEmptyState onSelectStarter={handleSelectStarter} />}
             ListFooterComponent={<View style={{ height: HEADER_HEIGHT + insets.top }} />}
             ListHeaderComponent={<Animated.View style={toolbarHeightStyle} />}
             keyboardDismissMode="on-drag"
@@ -247,19 +251,12 @@ export default function AIChat() {
             scrollIndicatorInsets={{ bottom: HEADER_HEIGHT + 10, top: insets.bottom + 2 }}
             data={chatMessages}
             renderItem={({ item, index }) => {
-              if (typeof item === 'string') {
-                return <DateSeparator date={item} />;
+              if (typeof item === "string") {
+                return <DateSeparator date={item} />
               }
-              const nextMessage = chatMessages[index - 1];
-              const isSameNextSender =
-                typeof nextMessage !== 'string' ? nextMessage?.sender === item.sender : false;
-              return (
-                <ChatBubble
-                  isSameNextSender={isSameNextSender}
-                  item={item}
-                  translateX={translateX}
-                />
-              );
+              const nextMessage = chatMessages[index - 1]
+              const isSameNextSender = typeof nextMessage !== "string" ? nextMessage?.sender === item.sender : false
+              return <ChatBubble isSameNextSender={isSameNextSender} item={item} translateX={translateX} />
             }}
           />
           {error && (
@@ -281,7 +278,7 @@ export default function AIChat() {
         />
       </KeyboardStickyView>
     </>
-  );
+  )
 }
 
 function DateSeparator({ date }: { date: string }) {
@@ -291,12 +288,12 @@ function DateSeparator({ date }: { date: string }) {
         {date}
       </Text>
     </View>
-  );
+  )
 }
 
 const BORDER_CURVE: ViewStyle = {
-  borderCurve: 'continuous',
-};
+  borderCurve: "continuous",
+}
 
 function ChatBubble({
   item,
@@ -304,66 +301,63 @@ function ChatBubble({
   translateX,
 }: {
   item: {
-    id: string;
-    sender: string;
-    text: string;
-    date: string;
-    time: string;
-    reactions: Record<string, string[] | undefined>;
-    attachments: { type: string; url: string }[];
-  };
-  isSameNextSender: boolean;
-  translateX: SharedValue<number>;
+    id: string
+    sender: string
+    text: string
+    date: string
+    time: string
+    reactions: Record<string, string[] | undefined>
+    attachments: { type: string; url: string }[]
+  }
+  isSameNextSender: boolean
+  translateX: SharedValue<number>
 }) {
-  const { colors } = useColorScheme();
+  const { colors } = useColorScheme()
   const rootStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
-  }));
+  }))
   const dateStyle = useAnimatedStyle(() => ({
     width: 75,
-    position: 'absolute',
+    position: "absolute",
     right: 0,
     paddingLeft: 8,
     transform: [{ translateX: interpolate(translateX.value, [-75, 0], [0, 75]) }],
-  }));
-  const isAI = item.sender === AI;
+  }))
+  const isAI = item.sender === AI
 
   return (
     <View
       className={cn(
-        'justify-center px-2 pb-3.5',
-        isSameNextSender ? 'pb-1' : 'pb-3.5',
-        isAI ? 'items-start pr-16' : 'items-end pl-16'
-      )}>
+        "justify-center px-2 pb-3.5",
+        isSameNextSender ? "pb-1" : "pb-3.5",
+        isAI ? "items-start pr-16" : "items-end pl-16",
+      )}
+    >
       <Animated.View style={!isAI ? rootStyle : undefined}>
         <View>
-          <View
-            className={cn(
-              'absolute bottom-0 items-center justify-center',
-              isAI ? '-left-2 ' : '-right-2.5'
-            )}>
-            {Platform.OS === 'ios' && (
+          <View className={cn("absolute bottom-0 items-center justify-center", isAI ? "-left-2 " : "-right-2.5")}>
+            {Platform.OS === "ios" && (
               <>
                 <View
                   className={cn(
-                    'h-5 w-5 rounded-full',
+                    "h-5 w-5 rounded-full",
                     !isAI
-                      ? 'bg-primary'
-                      : Platform.OS === 'ios'
-                        ? 'bg-background dark:bg-muted'
-                        : 'bg-background dark:bg-muted-foreground'
+                      ? "bg-primary"
+                      : Platform.OS === "ios"
+                        ? "bg-background dark:bg-muted"
+                        : "bg-background dark:bg-muted-foreground",
                   )}
                 />
                 <View
                   className={cn(
-                    'absolute h-5 w-5 rounded-full bg-card dark:bg-background',
-                    !isAI ? '-right-2' : 'right-2'
+                    "absolute h-5 w-5 rounded-full bg-card dark:bg-background",
+                    !isAI ? "-right-2" : "right-2",
                   )}
                 />
                 <View
                   className={cn(
-                    'absolute h-5 w-5 -translate-y-1 rounded-full bg-card dark:bg-background',
-                    !isAI ? '-right-2' : 'right-2'
+                    "absolute h-5 w-5 -translate-y-1 rounded-full bg-card dark:bg-background",
+                    !isAI ? "-right-2" : "right-2",
                   )}
                 />
               </>
@@ -374,13 +368,12 @@ function ChatBubble({
               <View
                 style={BORDER_CURVE}
                 className={cn(
-                  'rounded-2xl bg-background px-3 py-1.5 dark:bg-muted-foreground',
-                  Platform.OS === 'ios' && 'dark:bg-muted',
-                  !isAI && 'bg-primary dark:bg-primary'
-                )}>
-                <Text className={cn(!isAI && 'text-white')}>
-                  {isAI ? formatAIResponse(item.text) : item.text}
-                </Text>
+                  "rounded-2xl bg-background px-3 py-1.5 dark:bg-muted-foreground",
+                  Platform.OS === "ios" && "dark:bg-muted",
+                  !isAI && "bg-primary dark:bg-primary",
+                )}
+              >
+                <Text className={cn(!isAI && "text-white")}>{isAI ? formatAIResponse(item.text) : item.text}</Text>
               </View>
             </Pressable>
           </View>
@@ -392,21 +385,21 @@ function ChatBubble({
         </Text>
       </Animated.View>
     </View>
-  );
+  )
 }
 
 const COMPOSER_STYLE: ViewStyle = {
-  position: 'absolute',
+  position: "absolute",
   zIndex: 50,
   bottom: 0,
   left: 0,
   right: 0,
-};
+}
 
 const TEXT_INPUT_STYLE: TextStyle = {
-  borderCurve: 'continuous',
+  borderCurve: "continuous",
   maxHeight: 300,
-};
+}
 
 function Composer({
   textInputHeight,
@@ -415,20 +408,20 @@ function Composer({
   handleSubmit,
   isLoading,
 }: {
-  textInputHeight: SharedValue<number>;
-  input: string;
-  handleInputChange: (text: string) => void;
-  handleSubmit: () => void;
-  isLoading: boolean;
+  textInputHeight: SharedValue<number>
+  input: string
+  handleInputChange: (text: string) => void
+  handleSubmit: () => void
+  isLoading: boolean
 }) {
-  const { colors, isDarkColorScheme } = useColorScheme();
-  const insets = useSafeAreaInsets();
+  const { colors, isDarkColorScheme } = useColorScheme()
+  const insets = useSafeAreaInsets()
 
   function onContentSizeChange(event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) {
     textInputHeight.value = Math.max(
       Math.min(event.nativeEvent.contentSize.height, 280),
-      Platform.select({ ios: 20, default: 38 })
-    );
+      Platform.select({ ios: 20, default: 38 }),
+    )
   }
 
   return (
@@ -438,12 +431,13 @@ function Composer({
         COMPOSER_STYLE,
         {
           backgroundColor: Platform.select({
-            ios: isDarkColorScheme ? '#00000080' : '#ffffff80',
+            ios: isDarkColorScheme ? "#00000080" : "#ffffff80",
             default: isDarkColorScheme ? colors.background : colors.card,
           }),
           paddingBottom: insets.bottom,
         },
-      ]}>
+      ]}
+    >
       <View className="flex-row items-end gap-2 px-4 py-2">
         <TextInput
           placeholder="Ask about packing advice..."
@@ -462,22 +456,17 @@ function Composer({
               <Text className="text-xs text-primary">...</Text>
             </View>
           ) : input.length > 0 ? (
-            <Button
-              onPress={handleSubmit}
-              size="icon"
-              className="ios:rounded-full h-7 w-7 rounded-full">
+            <Button onPress={handleSubmit} size="icon" className="ios:rounded-full h-7 w-7 rounded-full">
               <Icon name="arrow-up" size={18} color="white" />
             </Button>
           ) : (
-            <Button
-              size="icon"
-              variant="plain"
-              className="ios:rounded-full h-7 w-7 rounded-full opacity-40">
+            <Button size="icon" variant="plain" className="ios:rounded-full h-7 w-7 rounded-full opacity-40">
               <Icon name="arrow-up" size={20} color={colors.foreground} />
             </Button>
           )}
         </View>
       </View>
     </BlurView>
-  );
+  )
 }
+
