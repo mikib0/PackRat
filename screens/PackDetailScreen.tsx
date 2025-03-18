@@ -170,12 +170,19 @@ export function PackDetailScreen() {
         </View>
 
         <View className="bg-card">
-        <View className="p-4">
-          <Button variant='secondary' onPress={() => router.push({pathname: '/ai-chat-better-ui', params: { packId: id, contextType: 'pack' }})}>
-            <Icon name="message-outline" color={colors.foreground} />
-            <Text>Ask AI</Text>
-          </Button>
-        </View>
+          <View className="p-4">
+            <Button
+              variant="secondary"
+              onPress={() =>
+                router.push({
+                  pathname: '/ai-chat-better-ui',
+                  params: { packId: id, packName: pack.name, contextType: 'pack' },
+                })
+              }>
+              <Icon name="message-outline" color={colors.foreground} />
+              <Text>Ask AI</Text>
+            </Button>
+          </View>
 
           <View className="flex-row border-b border-border">
             <TouchableOpacity className={getTabStyle('all')} onPress={() => setActiveTab('all')}>

@@ -67,11 +67,11 @@ type Message = {
 }
 
 // Define the Header component outside so that its reference stays stable.
-function Header({ contextName }: { contextName?: string }) {
-  const insets = useSafeAreaInsets()
-  const { colors } = useColorScheme()
+function Header() {
+  const insets = useSafeAreaInsets();
+  const { colors } = useColorScheme();
 
-  return Platform.OS === "ios" ? (
+  return Platform.OS === 'ios' ? (
     <BlurView intensity={100} style={[HEADER_POSITION_STYLE, { paddingTop: insets.top }]}>
       <View className="flex-row items-center justify-between px-4 pb-2">
         <View className="flex-row items-center">
@@ -84,7 +84,7 @@ function Header({ contextName }: { contextName?: string }) {
             PackRat AI
           </Text>
           <Text variant="caption2" className="text-muted-foreground">
-            {contextName ? `• ${contextName}` : "Your Hiking Assistant"}
+            Your Hiking Assistant
           </Text>
         </View>
         <Button variant="plain" size="icon" className="opacity-0">
@@ -95,24 +95,28 @@ function Header({ contextName }: { contextName?: string }) {
   ) : (
     <View
       className="absolute left-0 right-0 top-0 z-50 justify-end bg-card dark:bg-background"
-      style={{ paddingTop: insets.top, height: HEADER_HEIGHT + insets.top }}
-    >
-      <View style={{ height: HEADER_HEIGHT }} className="flex-row items-center justify-between gap-2 px-3 pb-2">
+      style={{ paddingTop: insets.top, height: HEADER_HEIGHT + insets.top }}>
+      <View
+        style={{ height: HEADER_HEIGHT }}
+        className="flex-row items-center justify-between gap-2 px-3 pb-2">
         <View className="flex-row items-center">
           <Button variant="plain" size="icon" className="opacity-70" onPress={router.back}>
-            <Icon color={colors.foreground} name={Platform.select({ ios: "chevron-left", default: "arrow-left" })} />
+            <Icon
+              color={colors.foreground}
+              name={Platform.select({ ios: 'chevron-left', default: 'arrow-left' })}
+            />
           </Button>
         </View>
         <View className="flex-1 items-center">
           <Text className="text-lg font-medium">PackRat AI</Text>
           <Text variant="caption2" className="text-muted-foreground">
-            {contextName ? `Ask About ${contextName}` : "Ask Anything Outdoors"}
+            Your Hiking Assistant
           </Text>
         </View>
         <View style={{ width: 40 }} />
       </View>
     </View>
-  )
+  );
 }
 
 const HEADER_POSITION_STYLE: ViewStyle = {
@@ -154,20 +158,25 @@ export default function AIChat() {
   // Call the chat hook at the top level.
   const { messages, error, handleInputChange, input, setInput, handleSubmit, isLoading } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
-    api: "http://localhost:8081/api/chat",
-    onError: (error: Error) => console.error(error, "ERROR"),
+    api: 'http://localhost:8081/api/chat',
+    onError: (error: Error) => console.log(error, 'ERROR'),
+    body: {
+      contextType: context.contextType,
+      itemId: context.itemId,
+      packId: context.packId,
+    },
     initialMessages: [
       {
-        id: "1",
-        role: "assistant",
+        id: '1',
+        role: 'assistant',
         content: getContextualGreeting(context),
       },
     ],
     onFinish: () => {
       // Hide suggestions after user sends a message
-      setShowSuggestions(false)
+      setShowSuggestions(false);
     },
-  })
+  });
 
   const handleSuggestionPress = (suggestion: string) => {
     setInput(suggestion)
@@ -264,52 +273,60 @@ export default function AIChat() {
     <>
       <Stack.Screen
         options={{
-          header: () => <Header contextName={contextName} />,
+          header: () => <Header />,
         }}
       />
       <GestureDetector gesture={pan}>
         <KeyboardAvoidingView
-          style={[ROOT_STYLE, { backgroundColor: isDarkColorScheme ? colors.background : colors.card }]}
-          behavior="padding"
-        >
-            <FlashList
-              // inverted
-              estimatedItemSize={70}
-              ListHeaderComponent={<View style={{ height: HEADER_HEIGHT + insets.top }} />}
-              ListFooterComponent={
-                <>
-                  {showSuggestions && messages.length <= 2 && (
-                    <View className="px-4 py-4">
-                      <Text className="text-xs text-muted-foreground mb-2">SUGGESTIONS</Text>
-                      <View className="flex-row flex-wrap gap-2">
-                        {getContextualSuggestions(context).map((suggestion, index) => (
-                          <TouchableOpacity
-                            key={index}
-                            onPress={() => handleSuggestionPress(suggestion)}
-                            className="bg-card rounded-full px-3 py-2 border border-border mb-2"
-                          >
-                            <Text className="text-sm text-foreground">{suggestion}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
+          style={[
+            ROOT_STYLE,
+            { backgroundColor: isDarkColorScheme ? colors.background : colors.card },
+          ]}
+          behavior="padding">
+          <FlashList
+            // inverted
+            estimatedItemSize={70}
+            ListHeaderComponent={<View style={{ height: HEADER_HEIGHT + insets.top }} />}
+            ListFooterComponent={
+              <>
+                {showSuggestions && messages.length <= 2 && (
+                  <View className="px-4 py-4">
+                    <Text className="mb-2 text-xs text-muted-foreground">SUGGESTIONS</Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {getContextualSuggestions(context).map((suggestion, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          onPress={() => handleSuggestionPress(suggestion)}
+                          className="mb-2 rounded-full border border-border bg-card px-3 py-2">
+                          <Text className="text-sm text-foreground">{suggestion}</Text>
+                        </TouchableOpacity>
+                      ))}
                     </View>
-                  )}
-                  <Animated.View style={toolbarHeightStyle} />
-                </>
+                  </View>
+                )}
+                <Animated.View style={toolbarHeightStyle} />
+              </>
+            }
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
+            scrollIndicatorInsets={{ bottom: HEADER_HEIGHT + 10, top: insets.bottom + 2 }}
+            data={chatMessages}
+            renderItem={({ item, index }) => {
+              if (typeof item === 'string') {
+                return <DateSeparator date={item} />;
               }
-              keyboardDismissMode="on-drag"
-              keyboardShouldPersistTaps="handled"
-              scrollIndicatorInsets={{ bottom: HEADER_HEIGHT + 10, top: insets.bottom + 2 }}
-              data={chatMessages}
-              renderItem={({ item, index }) => {
-                if (typeof item === "string") {
-                  return <DateSeparator date={item} />
-                }
-                const nextMessage = chatMessages[index - 1]
-                const isSameNextSender = typeof nextMessage !== "string" ? nextMessage?.sender === item.sender : false
-                return <ChatBubble isSameNextSender={isSameNextSender} item={item} translateX={translateX} />
-              }}
-            />
+              const nextMessage = chatMessages[index - 1];
+              const isSameNextSender =
+                typeof nextMessage !== 'string' ? nextMessage?.sender === item.sender : false;
+              return (
+                <ChatBubble
+                  isSameNextSender={isSameNextSender}
+                  item={item}
+                  translateX={translateX}
+                />
+              );
+            }}
+          />
           {error && (
             <View className="absolute bottom-20 left-0 right-0 items-center">
               <View className="bg-destructive/90 mx-4 rounded-lg px-4 py-2">
@@ -325,14 +342,19 @@ export default function AIChat() {
           input={input}
           handleInputChange={setInput} // Pass the setter directly.
           handleSubmit={() => {
-            handleSubmit()
-            setShowSuggestions(false)
+            handleSubmit();
+            setShowSuggestions(false);
           }}
           isLoading={isLoading}
+          placeholder={
+            context.contextType == 'general'
+              ? 'Ask anything outdoors'
+              : `Ask about this ${context.contextType == 'item' ? 'item' : 'pack'}...`
+          }
         />
       </KeyboardStickyView>
     </>
-  )
+  );
 }
 
 function DateSeparator({ date }: { date: string }) {
@@ -382,36 +404,39 @@ function ChatBubble({
   return (
     <View
       className={cn(
-        "justify-center px-2 pb-3.5",
-        isSameNextSender ? "pb-1" : "pb-3.5",
-        isAI ? "items-start pr-16" : "items-end pl-16",
-      )}
-    >
+        'justify-center px-2 pb-3.5',
+        isSameNextSender ? 'pb-1' : 'pb-3.5',
+        isAI ? 'items-start pr-16' : 'items-end pl-16'
+      )}>
       <Animated.View style={!isAI ? rootStyle : undefined}>
         <View>
-          <View className={cn("absolute bottom-0 items-center justify-center", isAI ? "-left-2 " : "-right-2.5")}>
-            {Platform.OS === "ios" && (
+          <View
+            className={cn(
+              'absolute bottom-0 items-center justify-center',
+              isAI ? '-left-2 ' : '-right-2.5'
+            )}>
+            {Platform.OS === 'ios' && (
               <>
                 <View
                   className={cn(
-                    "h-5 w-5 rounded-full",
+                    'h-5 w-5 rounded-full',
                     !isAI
-                      ? "bg-primary"
-                      : Platform.OS === "ios"
-                        ? "bg-background dark:bg-muted"
-                        : "bg-background dark:bg-muted-foreground",
+                      ? 'bg-primary'
+                      : Platform.OS === 'ios'
+                        ? 'bg-background dark:bg-muted'
+                        : 'bg-background dark:bg-muted-foreground'
                   )}
                 />
                 <View
                   className={cn(
-                    "absolute h-5 w-5 rounded-full bg-card dark:bg-background",
-                    !isAI ? "-right-2" : "right-2",
+                    'absolute h-5 w-5 rounded-full bg-card dark:bg-background',
+                    !isAI ? '-right-2' : 'right-2'
                   )}
                 />
                 <View
                   className={cn(
-                    "absolute h-5 w-5 -translate-y-1 rounded-full bg-card dark:bg-background",
-                    !isAI ? "-right-2" : "right-2",
+                    'absolute h-5 w-5 -translate-y-1 rounded-full bg-card dark:bg-background',
+                    !isAI ? '-right-2' : 'right-2'
                   )}
                 />
               </>
@@ -422,12 +447,13 @@ function ChatBubble({
               <View
                 style={BORDER_CURVE}
                 className={cn(
-                  "rounded-2xl bg-background px-3 py-1.5 dark:bg-muted-foreground",
-                  Platform.OS === "ios" && "dark:bg-muted",
-                  !isAI && "bg-primary dark:bg-primary",
-                )}
-              >
-                <Text className={cn(!isAI && "text-white")}>{isAI ? formatAIResponse(item.text) : item.text}</Text>
+                  'rounded-2xl bg-background px-3 py-1.5 dark:bg-muted-foreground',
+                  Platform.OS === 'ios' && 'dark:bg-muted',
+                  !isAI && 'bg-primary dark:bg-primary'
+                )}>
+                <Text className={cn(!isAI && 'text-white')}>
+                  {isAI ? formatAIResponse(item.text) : item.text}
+                </Text>
               </View>
             </Pressable>
           </View>
@@ -439,7 +465,7 @@ function ChatBubble({
         </Text>
       </Animated.View>
     </View>
-  )
+  );
 }
 
 const COMPOSER_STYLE: ViewStyle = {
@@ -461,21 +487,23 @@ function Composer({
   handleInputChange,
   handleSubmit,
   isLoading,
+  placeholder,
 }: {
-  textInputHeight: SharedValue<number>
-  input: string
-  handleInputChange: (text: string) => void
-  handleSubmit: () => void
-  isLoading: boolean
+  textInputHeight: SharedValue<number>;
+  input: string;
+  handleInputChange: (text: string) => void;
+  handleSubmit: () => void;
+  isLoading: boolean;
+  placeholder: string;
 }) {
-  const { colors, isDarkColorScheme } = useColorScheme()
-  const insets = useSafeAreaInsets()
+  const { colors, isDarkColorScheme } = useColorScheme();
+  const insets = useSafeAreaInsets();
 
   function onContentSizeChange(event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) {
     textInputHeight.value = Math.max(
       Math.min(event.nativeEvent.contentSize.height, 280),
-      Platform.select({ ios: 20, default: 38 }),
-    )
+      Platform.select({ ios: 20, default: 38 })
+    );
   }
 
   return (
@@ -485,16 +513,15 @@ function Composer({
         COMPOSER_STYLE,
         {
           backgroundColor: Platform.select({
-            ios: isDarkColorScheme ? "#00000080" : "#ffffff80",
+            ios: isDarkColorScheme ? '#00000080' : '#ffffff80',
             default: isDarkColorScheme ? colors.background : colors.card,
           }),
           paddingBottom: insets.bottom,
         },
-      ]}
-    >
+      ]}>
       <View className="flex-row items-end gap-2 px-4 py-2">
         <TextInput
-          placeholder="Ask about packing advice..."
+          placeholder={placeholder}
           style={TEXT_INPUT_STYLE}
           className="ios:pt-[7px] ios:pb-1 min-h-9 flex-1 rounded-[18px] border border-border bg-background py-1 pl-3 pr-8 text-base leading-5 text-foreground"
           placeholderTextColor={colors.grey2}
@@ -510,17 +537,22 @@ function Composer({
               <Text className="text-xs text-primary">...</Text>
             </View>
           ) : input.length > 0 ? (
-            <Button onPress={handleSubmit} size="icon" className="ios:rounded-full h-7 w-7 rounded-full">
+            <Button
+              onPress={handleSubmit}
+              size="icon"
+              className="ios:rounded-full h-7 w-7 rounded-full">
               <Icon name="arrow-up" size={18} color="white" />
             </Button>
           ) : (
-            <Button size="icon" variant="plain" className="ios:rounded-full h-7 w-7 rounded-full opacity-40">
+            <Button
+              size="icon"
+              variant="plain"
+              className="ios:rounded-full h-7 w-7 rounded-full opacity-40">
               <Icon name="arrow-up" size={20} color={colors.foreground} />
             </Button>
           )}
         </View>
       </View>
     </BlurView>
-  )
+  );
 }
-
