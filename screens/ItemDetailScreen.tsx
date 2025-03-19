@@ -1,9 +1,11 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { Image, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Chip } from '~/components/initial/Chip';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { useCatalogItems } from '~/hooks/useItems';
 import { useAllPackItems } from '~/hooks/usePackItems';
+import { Icon } from "@roninoss/icons"
+
 import {
   calculateTotalWeight,
   getNotes,
@@ -16,6 +18,7 @@ import {
 } from '~/lib/utils/itemCalculations';
 import { LoadingSpinnerScreen } from './LoadingSpinnerScreen';
 import { NotFoundScreen } from './NotFoundScreen';
+import { Button } from "~/components/nativewindui/Button"
 
 export function ItemDetailScreen() {
   const { id: itemId } = useLocalSearchParams();
@@ -68,6 +71,17 @@ export function ItemDetailScreen() {
   const isItemWorn = isWorn(item);
   const itemHasNotes = hasNotes(item);
   const itemNotes = getNotes(item);
+
+  const navigateToChat = () => {
+    router.push({
+      pathname: "/ai-chat-better-ui",
+      params: {
+        itemId: item.id,
+        itemName: item.name,
+        contextType: "item",
+      },
+    })
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -135,6 +149,16 @@ export function ItemDetailScreen() {
               <Text className="text-foreground">{itemNotes}</Text>
             </View>
           )}
+        </View>
+        <View className="mt-6 mb-8 px-4">
+          <Button
+            variant="primary"
+            onPress={navigateToChat}
+            className="flex-row items-center justify-center bg-primary py-3 px-4 rounded-full"
+          >
+            <Icon name='message' size={20} color="white" />
+            <Text className="text-white font-semibold">Ask AI About This Item</Text>
+          </Button>
         </View>
       </ScrollView>
     </SafeAreaView>

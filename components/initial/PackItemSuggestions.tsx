@@ -76,7 +76,7 @@ export function PackItemSuggestions({
   // If suggestions aren't being shown, display the generate button
   if (!showSuggestions) {
     return (
-      <View className="mb-4 bg-card p-4">
+      <View className="bg-card p-4">
         <Button onPress={handleGenerateSuggestions} className="w-full" variant="secondary">
           <Icon name="atom" size={18} />
           <Text>Get AI Item Suggestions</Text>

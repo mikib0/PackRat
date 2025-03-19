@@ -23,6 +23,7 @@ import { LoadingSpinnerScreen } from './LoadingSpinnerScreen';
 import { Icon } from '@roninoss/icons';
 import { Alert } from '~/components/nativewindui/Alert';
 import { PackItemSuggestions } from '~/components/initial/PackItemSuggestions';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 export function PackDetailScreen() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export function PackDetailScreen() {
 
   const { data: pack, isLoading, isError, refetch } = usePackDetails(id as string);
   const deletePack = useDeletePack();
+  const { colors } = useColorScheme();
 
   const handleItemPress = (item: PackItem) => {
     if (!item.id) return;
@@ -168,15 +170,19 @@ export function PackDetailScreen() {
         </View>
 
         <View className="bg-card">
-          {/* AI Suggestions Section */}
-          {filteredItems.length && (
-            <PackItemSuggestions
-              packId={pack.id}
-              userId={pack.userId}
-              packItems={pack.items || []}
-              onItemAdded={refetch}
-            />
-          )}
+          <View className="p-4">
+            <Button
+              variant="secondary"
+              onPress={() =>
+                router.push({
+                  pathname: '/ai-chat-better-ui',
+                  params: { packId: id, packName: pack.name, contextType: 'pack' },
+                })
+              }>
+              <Icon name="message-outline" color={colors.foreground} />
+              <Text>Ask AI</Text>
+            </Button>
+          </View>
 
           <View className="flex-row border-b border-border">
             <TouchableOpacity className={getTabStyle('all')} onPress={() => setActiveTab('all')}>
@@ -209,6 +215,16 @@ export function PackDetailScreen() {
             }
             scrollEnabled={false}
           />
+
+          {/* AI Suggestions Section */}
+          {filteredItems.length && (
+            <PackItemSuggestions
+              packId={pack.id}
+              userId={pack.userId}
+              packItems={pack.items || []}
+              onItemAdded={refetch}
+            />
+          )}
 
           <Button
             className="m-4"
