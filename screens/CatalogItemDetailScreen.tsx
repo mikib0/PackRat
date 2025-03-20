@@ -115,11 +115,7 @@ export function CatalogItemDetailScreen() {
           {item.availability && (
             <View className="mb-4 flex-row items-center">
               <Icon
-                name={
-                  item.availability === 'In Stock'
-                    ? 'checkmark-circle-outline'
-                    : 'alert-circle-outline'
-                }
+                name={item.availability === 'In Stock' ? 'check-circle-outline' : 'exclamation'}
                 size={16}
                 color={item.availability === 'In Stock' ? 'text-green-500' : 'text-amber-500'}
               />

@@ -13,15 +13,15 @@ export function ItemLinks({ links }: ItemLinksProps) {
   const getIconName = (type: ItemLink['type']) => {
     switch (type) {
       case 'official':
-        return 'globe-outline';
+        return 'globe-model';
       case 'review':
         return 'star-outline';
       case 'guide':
-        return 'book-outline';
+        return 'book-open-outline';
       case 'purchase':
-        return 'cart-outline';
+        return 'cart';
       default:
-        return 'link-outline';
+        return 'link';
     }
   };
 

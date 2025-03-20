@@ -61,7 +61,7 @@ export function ItemReviews({ reviews }: ItemReviewsProps) {
               <View className="flex-row items-center">
                 {review.verified && (
                   <View className="mr-2 flex-row items-center">
-                    <Icon name="checkmark-circle" size={14} color="text-green-500" />
+                    <Icon name="check-circle-outline" size={14} color="text-green-500" />
                     <Text className="ml-1 text-xs text-green-500">Verified</Text>
                   </View>
                 )}
@@ -96,7 +96,7 @@ export function ItemReviews({ reviews }: ItemReviewsProps) {
 
             {review.helpful !== undefined && (
               <View className="mt-2 flex-row items-center">
-                <Icon name="thumbs-up-outline" size={14} color="text-muted-foreground" />
+                <Icon name="heart" size={14} color="text-muted-foreground" />
                 <Text className="ml-1 text-xs text-muted-foreground">
                   {review.helpful} {review.helpful === 1 ? 'person' : 'people'} found this helpful
                 </Text>
