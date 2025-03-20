@@ -79,7 +79,7 @@ export type CatalogItem = {
   image: string;
   createdAt: string;
   updatedAt: string;
-  usageCount: number;
+  usageCount?: number;
   // Enhanced properties
   brand?: string;
   ratingValue?: number;

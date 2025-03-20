@@ -39,8 +39,13 @@ export function CatalogItemCard({ item, onPress }: CatalogItemCardProps) {
                 {item.defaultWeight} {item.weightUnit}
               </Text>
             </View>
-            {item.price && (
-              <Text className="font-medium text-foreground">${item.price.toFixed(2)}</Text>
+            {item.usageCount > 0 && (
+              <View className="flex-row items-center">
+                <Icon name="backpack" size={14} color="text-muted-foreground" />
+                <Text className="ml-1 text-xs text-muted-foreground">
+                  used in {item.usageCount} {item.usageCount === 1 ? 'pack' : 'packs'}
+                </Text>
+              </View>
             )}
           </View>
         </View>
