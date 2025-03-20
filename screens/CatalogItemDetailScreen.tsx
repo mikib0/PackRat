@@ -19,8 +19,7 @@ export function CatalogItemDetailScreen() {
   const { data: item, isLoading, isError, refetch } = useCatalogItemDetails(id as string);
 
   const handleAddToPack = () => {
-    // Navigate to add to pack screen
-    router.push({ pathname: '/item/new', params: { catalogItemId: item?.id } });
+    router.push({ pathname: '/catalog/add-to-pack', params: { catalogItemId: item?.id } });
   };
 
   if (isLoading) {

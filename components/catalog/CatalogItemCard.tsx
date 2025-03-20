@@ -34,7 +34,7 @@ export function CatalogItemCard({ item, onPress }: CatalogItemCardProps) {
           </View>
           <View className="mt-2 flex-row items-center justify-between">
             <View className="flex-row items-center">
-              <Icon name="scale-outline" size={14} color="text-muted-foreground" />
+              <Icon name="dumbbell" size={14} color="text-muted-foreground" />
               <Text className="ml-1 text-xs text-muted-foreground">
                 {item.defaultWeight} {item.weightUnit}
               </Text>

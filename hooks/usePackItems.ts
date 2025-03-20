@@ -43,6 +43,7 @@ interface ItemInput {
   worn: boolean;
   notes: string;
   image: string | null;
+  catalogItemId?: string;
 }
 
 const createOrUpdateItem = async (itemData: ItemInput): Promise<PackItem> => {
