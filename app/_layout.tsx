@@ -48,6 +48,8 @@ export default function RootLayout() {
             <Stack.Screen name="item/[id]/edit" options={ITEM_EDIT_OPTIONS} />
             <Stack.Screen name="item/new" options={ITEM_NEW_OPTIONS} />
             <Stack.Screen name="ai-chat" options={AI_CHAT_OPTIONS} />
+            <Stack.Screen name="catalog/index" options={CATALOG_LIST_OPTIONS} />
+            <Stack.Screen name="catalog/[id]" options={CATALOG_ITEM_DETAIL_OPTIONS} />
           </Stack>
         </NavThemeProvider>
       </Providers>
@@ -182,4 +184,13 @@ const ITEM_DETAIL_OPTIONS = {
 
 const ITEM_EDIT_OPTIONS = {
   title: 'Edit Item',
+} as const;
+
+const CATALOG_LIST_OPTIONS = {
+  title: 'Gear Catalog',
+  headerLargeTitle: true,
+} as const;
+
+const CATALOG_ITEM_DETAIL_OPTIONS = {
+  title: 'Catalog Item',
 } as const;
