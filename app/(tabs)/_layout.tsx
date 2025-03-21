@@ -1,6 +1,6 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Icon, IconProps } from '@roninoss/icons';
-import { Link, Stack, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import * as React from 'react';
 import { Platform, Pressable, PressableProps, View } from 'react-native';
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
@@ -16,16 +16,13 @@ export default function TabLayout() {
   const { colors } = useColorScheme();
   return (
     <>
-      <Stack.Screen options={{ title: 'Tabs' }} />
       <Tabs
         tabBar={TAB_BAR}
-        screenOptions={{
-          tabBarActiveTintColor: colors.primary,
-        }}>
-        <Tabs.Screen name="index" options={INDEX_OPTIONS} />
-        <Tabs.Screen name="packs/index" options={PACK_LIST_OPTIONS} />
+        screenOptions={{ headerShown: false, tabBarActiveTintColor: colors.primary }}>
+        <Tabs.Screen name="(home)" options={INDEX_OPTIONS} />
+        <Tabs.Screen name="packs" options={PACK_LIST_OPTIONS} />
         <Tabs.Screen name="demo" options={DEMO_OPTIONS} />
-        <Tabs.Screen name="items/index" options={ITEM_LIST_OPTIONS} />
+        <Tabs.Screen name="items" options={ITEM_LIST_OPTIONS} />
       </Tabs>
     </>
   );
@@ -33,30 +30,13 @@ export default function TabLayout() {
 
 const INDEX_OPTIONS = {
   title: 'Dashboard',
-  headerRight: () => <SettingsIcon />,
   tabBarIcon(props) {
     return <Icon name="home" {...props} size={27} />;
   },
 } as const;
 
-function SettingsIcon() {
-  const { colors } = useColorScheme();
-  return (
-    <Link href="/modal" asChild>
-      <Pressable className="opacity-80">
-        {({ pressed }) => (
-          <View className={cn(pressed ? 'opacity-50' : 'opacity-90')}>
-            <Icon name="cog-outline" color={colors.foreground} />
-          </View>
-        )}
-      </Pressable>
-    </Link>
-  );
-}
-
 const DEMO_OPTIONS = {
   title: 'Demo',
-  headerRight: () => <ThemeToggle />,
   tabBarIcon(props) {
     return <Icon name="puzzle" {...props} size={27} />;
   },
@@ -64,16 +44,6 @@ const DEMO_OPTIONS = {
 
 const PACK_LIST_OPTIONS = {
   title: 'My Packs',
-  headerRight: () => {
-    const { colors } = useColorScheme();
-    return (
-      <Link href="/pack/new" asChild>
-        <Pressable>
-          <Icon name="plus" color={colors.foreground} />
-        </Pressable>
-      </Link>
-    );
-  },
   tabBarIcon(props) {
     return <Icon name="backpack" {...props} size={27} />;
   },
@@ -92,10 +62,10 @@ const TAB_BAR = Platform.select({
 });
 
 const TAB_ICON = {
-  index: 'home',
-  'packs/index': 'backpack',
+  '(home)': 'home',
+  packs: 'backpack',
   demo: 'puzzle',
-  'items/index': 'clipboard-list',
+  items: 'clipboard-list',
 } as const;
 
 function MaterialTabBar({ state, descriptors, navigation }: BottomTabBarProps) {

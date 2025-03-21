@@ -34,6 +34,7 @@ function SettingsIcon() {
 
 function DemoIcon() {
   const { colors } = useColorScheme();
+
   return (
     <Link href="/demo" asChild>
       <Pressable className="opacity-80">
@@ -52,6 +53,7 @@ export default function DashboardScreen() {
     <>
       <LargeTitleHeader
         title="Dashboard"
+        backVisible={true}
         searchBar={{ iosHideWhenScrolling: true }}
         rightView={() => (
           <View className="flex-row gap-2 pr-2">
