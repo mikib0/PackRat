@@ -10,7 +10,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '~/components/Card';
 
 import { Button } from '~/components/nativewindui/Button';
+import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
+import { ThemeToggle } from '~/components/ThemeToggle';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 
@@ -34,19 +36,27 @@ export default function Screen() {
   }
 
   return (
-    <FlashList
-      contentInsetAdjustmentBehavior="automatic"
-      keyboardShouldPersistTaps="handled"
-      data={data}
-      estimatedItemSize={200}
-      contentContainerClassName="py-4 android:pb-12"
-      extraData={searchValue}
-      removeClippedSubviews={false} // used for selecting text on android
-      keyExtractor={keyExtractor}
-      ItemSeparatorComponent={renderItemSeparator}
-      renderItem={renderItem}
-      ListEmptyComponent={COMPONENTS.length === 0 ? ListEmptyComponent : undefined}
-    />
+    <>
+      <LargeTitleHeader
+        title="Demo"
+        backVisible={false}
+        searchBar={{ iosHideWhenScrolling: true }}
+        rightView={ThemeToggle}
+      />
+      <FlashList
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+        data={data}
+        estimatedItemSize={200}
+        contentContainerClassName="py-4 android:pb-12"
+        extraData={searchValue}
+        removeClippedSubviews={false} // used for selecting text on android
+        keyExtractor={keyExtractor}
+        ItemSeparatorComponent={renderItemSeparator}
+        renderItem={renderItem}
+        ListEmptyComponent={COMPONENTS.length === 0 ? ListEmptyComponent : undefined}
+      />
+    </>
   );
 }
 

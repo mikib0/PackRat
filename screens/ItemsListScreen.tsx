@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { searchValueAtom } from '~/atoms/itemListAtoms';
 import { ItemCard } from '~/components/initial/ItemCard';
+import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { useCatalogItems } from '~/hooks/useItems';
 import { useAllPackItems } from '~/hooks/usePackItems';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
@@ -131,6 +132,11 @@ export function ItemListScreen() {
 
   return (
     <SafeAreaView className="flex-1">
+      <LargeTitleHeader
+        title="My items"
+        backVisible={false}
+        searchBar={{ iosHideWhenScrolling: true }}
+      />
       <View className="bg-background px-4 py-2">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-1">
           {filterOptions.map(renderFilterChip)}
