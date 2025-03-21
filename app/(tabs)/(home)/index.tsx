@@ -77,9 +77,25 @@ export default function DashboardScreen() {
 }
 
 function renderItem<T extends (typeof DATA)[number]>(info: ListRenderItemInfo<T>) {
-  if (typeof info.item === 'string') {
-    return <ListSectionHeader {...info} />;
+  if (typeof info.item === "string") {
+    return <ListSectionHeader {...info} />
   }
+
+  const handlePress = () => {
+    if (info.item.id === "13") {
+      // Navigate to AI chat
+      const { router } = require("expo-router")
+      router.push({
+        pathname: "/ai-chat-better-ui",
+        params: {
+          contextType: "general",
+        },
+      })
+    } else {
+      console.log("onPress")
+    }
+  }
+
   return (
     <ListItem
       className={cn(
@@ -106,7 +122,7 @@ function renderItem<T extends (typeof DATA)[number]>(info: ListRenderItemInfo<T>
         </View>
       }
       {...info}
-      onPress={() => console.log('onPress')}
+      onPress={handlePress}
     />
   );
 }
@@ -191,7 +207,14 @@ const DATA: MockData[] = [
     ),
     badge: 3,
   },
-  'gap 1',
+  "gap 1",
+  {
+    id: "13",
+    title: "Ask PackRat AI",
+    leftView: <IconView name="message" className="bg-purple-500" />,
+    rightText: "Anything outdoors...",
+  },
+  "gap 1.5",
   {
     id: '3',
     title: 'Pack Stats',

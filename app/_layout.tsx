@@ -42,6 +42,7 @@ export default function RootLayout() {
             <Stack.Screen name="item/[id]/index" options={ITEM_DETAIL_OPTIONS} />
             <Stack.Screen name="item/[id]/edit" options={ITEM_EDIT_OPTIONS} />
             <Stack.Screen name="item/new" options={ITEM_NEW_OPTIONS} />
+            <Stack.Screen name="ai-chat" options={AI_CHAT_OPTIONS} />
           </Stack>
         </NavThemeProvider>
       </Providers>
@@ -78,6 +79,12 @@ const PACK_NEW_OPTIONS = {
 
 const ITEM_NEW_OPTIONS = {
   title: 'Create New Item',
+  presentation: 'modal',
+  animation: 'fade_from_bottom', // for android
+} as const;
+
+const AI_CHAT_OPTIONS = {
+  title: 'AI Chat',
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
 } as const;

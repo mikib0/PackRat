@@ -13,6 +13,8 @@
     "check-types-watch": "tsc --noEmit --watch"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.2.5",
+    "@ai-sdk/react": "^1.1.23",
     "@expo/react-native-action-sheet": "^4.1.1",
     "@expo/vector-icons": "^14.0.0",
     "@gorhom/bottom-sheet": "^5.1.2",
@@ -33,8 +35,11 @@
     "@rn-primitives/slot": "^1.1.0",
     "@roninoss/icons": "^0.0.4",
     "@shopify/flash-list": "1.7.3",
+    "@stardazed/streams-text-encoding": "^1.0.2",
     "@tanstack/react-form": "^1.0.5",
     "@tanstack/react-query": "^5.67.3",
+    "@ungap/structured-clone": "^1.3.0",
+    "ai": "^4.1.61",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "expo": "^52.0.38",
@@ -56,6 +61,7 @@
     "radash": "^12.1.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-error-boundary": "~5.0.0",
     "react-native": "0.76.7",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-ios-context-menu": "^3.1.0",
