@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   View,
-  Text,
   ScrollView,
   TextInput,
   Switch,
@@ -22,6 +21,8 @@ import { useCatalogItemDetails } from '~/hooks/useItems';
 import { usePackDetails } from '~/hooks/usePacks';
 import { useCreateOrUpdateItem } from '~/hooks/usePackItems';
 import type { WeightUnit } from '~/types';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { Text } from '~/components/nativewindui/Text';
 
 export function AddCatalogItemDetailsScreen() {
   const router = useRouter();
@@ -38,6 +39,8 @@ export function AddCatalogItemDetailsScreen() {
   const [notes, setNotes] = useState('');
   const [isConsumable, setIsConsumable] = useState(false);
   const [isWorn, setIsWorn] = useState(false);
+
+  const { colors } = useColorScheme();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -118,7 +121,7 @@ export function AddCatalogItemDetailsScreen() {
               <Text className="mb-4 text-muted-foreground">{catalogItem.description}</Text>
               <View className="flex-row gap-4">
                 <View className="flex-row items-center">
-                  <Icon name="dumbbell" size={16} color="text-muted-foreground" />
+                  <Icon name="dumbbell" size={16} color={colors.grey} />
                   <Text className="ml-1 text-muted-foreground">
                     {catalogItem.defaultWeight} {catalogItem.weightUnit}
                   </Text>
@@ -133,13 +136,13 @@ export function AddCatalogItemDetailsScreen() {
             </View>
 
             {/* Selected Pack */}
-            <View className="border-b border-border bg-card px-4 py-3">
+            <View className="mt-6 border-b border-border bg-card px-4 py-3">
               <View className="flex-row items-center justify-between">
                 <View>
                   <Text className="text-sm text-muted-foreground">Selected Pack</Text>
                   <Text className="text-base font-medium text-foreground">{pack.name}</Text>
                   <View className="mt-1 flex-row items-center">
-                    <Icon name="basket-outline" size={14} color="text-muted-foreground" />
+                    <Icon name="basket-outline" size={14} color={colors.grey} />
                     <Text className="ml-1 text-xs text-muted-foreground">
                       {pack.items.length} {pack.items.length === 1 ? 'item' : 'items'}
                     </Text>
@@ -154,23 +157,23 @@ export function AddCatalogItemDetailsScreen() {
                   onPress={() =>
                     router.push({ pathname: '/catalog/add-to-pack', params: { catalogItemId } })
                   }>
-                  <Text>Change</Text>
+                  <Text className="font-normal">Change</Text>
                 </Button>
               </View>
             </View>
 
             {/* Item Details Form */}
             <View className="p-4">
-              <View className="mb-6 rounded-lg bg-card p-4 shadow-sm">
+              <View className="rounded-lg bg-card p-4 shadow-sm">
                 <View className="mb-4">
                   <Text className="mb-1 text-sm font-medium text-foreground">Quantity</Text>
                   <View className="flex-row items-center">
                     <TouchableOpacity
-                      className="items-center justify-center rounded-l-md border border-r-0 border-border bg-muted px-3 py-2"
+                      className="items-center justify-center rounded-l-md border border-r-0 border-border bg-card px-3 py-2"
                       onPress={() =>
                         setQuantity((prev) => Math.max(1, Number.parseInt(prev, 10) - 1).toString())
                       }>
-                      <Icon name="minus" size={18} color="text-foreground" />
+                      <Icon name="minus" size={18} color={colors.foreground} />
                     </TouchableOpacity>
                     <TextInput
                       className="flex-1 border-y border-border bg-background px-3 py-2 text-center text-foreground"
@@ -180,11 +183,11 @@ export function AddCatalogItemDetailsScreen() {
                       selectTextOnFocus
                     />
                     <TouchableOpacity
-                      className="items-center justify-center rounded-r-md border border-l-0 border-border bg-muted px-3 py-2"
+                      className="items-center justify-center rounded-r-md border border-l-0 border-border bg-card px-3 py-2"
                       onPress={() =>
                         setQuantity((prev) => (Number.parseInt(prev, 10) + 1).toString())
                       }>
-                      <Icon name="plus" size={18} color="text-foreground" />
+                      <Icon name="plus" size={18} color={colors.foreground} />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -223,7 +226,7 @@ export function AddCatalogItemDetailsScreen() {
                 </View>
               </View>
 
-              <View className="mb-4">
+              <View className="mb-2 mt-6">
                 <Button onPress={handleAddToPack} disabled={isCreating}>
                   {isCreating ? (
                     <ActivityIndicator size="small" color="text-primary-foreground" />

@@ -1,6 +1,7 @@
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@roninoss/icons';
 import type { CatalogItem } from '~/types';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 type CatalogItemCardProps = {
   item: CatalogItem;
@@ -8,6 +9,7 @@ type CatalogItemCardProps = {
 };
 
 export function CatalogItemCard({ item, onPress }: CatalogItemCardProps) {
+  const { colors } = useColorScheme();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -20,7 +22,7 @@ export function CatalogItemCard({ item, onPress }: CatalogItemCardProps) {
               <Text className="text-lg font-semibold text-foreground">{item.name}</Text>
               {item.ratingValue && (
                 <View className="flex-row items-center">
-                  <Icon name="star" size={14} color="text-amber-500" />
+                  <Icon name="star" size={14} color={colors.yellow} />
                   <Text className="ml-1 text-xs text-muted-foreground">
                     {item.ratingValue.toFixed(1)}
                   </Text>
@@ -34,14 +36,14 @@ export function CatalogItemCard({ item, onPress }: CatalogItemCardProps) {
           </View>
           <View className="mt-2 flex-row items-center justify-between">
             <View className="flex-row items-center">
-              <Icon name="dumbbell" size={14} color="text-muted-foreground" />
+              <Icon name="dumbbell" size={14} color={colors.grey} />
               <Text className="ml-1 text-xs text-muted-foreground">
                 {item.defaultWeight} {item.weightUnit}
               </Text>
             </View>
             {item.usageCount > 0 && (
               <View className="flex-row items-center">
-                <Icon name="backpack" size={14} color="text-muted-foreground" />
+                <Icon name="backpack" size={14} color={colors.grey} />
                 <Text className="ml-1 text-xs text-muted-foreground">
                   used in {item.usageCount} {item.usageCount === 1 ? 'pack' : 'packs'}
                 </Text>

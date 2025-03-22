@@ -18,6 +18,7 @@ import { useCatalogItemDetails } from '~/hooks/useItems';
 import type { Pack } from '~/types';
 import { SearchInput } from '~/components/nativewindui/SearchInput';
 import { Text } from '~/components/nativewindui/Text';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 export function PackSelectionScreen() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export function PackSelectionScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPacks, setFilteredPacks] = useState<Pack[]>([]);
   const fadeAnim = useState(new Animated.Value(0))[0];
+  const { colors } = useColorScheme();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -92,7 +94,7 @@ export function PackSelectionScreen() {
                   {catalogItem.name}
                 </Text>
                 <View className="mt-1 flex-row items-center">
-                  <Icon name="dumbbell" size={14} color="text-muted-foreground" />
+                  <Icon name="dumbbell" size={14} color={colors.grey2} />
                   <Text variant="caption2" className="ml-1">
                     {catalogItem.defaultWeight} {catalogItem.weightUnit}
                   </Text>
@@ -131,34 +133,34 @@ export function PackSelectionScreen() {
                     className="mb-3 overflow-hidden rounded-lg bg-card shadow-sm"
                     onPress={() => handlePackSelect(item.id)}
                     activeOpacity={0.7}>
-                    <View className="p-4">
+                    <View className="p-4 py-8">
                       <View className="flex-row items-center justify-between">
-                        <View className="flex-1 gap-2">
+                        <View className="flex-1 gap-4">
                           <Text variant="title3" color="primary">
                             {item.name}
                           </Text>
                           <View className="mt-1 flex-row flex-wrap items-center">
                             <View className="mr-3 flex-row items-center">
-                              <Icon name="basket-outline" size={14} color="text-muted-foreground" />
+                              <Icon name="basket-outline" size={14} color={colors.grey2} />
                               <Text variant="caption2" className="ml-1">
                                 {item.items.length} {item.items.length === 1 ? 'item' : 'items'}
                               </Text>
                             </View>
                             <View className="mr-3 flex-row items-center">
-                              <Icon name="dumbbell" size={14} color="text-muted-foreground" />
+                              <Icon name="dumbbell" size={14} color={colors.grey2} />
                               <Text variant="caption2" className="ml-1">
                                 {item.baseWeight.toFixed(2)} g
                               </Text>
                             </View>
                             <View className="flex-row items-center">
-                              <Icon name="tag-outline" size={14} color="text-muted-foreground" />
+                              <Icon name="tag-outline" size={14} color={colors.grey2} />
                               <Text variant="caption2" className="ml-1 capitalize">
                                 {item.category}
                               </Text>
                             </View>
                           </View>
                         </View>
-                        <Icon name="chevron-right" size={20} color="text-muted-foreground" />
+                        <Icon name="chevron-right" size={20} color={colors.grey2} />
                       </View>
                     </View>
                   </TouchableOpacity>

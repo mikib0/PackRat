@@ -2,6 +2,7 @@ import { View, TouchableOpacity, Linking } from 'react-native';
 import { Icon } from '@roninoss/icons';
 import type { ItemLink } from '~/types';
 import { Text } from '../nativewindui/Text';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 type ItemLinksProps = {
   links: ItemLink[];
@@ -9,6 +10,7 @@ type ItemLinksProps = {
 
 export function ItemLinks({ links }: ItemLinksProps) {
   if (!links || links.length === 0) return null;
+  const { colors } = useColorScheme();
 
   const getIconName = (type: ItemLink['type']) => {
     switch (type) {
@@ -45,14 +47,14 @@ export function ItemLinks({ links }: ItemLinksProps) {
             key={link.id}
             className="flex-row items-center border-b border-border p-3 last:border-b-0"
             onPress={() => handleLinkPress(link.url)}>
-            <Icon name={getIconName(link.type)} size={18} color="text-primary" />
+            <Icon name={getIconName(link.type)} size={18} color={colors.primary} />
             <View className="ml-3 flex-1">
-              <Text className="font-medium text-foreground">{link.title}</Text>
+              <Text className="text-foreground">{link.title}</Text>
               <Text className="text-xs text-muted-foreground" numberOfLines={1}>
                 {link.url}
               </Text>
             </View>
-            <Icon name="chevron-right" size={18} color="text-muted-foreground" />
+            <Icon name="chevron-right" size={18} color={colors.grey2} />
           </TouchableOpacity>
         ))}
       </View>

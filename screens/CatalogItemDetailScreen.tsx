@@ -12,11 +12,13 @@ import { LoadingSpinnerScreen } from './LoadingSpinnerScreen';
 import { ErrorScreen } from './ErrorScreen';
 import { NotFoundScreen } from './NotFoundScreen';
 import { Text } from '~/components/nativewindui/Text';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 export function CatalogItemDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { data: item, isLoading, isError, refetch } = useCatalogItemDetails(id as string);
+  const { colors } = useColorScheme();
 
   const handleAddToPack = () => {
     router.push({ pathname: '/catalog/add-to-pack', params: { catalogItemId: item?.id } });
@@ -56,7 +58,7 @@ export function CatalogItemDetailScreen() {
               <Text className="text-2xl font-bold text-foreground">{item.name}</Text>
               {item.ratingValue && (
                 <View className="flex-row items-center">
-                  <Icon name="star" size={16} color="text-amber-500" />
+                  <Icon name="star" size={16} color={colors.yellow} />
                   <Text className="ml-1 text-sm text-muted-foreground">
                     {item.ratingValue.toFixed(1)}
                   </Text>
@@ -67,7 +69,7 @@ export function CatalogItemDetailScreen() {
           </View>
 
           {item.price && (
-            <Text className="mb-4 text-xl font-semibold text-foreground">
+            <Text className="mb-4 text-xl text-foreground">
               ${item.price.toFixed(2)} {item.currency}
             </Text>
           )}
@@ -76,7 +78,7 @@ export function CatalogItemDetailScreen() {
             <Text className="mb-2 text-foreground">{item.description}</Text>
           </View>
 
-          <View className="mb-4 flex-row flex-wrap">
+          <View className="mb-4 flex-row flex-wrap gap-1">
             <View className="mb-2 mr-4">
               <Text className="text-xs uppercase text-muted-foreground">WEIGHT</Text>
               <Chip textClassName="text-center text-xs" variant="secondary">
@@ -117,7 +119,7 @@ export function CatalogItemDetailScreen() {
               <Icon
                 name={item.availability === 'In Stock' ? 'check-circle-outline' : 'exclamation'}
                 size={16}
-                color={item.availability === 'In Stock' ? 'text-green-500' : 'text-amber-500'}
+                color={item.availability === 'In Stock' ? colors.green : colors.yellow}
               />
               <Text className="ml-1 text-sm text-foreground">{item.availability}</Text>
             </View>

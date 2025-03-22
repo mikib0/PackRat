@@ -5,6 +5,7 @@ import { View, Image, TouchableOpacity } from 'react-native';
 import { Icon } from '@roninoss/icons';
 import type { ItemReview } from '~/types';
 import { Text } from '../nativewindui/Text';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 type ItemReviewsProps = {
   reviews: ItemReview[];
@@ -12,6 +13,7 @@ type ItemReviewsProps = {
 
 export function ItemReviews({ reviews }: ItemReviewsProps) {
   const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
+  const { colors } = useColorScheme();
 
   if (!reviews || reviews.length === 0) return null;
 
@@ -61,8 +63,10 @@ export function ItemReviews({ reviews }: ItemReviewsProps) {
               <View className="flex-row items-center">
                 {review.verified && (
                   <View className="mr-2 flex-row items-center">
-                    <Icon name="check-circle-outline" size={14} color="text-green-500" />
-                    <Text className="ml-1 text-xs text-green-500">Verified</Text>
+                    <Icon name="check-circle-outline" size={14} color={colors.green} />
+                    <Text className="ml-1 text-xs text-green-900 dark:text-green-500">
+                      Verified
+                    </Text>
                   </View>
                 )}
                 <View className="flex-row items-center">
@@ -71,7 +75,7 @@ export function ItemReviews({ reviews }: ItemReviewsProps) {
                       key={star}
                       name={star <= review.rating ? 'star' : 'star-outline'}
                       size={14}
-                      color="text-amber-500"
+                      color={colors.yellow}
                     />
                   ))}
                 </View>
@@ -96,7 +100,7 @@ export function ItemReviews({ reviews }: ItemReviewsProps) {
 
             {review.helpful !== undefined && (
               <View className="mt-2 flex-row items-center">
-                <Icon name="heart" size={14} color="text-muted-foreground" />
+                <Icon name="heart" size={14} color={colors.grey} />
                 <Text className="ml-1 text-xs text-muted-foreground">
                   {review.helpful} {review.helpful === 1 ? 'person' : 'people'} found this helpful
                 </Text>
