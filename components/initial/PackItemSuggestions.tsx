@@ -1,8 +1,7 @@
 'use client';
 
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Platform, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@roninoss/icons';
 import { useCreateOrUpdateItem } from '~/hooks/usePackItems';
 import { usePackItemSuggestions } from '~/hooks/usePackItemSuggestions';
@@ -11,6 +10,7 @@ import type { CatalogItem, PackItem } from '~/types';
 import { PackItemSuggestionSkeleton } from './PackItemSuggestionSkeleton';
 import { Button } from '~/components/nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { Text } from '../nativewindui/Text';
 
 interface AISuggestionsProps {
   packId: string;
@@ -78,7 +78,7 @@ export function PackItemSuggestions({
     return (
       <View className="bg-card p-4">
         <Button onPress={handleGenerateSuggestions} className="w-full" variant="secondary">
-          <Icon name="atom" size={18} />
+          <Icon name="atom" size={18} color={colors.foreground} />
           <Text>Get AI Item Suggestions</Text>
         </Button>
       </View>
