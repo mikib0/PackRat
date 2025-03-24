@@ -7,6 +7,7 @@ import { Button } from '../nativewindui/Button';
 import { Icon } from '@roninoss/icons';
 import { useDeleteItem } from '~/hooks/usePackItems';
 import { useRouter } from 'expo-router';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 type PackItemCardProps = {
   item: PackItem;
@@ -16,6 +17,7 @@ type PackItemCardProps = {
 export function PackItemCard({ item, onPress }: PackItemCardProps) {
   const router = useRouter();
   const deleteItem = useDeleteItem();
+  const { colors } = useColorScheme();
 
   return (
     <Pressable
@@ -84,7 +86,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
                 },
               ]}>
               <Button variant="plain" size="icon">
-                <Icon name="trash-can" size={21} />
+                <Icon name="trash-can" size={21} color={colors.grey2} />
               </Button>
             </Alert>
             <Button
@@ -96,7 +98,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
                   params: { id: item.id, packId: item.packId },
                 })
               }>
-              <Icon name="pencil-box-outline" size={21} />
+              <Icon name="pencil-box-outline" size={21} color={colors.grey2} />
             </Button>
           </View>
         </View>

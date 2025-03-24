@@ -1,4 +1,5 @@
-import { CatalogItem, Pack, PackItem, User } from '~/types';
+import { Pack, PackItem, User } from '~/types';
+import { mockCatalogItems } from './mockCatalog';
 
 // --- Users ---
 export const mockUsers: User[] = [
@@ -91,94 +92,6 @@ export const mockUsers: User[] = [
     experience: 'intermediate',
     joinedAt: '2023-05-01T00:00:00.000Z',
     bio: 'Loves exploring rivers and lakes.',
-  },
-];
-
-// --- Catalog Items ---
-export const mockCatalogItems: CatalogItem[] = [
-  {
-    id: 'c1',
-    name: 'UltraLite Shelter',
-    description: 'Compact ultralight shelter for 2-person use.',
-    defaultWeight: 1200,
-    weightUnit: 'g',
-    category: 'shelter',
-    image: 'https://placehold.co/400x300/png',
-    createdAt: '2023-01-01T00:00:00.000Z',
-    updatedAt: '2023-01-01T00:00:00.000Z',
-    usageCount: 3,
-  },
-  {
-    id: 'c2',
-    name: 'Arctic Down Sleeping Bag',
-    description: 'High-performance sleeping bag rated for cold nights.',
-    defaultWeight: 800,
-    weightUnit: 'g',
-    category: 'sleep',
-    image: 'https://placehold.co/400x300/png',
-    createdAt: '2023-01-01T00:00:00.000Z',
-    updatedAt: '2023-01-01T00:00:00.000Z',
-    usageCount: 2,
-  },
-  {
-    id: 'c3',
-    name: 'Summit Pro Pack',
-    description: 'Ergonomic backpack with excellent support.',
-    defaultWeight: 900,
-    weightUnit: 'g',
-    category: 'miscellaneous',
-    image: 'https://placehold.co/400x300/png',
-    createdAt: '2023-01-15T00:00:00.000Z',
-    updatedAt: '2023-01-15T00:00:00.000Z',
-    usageCount: 1,
-  },
-  {
-    id: 'c4',
-    name: 'Jetboil Flash Stove',
-    description: 'Rapid boiling stove for quick meals.',
-    defaultWeight: 300,
-    weightUnit: 'g',
-    category: 'kitchen',
-    image: 'https://placehold.co/400x300/png',
-    createdAt: '2023-01-20T00:00:00.000Z',
-    updatedAt: '2023-01-20T00:00:00.000Z',
-    usageCount: 1,
-  },
-  {
-    id: 'c5',
-    name: 'BrightBeam Headlamp',
-    description: 'LED headlamp with adjustable brightness.',
-    defaultWeight: 70,
-    weightUnit: 'g',
-    category: 'electronics',
-    image: 'https://placehold.co/400x300/png',
-    createdAt: '2023-01-25T00:00:00.000Z',
-    updatedAt: '2023-01-25T00:00:00.000Z',
-    usageCount: 1,
-  },
-  {
-    id: 'c6',
-    name: 'TechSmart Jacket',
-    description: 'Innovative jacket with smart features for urban explorers.',
-    defaultWeight: 500,
-    weightUnit: 'g',
-    category: 'clothing',
-    image: 'https://placehold.co/400x300/png',
-    createdAt: '2023-02-10T00:00:00.000Z',
-    updatedAt: '2023-02-10T00:00:00.000Z',
-    usageCount: 1,
-  },
-  {
-    id: 'c7',
-    name: 'City Commuter Backpack',
-    description: 'Compact and stylish backpack for city adventures.',
-    defaultWeight: 800,
-    weightUnit: 'g',
-    category: 'miscellaneous',
-    image: 'https://placehold.co/400x300/png',
-    createdAt: '2023-02-12T00:00:00.000Z',
-    updatedAt: '2023-02-12T00:00:00.000Z',
-    usageCount: 1,
   },
 ];
 
@@ -892,3 +805,5 @@ export const mockPacks: Omit<Pack, 'baseWeight' | 'totalWeight'>[] = [
 
 // --- Current User ---
 export const currentUser = mockUsers[0];
+
+export { mockCatalogItems };

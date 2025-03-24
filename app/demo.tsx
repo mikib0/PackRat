@@ -115,6 +115,9 @@ const COMPONENTS: ComponentItem[] = [
             <Button onPress={() => router.push('/items')}>
               <Text>Items</Text>
             </Button>
+            <Button onPress={() => router.push('/catalog')}>
+              <Text>Catalog</Text>
+            </Button>
           </View>
           <View className="gap-2">
             <Text>
