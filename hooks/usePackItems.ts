@@ -43,6 +43,7 @@ interface ItemInput {
   worn: boolean;
   notes: string;
   image: string | null;
+  catalogItemId?: string;
 }
 
 const createOrUpdateItem = async (itemData: ItemInput): Promise<PackItem> => {
@@ -178,6 +179,10 @@ export function useCreateOrUpdateItem() {
       queryClient.invalidateQueries({ queryKey: ['packItem', data.id] });
       queryClient.invalidateQueries({ queryKey: ['pack', data.packId] });
       queryClient.invalidateQueries({ queryKey: ['packs'] });
+      if (data.catalogItemId) {
+        queryClient.invalidateQueries({ queryKey: ['catalogItems'] });
+        queryClient.invalidateQueries({ queryKey: ['catalogItem', data.catalogItemId] });
+      }
     },
   });
 }

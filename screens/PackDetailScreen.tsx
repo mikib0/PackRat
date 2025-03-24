@@ -1,14 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  FlatList,
-  Image,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, Image, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { Chip } from '~/components/initial/Chip';
 import { PackItemCard } from '~/components/initial/PackItemCard';
@@ -24,6 +16,7 @@ import { Icon } from '@roninoss/icons';
 import { Alert } from '~/components/nativewindui/Alert';
 import { PackItemSuggestions } from '~/components/initial/PackItemSuggestions';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { Text } from '~/components/nativewindui/Text';
 
 export function PackDetailScreen() {
   const router = useRouter();
@@ -159,11 +152,7 @@ export function PackDetailScreen() {
                 },
               ]}>
               <Button variant="plain" size="icon">
-                <Icon
-                  name="trash-can"
-                  // color={Platform.OS === 'ios' ? colors.primary : colors.foreground}
-                  size={21}
-                />
+                <Icon name="trash-can" color={colors.grey2} size={21} />
               </Button>
             </Alert>
           </View>

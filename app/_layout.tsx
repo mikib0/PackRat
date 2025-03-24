@@ -42,7 +42,11 @@ export default function RootLayout() {
             <Stack.Screen name="item/[id]/index" options={ITEM_DETAIL_OPTIONS} />
             <Stack.Screen name="item/[id]/edit" options={ITEM_EDIT_OPTIONS} />
             <Stack.Screen name="item/new" options={ITEM_NEW_OPTIONS} />
+            <Stack.Screen name="catalog/add-to-pack/index" options={PACK_SELECTION_OPTIONS} />
+            <Stack.Screen name="catalog/add-to-pack/details" options={ITEM_DETAILS_OPTIONS} />
             <Stack.Screen name="ai-chat" options={AI_CHAT_OPTIONS} />
+            <Stack.Screen name="catalog/index" options={CATALOG_LIST_OPTIONS} />
+            <Stack.Screen name="catalog/[id]" options={CATALOG_ITEM_DETAIL_OPTIONS} />
           </Stack>
         </NavThemeProvider>
       </Providers>
@@ -89,6 +93,17 @@ const AI_CHAT_OPTIONS = {
   animation: 'fade_from_bottom', // for android
 } as const;
 
+const PACK_SELECTION_OPTIONS = {
+  title: 'Select Pack',
+  presentation: 'modal',
+  animation: 'fade_from_bottom', // for android
+} as const;
+
+const ITEM_DETAILS_OPTIONS = {
+  title: 'Item Details',
+  animation: 'fade_from_bottom', // for android
+} as const;
+
 // DETAIL SCREENS
 function getPackDetailOptions({
   route,
@@ -130,4 +145,13 @@ const ITEM_DETAIL_OPTIONS = {
 
 const ITEM_EDIT_OPTIONS = {
   title: 'Edit Item',
+} as const;
+
+const CATALOG_LIST_OPTIONS = {
+  title: 'Gear Catalog',
+  headerLargeTitle: true,
+} as const;
+
+const CATALOG_ITEM_DETAIL_OPTIONS = {
+  title: 'Catalog Item',
 } as const;

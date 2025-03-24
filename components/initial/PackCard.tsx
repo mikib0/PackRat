@@ -5,9 +5,9 @@ import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { Icon } from '@roninoss/icons';
 import { useDeletePack } from '~/hooks/usePacks';
-import { useRouter } from 'expo-router';
 import { Alert } from '~/components/nativewindui/Alert';
 import { Button } from '../nativewindui/Button';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 type PackCardProps = {
   pack: Pack;
@@ -16,6 +16,7 @@ type PackCardProps = {
 
 export function PackCard({ pack, onPress }: PackCardProps) {
   const deletePack = useDeletePack();
+  const { colors } = useColorScheme();
 
   // Safely check if weights exist and are greater than 0
   const hasBaseWeight = typeof pack.baseWeight === 'number' && pack.baseWeight > 0;
@@ -80,7 +81,7 @@ export function PackCard({ pack, onPress }: PackCardProps) {
               },
             ]}>
             <Button variant="plain" size="icon">
-              <Icon name="trash-can" size={21} />
+              <Icon name="trash-can" size={21} color={colors.grey2} />
             </Button>
           </Alert>
         </View>
