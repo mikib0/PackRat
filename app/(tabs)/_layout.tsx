@@ -1,6 +1,6 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Icon, IconProps } from '@roninoss/icons';
-import { Stack, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import * as React from 'react';
 import { Platform, Pressable, PressableProps, View } from 'react-native';
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge } from '~/components/nativewindui/Badge';
 import { Text } from '~/components/nativewindui/Text';
+import { ThemeToggle } from '~/components/ThemeToggle';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 
@@ -15,36 +16,45 @@ export default function TabLayout() {
   const { colors } = useColorScheme();
   return (
     <>
-      <Stack.Screen options={{ title: 'Tabs' }} />
       <Tabs
         tabBar={TAB_BAR}
-        screenOptions={{
-          headerShown: false,
-          tabBarActiveTintColor: colors.primary,
-        }}>
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'News',
-            tabBarBadge: 3,
-            tabBarIcon(props) {
-              return <Icon name="newspaper" {...props} size={27} />;
-            },
-          }}
-        />
-        <Tabs.Screen
-          name="for-you"
-          options={{
-            title: 'For You',
-            tabBarIcon(props) {
-              return <Icon name="star" {...props} size={27} />;
-            },
-          }}
-        />
+        screenOptions={{ headerShown: false, tabBarActiveTintColor: colors.primary }}>
+        <Tabs.Screen name="(home)" options={INDEX_OPTIONS} />
+        <Tabs.Screen name="packs" options={PACK_LIST_OPTIONS} />
+        <Tabs.Screen name="demo" options={DEMO_OPTIONS} />
+        <Tabs.Screen name="items" options={ITEM_LIST_OPTIONS} />
       </Tabs>
     </>
   );
 }
+
+const INDEX_OPTIONS = {
+  title: 'Dashboard',
+  tabBarIcon(props) {
+    return <Icon name="home" {...props} size={27} />;
+  },
+} as const;
+
+const DEMO_OPTIONS = {
+  title: 'Demo',
+  tabBarIcon(props) {
+    return <Icon name="puzzle" {...props} size={27} />;
+  },
+} as const;
+
+const PACK_LIST_OPTIONS = {
+  title: 'My Packs',
+  tabBarIcon(props) {
+    return <Icon name="backpack" {...props} size={27} />;
+  },
+} as const;
+
+const ITEM_LIST_OPTIONS = {
+  title: 'My Items',
+  tabBarIcon(props) {
+    return <Icon name="clipboard-list" {...props} size={27} />;
+  },
+} as const;
 
 const TAB_BAR = Platform.select({
   ios: undefined,
@@ -52,8 +62,10 @@ const TAB_BAR = Platform.select({
 });
 
 const TAB_ICON = {
-  index: 'newspaper',
-  'for-you': 'star',
+  '(home)': 'home',
+  packs: 'backpack',
+  demo: 'puzzle',
+  items: 'clipboard-list',
 } as const;
 
 function MaterialTabBar({ state, descriptors, navigation }: BottomTabBarProps) {

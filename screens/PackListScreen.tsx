@@ -7,6 +7,7 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   SafeAreaView,
   ScrollView,
   Text,
@@ -18,6 +19,9 @@ import { PackCard } from '~/components/initial/PackCard';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 import { usePacks } from '../hooks/usePacks';
 import type { Pack, PackCategory } from '../types';
+import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { Link } from 'expo-router';
 
 type FilterOption = {
   label: string;
@@ -34,6 +38,17 @@ const filterOptions: FilterOption[] = [
   { label: 'Desert', value: 'desert' },
   { label: 'Custom', value: 'custom' },
 ];
+
+function CreatePackIconButton() {
+  const { colors } = useColorScheme();
+  return (
+    <Link href="/pack/new" asChild>
+      <Pressable>
+        <Icon name="plus" color={colors.foreground} />
+      </Pressable>
+    </Link>
+  );
+}
 
 export function PackListScreen() {
   const router = useRouter();
@@ -92,6 +107,16 @@ export function PackListScreen() {
 
   return (
     <SafeAreaView className="flex-1">
+      <LargeTitleHeader
+        title="My packs"
+        backVisible={false}
+        searchBar={{ iosHideWhenScrolling: true }}
+        rightView={() => (
+          <View className="flex-row items-center">
+            <CreatePackIconButton />
+          </View>
+        )}
+      />
       <View className="bg-background px-4 py-2">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-1">
           {filterOptions.map(renderFilterChip)}
