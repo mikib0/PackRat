@@ -1,6 +1,7 @@
 import { Icon, type MaterialIconName } from '@roninoss/icons';
 import { Link } from 'expo-router';
 import type React from 'react';
+import { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
@@ -14,6 +15,7 @@ import {
   ListSectionHeader,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
+import { useAuth } from '~/features/auth/contexts/AuthContext';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 
@@ -48,6 +50,10 @@ function DemoIcon() {
   );
 }
 export default function DashboardScreen() {
+  const { user } = useAuth();
+  useEffect(() => {
+    console.log('user', user);
+  }, [user]);
   return (
     <>
       <LargeTitleHeader
@@ -75,24 +81,24 @@ export default function DashboardScreen() {
 }
 
 function renderItem<T extends (typeof DATA)[number]>(info: ListRenderItemInfo<T>) {
-  if (typeof info.item === "string") {
-    return <ListSectionHeader {...info} />
+  if (typeof info.item === 'string') {
+    return <ListSectionHeader {...info} />;
   }
 
   const handlePress = () => {
-    if (info.item.id === "13") {
+    if (info.item.id === '13') {
       // Navigate to AI chat
-      const { router } = require("expo-router")
+      const { router } = require('expo-router');
       router.push({
-        pathname: "/ai-chat-better-ui",
+        pathname: '/ai-chat-better-ui',
         params: {
-          contextType: "general",
+          contextType: 'general',
         },
-      })
+      });
     } else {
-      console.log("onPress")
+      console.log('onPress');
     }
-  }
+  };
 
   return (
     <ListItem
@@ -205,14 +211,14 @@ const DATA: MockData[] = [
     ),
     badge: 3,
   },
-  "gap 1",
+  'gap 1',
   {
-    id: "13",
-    title: "Ask PackRat AI",
+    id: '13',
+    title: 'Ask PackRat AI',
     leftView: <IconView name="message" className="bg-purple-500" />,
-    rightText: "Anything outdoors...",
+    rightText: 'Anything outdoors...',
   },
-  "gap 1.5",
+  'gap 1.5',
   {
     id: '3',
     title: 'Pack Stats',

@@ -23,6 +23,7 @@ export default function TabLayout() {
         <Tabs.Screen name="packs" options={PACK_LIST_OPTIONS} />
         <Tabs.Screen name="demo" options={DEMO_OPTIONS} />
         <Tabs.Screen name="items" options={ITEM_LIST_OPTIONS} />
+        <Tabs.Screen name="profile" options={PROFILE_OPTIONS} />
       </Tabs>
     </>
   );
@@ -53,6 +54,13 @@ const ITEM_LIST_OPTIONS = {
   title: 'My Items',
   tabBarIcon(props) {
     return <Icon name="clipboard-list" {...props} size={27} />;
+  },
+} as const;
+
+const PROFILE_OPTIONS = {
+  title: 'Profile',
+  tabBarIcon(props) {
+    return <Icon name="account-circle" {...props} size={27} />;
   },
 } as const;
 

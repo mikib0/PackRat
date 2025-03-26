@@ -12,13 +12,15 @@ import {
   ListSectionHeader,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
+import { useAuth } from '~/features/auth/contexts/AuthContext';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 
 const SCREEN_OPTIONS = {
   title: 'Profile',
-  headerTransparent: Platform.OS === 'ios',
-  headerBlurEffect: 'systemMaterial',
+  headerShown: false,
+  // headerTransparent: Platform.OS === 'ios',
+  // headerBlurEffect: 'systemMaterial',
 } as const;
 
 const ESTIMATED_ITEM_SIZE =
@@ -89,9 +91,11 @@ function ListHeaderComponent() {
 }
 
 function ListFooterComponent() {
+  const { signOut } = useAuth();
   return (
     <View className="ios:px-0 px-4 pt-8">
       <Button
+        onPress={signOut}
         size="lg"
         variant={Platform.select({ ios: 'primary', default: 'secondary' })}
         className="border-border bg-card">

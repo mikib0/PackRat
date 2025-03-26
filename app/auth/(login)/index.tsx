@@ -1,25 +1,68 @@
+'use client';
+
 import { Link, Stack, router } from 'expo-router';
 import * as React from 'react';
-import { Image, Platform, View } from 'react-native';
+import { Image, Platform, View, Alert } from 'react-native';
 import {
   KeyboardAwareScrollView,
   KeyboardController,
   KeyboardStickyView,
 } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useForm } from '@tanstack/react-form';
+import { z } from 'zod';
 
 import { Button } from '~/components/nativewindui/Button';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
+import { useAuth } from '~/features/auth/contexts/AuthContext';
 
 const LOGO_SOURCE = {
   uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
 };
 
+// Define Zod schema for login validation
+const loginFormSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+// Type inference
+type LoginFormValues = z.infer<typeof loginFormSchema>;
+
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
+  const { signIn, isLoading: authLoading } = useAuth();
+  const [isLoading, setIsLoading] = React.useState(false);
   const [focusedTextField, setFocusedTextField] = React.useState<'email' | 'password' | null>(null);
+
+  const form = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    validators: {
+      onChange: loginFormSchema,
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        setIsLoading(true);
+        await signIn(value.email, value.password);
+        // Navigation is handled in AuthContext after successful login
+      } catch (error) {
+        setIsLoading(false);
+        Alert.alert(
+          'Login Failed',
+          error instanceof Error ? error.message : 'Invalid email or password'
+        );
+      }
+    },
+  });
+
+  // Combined loading state from form and auth context
+  const loading = isLoading || authLoading;
+
   return (
     <View className="ios:bg-card flex-1" style={{ paddingBottom: insets.bottom }}>
       <Stack.Screen
@@ -61,36 +104,56 @@ export default function LoginScreen() {
             <Form className="gap-2">
               <FormSection className="ios:bg-background">
                 <FormItem>
-                  <TextField
-                    placeholder={Platform.select({ ios: 'Email', default: '' })}
-                    label={Platform.select({ ios: undefined, default: 'Email' })}
-                    onSubmitEditing={() => KeyboardController.setFocusTo('next')}
-                    submitBehavior="submit"
-                    autoFocus
-                    onFocus={() => setFocusedTextField('email')}
-                    onBlur={() => setFocusedTextField(null)}
-                    keyboardType="email-address"
-                    textContentType="emailAddress"
-                    returnKeyType="next"
-                  />
+                  <form.Field name="email">
+                    {(field) => (
+                      <TextField
+                        placeholder={Platform.select({ ios: 'Email', default: '' })}
+                        label={Platform.select({ ios: undefined, default: 'Email' })}
+                        onSubmitEditing={() => KeyboardController.setFocusTo('next')}
+                        submitBehavior="submit"
+                        autoFocus
+                        onFocus={() => setFocusedTextField('email')}
+                        onBlur={() => {
+                          setFocusedTextField(null);
+                          field.handleBlur();
+                        }}
+                        keyboardType="email-address"
+                        textContentType="emailAddress"
+                        returnKeyType="next"
+                        value={field.state.value}
+                        onChangeText={field.handleChange}
+                        errorMessage={field.state.meta.errors[0]?.message}
+                      />
+                    )}
+                  </form.Field>
                 </FormItem>
                 <FormItem>
-                  <TextField
-                    placeholder={Platform.select({ ios: 'Password', default: '' })}
-                    label={Platform.select({ ios: undefined, default: 'Password' })}
-                    onFocus={() => setFocusedTextField('password')}
-                    onBlur={() => setFocusedTextField(null)}
-                    secureTextEntry
-                    returnKeyType="done"
-                    textContentType="password"
-                    onSubmitEditing={() => router.replace('/')}
-                  />
+                  <form.Field name="password">
+                    {(field) => (
+                      <TextField
+                        placeholder={Platform.select({ ios: 'Password', default: '' })}
+                        label={Platform.select({ ios: undefined, default: 'Password' })}
+                        onFocus={() => setFocusedTextField('password')}
+                        onBlur={() => {
+                          setFocusedTextField(null);
+                          field.handleBlur();
+                        }}
+                        secureTextEntry
+                        returnKeyType="done"
+                        textContentType="password"
+                        onSubmitEditing={() => form.handleSubmit()}
+                        value={field.state.value}
+                        onChangeText={field.handleChange}
+                        errorMessage={field.state.meta.errors[0]?.message}
+                      />
+                    )}
+                  </form.Field>
                 </FormItem>
               </FormSection>
               <View className="flex-row">
                 <Link asChild href="/auth/(login)/forgot-password">
                   <Button size="sm" variant="plain" className="px-0.5">
-                    <Text className="text-primary text-sm">Forgot password?</Text>
+                    <Text className="text-sm text-primary">Forgot password?</Text>
                   </Button>
                 </Link>
               </View>
@@ -104,14 +167,17 @@ export default function LoginScreen() {
           opened: Platform.select({ ios: insets.bottom + 30, default: insets.bottom }),
         }}>
         {Platform.OS === 'ios' ? (
-          <View className=" px-12 py-4">
-            <Button
-              size="lg"
-              onPress={() => {
-                router.replace('/');
-              }}>
-              <Text>Continue</Text>
-            </Button>
+          <View className="px-12 py-4">
+            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <Button
+                  size="lg"
+                  disabled={!canSubmit || loading}
+                  onPress={() => form.handleSubmit()}>
+                  <Text>{loading ? 'Logging in...' : 'Continue'}</Text>
+                </Button>
+              )}
+            </form.Subscribe>
           </View>
         ) : (
           <View className="flex-row justify-between py-4 pl-6 pr-8">
@@ -121,19 +187,26 @@ export default function LoginScreen() {
               onPress={() => {
                 router.replace('/auth/(create-account)');
               }}>
-              <Text className="text-primary px-0.5 text-sm">Create Account</Text>
+              <Text className="px-0.5 text-sm text-primary">Create Account</Text>
             </Button>
-            <Button
-              onPress={() => {
-                if (focusedTextField === 'email') {
-                  KeyboardController.setFocusTo('next');
-                  return;
-                }
-                KeyboardController.dismiss();
-                router.replace('/');
-              }}>
-              <Text className="text-sm">{focusedTextField === 'email' ? 'Next' : 'Submit'}</Text>
-            </Button>
+            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <Button
+                  disabled={!canSubmit || loading}
+                  onPress={() => {
+                    if (focusedTextField === 'email') {
+                      KeyboardController.setFocusTo('next');
+                      return;
+                    }
+                    KeyboardController.dismiss();
+                    form.handleSubmit();
+                  }}>
+                  <Text className="text-sm">
+                    {loading ? 'Logging in...' : focusedTextField === 'email' ? 'Next' : 'Submit'}
+                  </Text>
+                </Button>
+              )}
+            </form.Subscribe>
           </View>
         )}
       </KeyboardStickyView>
@@ -143,7 +216,7 @@ export default function LoginScreen() {
           onPress={() => {
             router.replace('/auth/(create-account)');
           }}>
-          <Text className="text-primary text-sm">Create Account</Text>
+          <Text className="text-sm text-primary">Create Account</Text>
         </Button>
       )}
     </View>
