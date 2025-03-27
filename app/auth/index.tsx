@@ -18,7 +18,7 @@ const GOOGLE_SOURCE = {
 };
 
 export default function AuthIndexScreen() {
-  const { signUp, signInWithGoogle, signInWithApple } = useAuth();
+  const { signInWithGoogle, signInWithApple } = useAuth();
   const alertRef = React.useRef<AlertRef>(null);
 
   return (
@@ -62,13 +62,7 @@ export default function AuthIndexScreen() {
               variant="secondary"
               className="ios:border-foreground/60"
               size={Platform.select({ ios: 'lg', default: 'md' })}
-              onPress={() => {
-                alertRef.current?.alert({
-                  title: 'Suggestion',
-                  message: 'Use expo-apple-authentication',
-                  buttons: [{ text: 'OK', style: 'cancel' }],
-                });
-              }}>
+              onPress={() => signInWithApple()}>
               <Text className="ios:text-foreground absolute left-4 text-[22px]"></Text>
               <Text className="ios:text-foreground">Continue with Apple</Text>
             </Button>
