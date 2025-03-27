@@ -29,3 +29,4 @@ android
 # .env
 .env
 .env.*
+!.env.example
