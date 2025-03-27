@@ -16,7 +16,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
-import { useAuth } from '~/features/auth/contexts/AuthContext';
+import { useAuth } from '~/features/auth/hooks/useAuth';
 
 const LOGO_SOURCE = {
   uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
@@ -49,7 +49,7 @@ export default function LoginScreen() {
       try {
         setIsLoading(true);
         await signIn(value.email, value.password);
-        // Navigation is handled in AuthContext after successful login
+        // Navigation is handled in function after successful login
       } catch (error) {
         setIsLoading(false);
         Alert.alert(
@@ -97,7 +97,7 @@ export default function LoginScreen() {
               {Platform.select({ ios: 'Welcome back!', default: 'Log in' })}
             </Text>
             {Platform.OS !== 'ios' && (
-              <Text className="ios:text-sm text-muted-foreground text-center">Welcome back!</Text>
+              <Text className="ios:text-sm text-center text-muted-foreground">Welcome back!</Text>
             )}
           </View>
           <View className="ios:pt-4 pt-6">

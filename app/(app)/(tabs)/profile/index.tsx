@@ -12,7 +12,7 @@ import {
   ListSectionHeader,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
-import { useAuth } from '~/features/auth/contexts/AuthContext';
+import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 
@@ -91,7 +91,7 @@ function ListHeaderComponent() {
 }
 
 function ListFooterComponent() {
-  const { signOut } = useAuth();
+  const { signOut } = useAuthActions();
   return (
     <View className="ios:px-0 px-4 pt-8">
       <Button

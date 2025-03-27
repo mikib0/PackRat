@@ -14,7 +14,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
-import { useAuth } from '~/features/auth/contexts/AuthContext';
+import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 
 const LOGO_SOURCE = {
   uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
@@ -31,7 +31,7 @@ export default function ForgotPasswordScreen() {
   const insets = useSafeAreaInsets();
   const alertRef = React.useRef<AlertRef>(null);
   const [isLoading, setIsLoading] = React.useState(false);
-  const { forgotPassword } = useAuth();
+  const { forgotPassword } = useAuthActions();
 
   const form = useForm({
     defaultValues: {

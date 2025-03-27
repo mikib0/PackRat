@@ -7,7 +7,7 @@ import { AlertAnchor } from '~/components/nativewindui/Alert';
 import { AlertRef } from '~/components/nativewindui/Alert/types';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
-import { useAuth } from '~/features/auth/contexts/AuthContext';
+import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 
 const LOGO_SOURCE = {
   uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
@@ -18,7 +18,7 @@ const GOOGLE_SOURCE = {
 };
 
 export default function AuthIndexScreen() {
-  const { signInWithGoogle, signInWithApple } = useAuth();
+  const { signInWithGoogle, signInWithApple } = useAuthActions();
   const alertRef = React.useRef<AlertRef>(null);
 
   return (

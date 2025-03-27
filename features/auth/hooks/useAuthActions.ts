@@ -1,84 +1,50 @@
-'use client';
-
-import type React from 'react';
-import { createContext, useContext, useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
+import { useSetAtom } from 'jotai';
 import { router } from 'expo-router';
-import * as AppleAuthentication from 'expo-apple-authentication';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { Platform } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as SecureStore from 'expo-secure-store';
+import {
+  tokenAtom,
+  userAtom,
+  isLoadingAtom,
+  showLinkingModalAtom,
+  linkingDataAtom,
+} from '../atoms/authAtoms';
 
-type User = {
-  id: number;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  emailVerified: boolean;
-};
+export function useAuthActions() {
+  const setToken = useSetAtom(tokenAtom);
+  const setUser = useSetAtom(userAtom);
+  const setIsLoading = useSetAtom(isLoadingAtom);
+  const setShowLinkingModal = useSetAtom(showLinkingModalAtom);
+  const setLinkingData = useSetAtom(linkingDataAtom);
 
-type AuthContextType = {
-  user: User | null;
-  isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-  signInWithApple: () => Promise<void>;
-  signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
-  resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
-  verifyEmail: (email: string, code: string) => Promise<any>;
-  resendVerificationEmail: (email: string) => Promise<void>;
-};
+  const signIn = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+      const data = await response.json();
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Initialize Google Sign-In
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, // [idToken is Null GoogleSignin.getTokens()](https://github.com/react-native-google-signin/google-signin/issues/836)
-      iosClientId: Platform.OS === 'ios' ? process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID : undefined,
-      offlineAccess: false, // Set to false since we don't need offline access
-      hostedDomain: '', // specifies a hosted domain restriction
-      forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
-      accountName: '', // [Android] specifies an account name on the device that should be used
-      scopes: ['profile', 'email'], // what API you want to access on behalf of the user, default is email and profile
-    });
-  }, []);
-
-  useEffect(() => {
-    // Check for existing session on app load
-    const loadUser = async () => {
-      try {
-        const token = await SecureStore.getItemAsync('auth_token');
-        if (token) {
-          // Validate token and get user data
-          const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/me`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData.user);
-          } else {
-            // Token invalid, clear it
-            await SecureStore.deleteItemAsync('auth_token');
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load user session:', error);
-      } finally {
-        setIsLoading(false);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to sign in');
       }
-    };
 
-    loadUser();
-  }, []);
+      await setToken(data.token);
+      setUser(data.user);
+      router.replace('/(app)');
+    } catch (error) {
+      console.error('Sign in error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const signInWithGoogle = async () => {
     try {
@@ -108,11 +74,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const data = await response.json();
 
+      if (response.status === 409) {
+        // Account linking needed
+        setLinkingData({
+          provider: 'google',
+          email: data.email,
+          token: idToken,
+        });
+        setShowLinkingModal(true);
+        setIsLoading(false);
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to sign in with Google');
       }
 
-      await SecureStore.setItemAsync('auth_token', data.token);
+      await setToken(data.token);
       setUser(data.user);
       router.replace('/(app)');
     } catch (error: any) {
@@ -129,34 +107,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       throw error;
-    }
-  };
-
-  const signIn = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to sign in');
-      }
-
-      await SecureStore.setItemAsync('auth_token', data.token);
-      setUser(data.user);
-      router.replace('/(app)');
-    } catch (error) {
-      console.error('Sign in error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -200,7 +150,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error(data.error || 'Failed to sign in with Apple');
       }
 
-      await SecureStore.setItemAsync('auth_token', data.token);
+      await setToken(data.token);
       setUser(data.user);
       router.replace('/(app)');
     } catch (error) {
@@ -235,33 +185,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
-  //   setIsLoading(true);
-  //   try {
-  //     const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/register`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ email, password, firstName, lastName }),
-  //     });
-
-  //     const data = await response.json();
-
-  //     if (!response.ok) {
-  //       throw new Error(data.error || 'Failed to sign up');
-  //     }
-
-  //     // Navigate to verification screen
-  //     router.replace('/auth/verify-email');
-  //   } catch (error) {
-  //     console.error('Sign up error:', error);
-  //     throw error;
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const signOut = async () => {
     setIsLoading(true);
     try {
@@ -271,7 +194,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         await GoogleSignin.signOut();
       }
 
-      const token = await SecureStore.getItemAsync('auth_token');
+      const token = await GoogleSignin.getTokens()
+        .then((tokens) => tokens.idToken)
+        .catch(() => null);
       if (token) {
         await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/logout`, {
           method: 'POST',
@@ -281,39 +206,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
       }
 
-      await SecureStore.deleteItemAsync('auth_token');
+      await setToken(null);
       setUser(null);
       router.replace('/auth');
     } catch (error) {
       console.error('Sign out error:', error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const resendVerificationEmail = async (email: string) => {
-    try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/api/auth/resend-verification`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to resend verification email');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Resend verification email error:', error);
-      throw error;
     }
   };
 
@@ -381,7 +280,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // If verification is successful, set the user and token
       if (data.token && data.user) {
-        await SecureStore.setItemAsync('auth_token', data.token);
+        await setToken(data.token);
         setUser(data.user);
       }
 
@@ -392,14 +291,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const resendVerificationEmail = async (email: string) => {
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/api/auth/resend-verification`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to resend verification email');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Resend verification email error:', error);
+      throw error;
+    }
+  };
+
   const linkAccount = async (provider: string, token: string) => {
     try {
-      const authToken = await SecureStore.getItemAsync('auth_token');
+      const currentToken = await SecureStore.getItemAsync('auth_token');
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/link-account`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${currentToken}`,
         },
         body: JSON.stringify({ provider, token }),
       });
@@ -417,9 +342,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const value = {
-    user,
-    isLoading,
+  return {
     signIn,
     signInWithGoogle,
     signInWithApple,
@@ -429,15 +352,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     resetPassword,
     verifyEmail,
     resendVerificationEmail,
+    linkAccount,
   };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+}

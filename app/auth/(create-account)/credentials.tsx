@@ -16,9 +16,9 @@ import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
 import { Icon } from '@roninoss/icons';
 import { Checkbox } from '~/components/nativewindui/Checkbox';
-import { useAuth } from '~/features/auth/contexts/AuthContext';
 import { AlertAnchor } from '~/components/nativewindui/Alert';
 import type { AlertRef } from '~/components/nativewindui/Alert/types';
+import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 
 const LOGO_SOURCE = {
   uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
@@ -100,7 +100,7 @@ const getPasswordStrength = (password: string) => {
 
 export default function CredentialsScreen() {
   const insets = useSafeAreaInsets();
-  const { signUp } = useAuth();
+  const { signUp } = useAuthActions();
   const [isLoading, setIsLoading] = React.useState(false);
   const [passwordVisible, setPasswordVisible] = React.useState(false);
   const [focusedTextField, setFocusedTextField] = React.useState<

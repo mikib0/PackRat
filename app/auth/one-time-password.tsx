@@ -24,7 +24,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useAuth } from '~/features/auth/contexts/AuthContext';
+import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 
 const LOGO_SOURCE = {
   uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
@@ -44,7 +44,7 @@ export default function OneTimePasswordScreen() {
   const params = useLocalSearchParams<{ email: string; mode: string }>();
   const email = params.email || '';
   const mode = params.mode || 'verification';
-  const { verifyEmail, forgotPassword, resendVerificationEmail } = useAuth();
+  const { verifyEmail, forgotPassword, resendVerificationEmail } = useAuthActions();
 
   const countdownInterval = React.useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -131,10 +131,9 @@ export default function OneTimePasswordScreen() {
           params: { email, code },
         });
       } else {
-        // Use verifyEmail from AuthContext
         await verifyEmail(email, code);
 
-        router.replace('/')
+        router.replace('/');
       }
     } catch (error) {
       Alert.alert('Error', error instanceof Error ? error.message : 'Invalid verification code');

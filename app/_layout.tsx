@@ -1,5 +1,3 @@
-import { useAtom } from 'jotai';
-import { isAuthenticatedAtom, tokenAtom } from '../atoms/authAtoms';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import 'expo-dev-client';
 import { Stack } from 'expo-router';
@@ -9,7 +7,6 @@ import '../global.css';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { Providers } from '~/providers';
 import { NAV_THEME } from '~/theme';
-import { AuthProvider } from '~/features/auth/contexts/AuthContext';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -19,8 +16,6 @@ export {
 export default function RootLayout() {
   useInitialAndroidBarSync();
   const { colorScheme, isDarkColorScheme } = useColorScheme();
-  const [isAuthenticated] = useAtom(isAuthenticatedAtom);
-  const [token] = useAtom(tokenAtom);
 
   return (
     <>
@@ -30,12 +25,10 @@ export default function RootLayout() {
       />
       <Providers>
         <NavThemeProvider value={NAV_THEME[colorScheme]}>
-          <AuthProvider>
-            <Stack screenOptions={SCREEN_OPTIONS}>
-              <Stack.Screen name="(app)" />
-              <Stack.Screen name="auth" />
-            </Stack>
-          </AuthProvider>
+          <Stack screenOptions={SCREEN_OPTIONS}>
+            <Stack.Screen name="(app)" />
+            <Stack.Screen name="auth" />
+          </Stack>
         </NavThemeProvider>
       </Providers>
     </>

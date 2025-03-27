@@ -6,7 +6,8 @@ import { Pressable, View } from 'react-native';
 import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 
 import { ThemeToggle } from '~/components/ThemeToggle';
-import { useAuth } from '~/features/auth/contexts/AuthContext';
+import { useAuth } from '~/features/auth/hooks/useAuth';
+import { useAuthInit } from '~/features/auth/hooks/useAuthInit';
 import { useColorScheme } from '~/lib/useColorScheme';
 
 export {
@@ -15,6 +16,7 @@ export {
 } from 'expo-router';
 
 export default function AppLayout() {
+  useAuthInit();
   const { user, isLoading } = useAuth();
 
   useEffect(() => {

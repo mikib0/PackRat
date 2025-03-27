@@ -15,7 +15,7 @@ import {
   ListSectionHeader,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
-import { useAuth } from '~/features/auth/contexts/AuthContext';
+import { useAuthState } from '~/features/auth/hooks/useAuthState';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 
@@ -50,7 +50,7 @@ function DemoIcon() {
   );
 }
 export default function DashboardScreen() {
-  const { user } = useAuth();
+  const { user } = useAuthState();
   useEffect(() => {
     console.log('user', user);
   }, [user]);
