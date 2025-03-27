@@ -2,6 +2,11 @@ import { createHash, randomBytes } from 'crypto';
 import { sign, verify } from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 
+// Generate a random token
+export function generateToken(length = 32): string {
+  return randomBytes(length).toString('hex');
+}
+
 // Hash a password using bcrypt
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10;
