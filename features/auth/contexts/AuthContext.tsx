@@ -5,7 +5,6 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { AccountLinkingModal } from '../components/AccountLinkingModal';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { Platform } from 'react-native';
 
@@ -29,7 +28,6 @@ type AuthContextType = {
   resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
   verifyEmail: (email: string, code: string) => Promise<any>;
   resendVerificationEmail: (email: string) => Promise<void>;
-  linkAccount: (provider: string, token: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,12 +35,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showLinkingModal, setShowLinkingModal] = useState(false);
-  const [linkingData, setLinkingData] = useState<{
-    provider: 'google' | 'apple';
-    email: string;
-    token: string;
-  } | null>(null);
 
   // Initialize Google Sign-In
   useEffect(() => {
@@ -115,18 +107,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       const data = await response.json();
-
-      if (response.status === 409) {
-        // Account linking needed
-        setLinkingData({
-          provider: 'google',
-          email: data.email,
-          token: idToken,
-        });
-        setShowLinkingModal(true);
-        setIsLoading(false);
-        return;
-      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to sign in with Google');
@@ -437,61 +417,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const handleLinkAccount = async () => {
-    if (!linkingData) return;
-
-    try {
-      setIsLoading(true);
-      await linkAccount(linkingData.provider, linkingData.token);
-      setShowLinkingModal(false);
-
-      // Sign in with the provider
-      if (linkingData.provider === 'google') {
-        // Send the token to your backend
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/google`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ idToken: linkingData.token }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to sign in with Google');
-        }
-
-        await SecureStore.setItemAsync('auth_token', data.token);
-        setUser(data.user);
-        router.replace('/(app)');
-      } else {
-        // Handle Apple sign in after linking
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/apple`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ identityToken: linkingData.token }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to sign in with Apple');
-        }
-
-        await SecureStore.setItemAsync('auth_token', data.token);
-        setUser(data.user);
-        router.replace('/(app)');
-      }
-    } catch (error) {
-      console.error('Account linking error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const value = {
     user,
     isLoading,
@@ -504,24 +429,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     resetPassword,
     verifyEmail,
     resendVerificationEmail,
-    linkAccount,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {linkingData && (
-        <AccountLinkingModal
-          isVisible={showLinkingModal}
-          onClose={() => setShowLinkingModal(false)}
-          provider={linkingData.provider}
-          email={linkingData.email}
-          providerToken={linkingData.token}
-          onLinkAccount={handleLinkAccount}
-        />
-      )}
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
