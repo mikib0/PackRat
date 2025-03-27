@@ -3,7 +3,7 @@ import 'expo-dev-client';
 import { router, Stack, usePathname, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
-import { ActivityIndicator } from '~/_components/nativewindui/ActivityIndicator';
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { useAuth } from '~/features/auth/contexts/AuthContext';
