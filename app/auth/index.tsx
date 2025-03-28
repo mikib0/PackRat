@@ -7,6 +7,7 @@ import { AlertAnchor } from '~/components/nativewindui/Alert';
 import { AlertRef } from '~/components/nativewindui/Alert/types';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
+import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 
 const LOGO_SOURCE = {
   uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
@@ -17,7 +18,9 @@ const GOOGLE_SOURCE = {
 };
 
 export default function AuthIndexScreen() {
+  const { signInWithGoogle, signInWithApple } = useAuthActions();
   const alertRef = React.useRef<AlertRef>(null);
+
   return (
     <>
       <SafeAreaView style={{ flex: 1 }}>
@@ -46,13 +49,7 @@ export default function AuthIndexScreen() {
             variant="secondary"
             className="ios:border-foreground/60"
             size={Platform.select({ ios: 'lg', default: 'md' })}
-            onPress={() => {
-              alertRef.current?.alert({
-                title: 'Suggestion',
-                message: 'Use @react-native-google-signin/google-signin',
-                buttons: [{ text: 'OK', style: 'cancel' }],
-              });
-            }}>
+            onPress={() => signInWithGoogle()}>
             <Image
               source={GOOGLE_SOURCE}
               className="absolute left-4 h-4 w-4"
@@ -65,13 +62,7 @@ export default function AuthIndexScreen() {
               variant="secondary"
               className="ios:border-foreground/60"
               size={Platform.select({ ios: 'lg', default: 'md' })}
-              onPress={() => {
-                alertRef.current?.alert({
-                  title: 'Suggestion',
-                  message: 'Use expo-apple-authentication',
-                  buttons: [{ text: 'OK', style: 'cancel' }],
-                });
-              }}>
+              onPress={() => signInWithApple()}>
               <Text className="ios:text-foreground absolute left-4 text-[22px]"></Text>
               <Text className="ios:text-foreground">Continue with Apple</Text>
             </Button>

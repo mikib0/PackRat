@@ -1,56 +1,66 @@
+'use client';
+
 import { Stack, router } from 'expo-router';
 import * as React from 'react';
-import { Image, Platform, View } from 'react-native';
-import {
-  KeyboardAwareScrollView,
-  KeyboardController,
-  KeyboardStickyView,
-} from 'react-native-keyboard-controller';
+import { Image, Platform, View, Alert } from 'react-native';
+import { KeyboardAwareScrollView, KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useForm } from '@tanstack/react-form';
+import { z } from 'zod';
 
 import { AlertAnchor } from '~/components/nativewindui/Alert';
-import { AlertRef } from '~/components/nativewindui/Alert/types';
+import type { AlertRef } from '~/components/nativewindui/Alert/types';
 import { Button } from '~/components/nativewindui/Button';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
+import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 
 const LOGO_SOURCE = {
   uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
 };
 
+// Define Zod schema for email validation
+const emailSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+});
+
+type EmailFormValues = z.infer<typeof emailSchema>;
+
 export default function ForgotPasswordScreen() {
   const insets = useSafeAreaInsets();
   const alertRef = React.useRef<AlertRef>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const { forgotPassword } = useAuthActions();
 
-  function onSubmit() {
-    alertRef.current?.prompt({
-      title: 'Check your inbox',
-      message: "We've sent you a code to reset your password. Enter it below:",
-      prompt: {
-        keyboardType: 'number-pad',
-        type: 'plain-text',
-      },
-      buttons: [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-          onPress: () => {
-            KeyboardController.dismiss();
-            router.replace('/');
-          },
-        },
-        {
-          text: 'Submit',
-          style: 'default',
-          onPress: () => {
-            KeyboardController.dismiss();
-            router.replace('/');
-          },
-        },
-      ],
-    });
-  }
+  const form = useForm({
+    defaultValues: {
+      email: '',
+    },
+    validators: {
+      onChange: emailSchema,
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        setIsLoading(true);
+
+        await forgotPassword(value.email);
+
+        // Navigate to verification code screen with email
+        router.push({
+          pathname: '/auth/one-time-password',
+          params: { email: value.email, mode: 'reset-password' },
+        });
+      } catch (error) {
+        Alert.alert(
+          'Error',
+          error instanceof Error ? error.message : 'Failed to send verification code'
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+  });
 
   return (
     <View className="ios:bg-card flex-1" style={{ paddingBottom: insets.bottom }}>
@@ -77,25 +87,36 @@ export default function ForgotPasswordScreen() {
               {Platform.select({ ios: "What's your email?", default: 'Forgot password' })}
             </Text>
             {Platform.OS !== 'ios' && (
-              <Text className="ios:text-sm text-muted-foreground text-center">
+              <Text className="ios:text-sm text-center text-muted-foreground">
                 What's your email?
               </Text>
             )}
+            <Text className="px-4 pt-2 text-center text-muted-foreground">
+              Enter your email address and we'll send you a verification code to reset your
+              password.
+            </Text>
           </View>
           <View className="ios:pt-4 pt-6">
             <Form className="gap-2">
               <FormSection className="ios:bg-background">
                 <FormItem>
-                  <TextField
-                    placeholder={Platform.select({ ios: 'Email', default: '' })}
-                    label={Platform.select({ ios: undefined, default: 'Email' })}
-                    onSubmitEditing={onSubmit}
-                    submitBehavior="submit"
-                    autoFocus
-                    keyboardType="email-address"
-                    textContentType="emailAddress"
-                    returnKeyType="next"
-                  />
+                  <form.Field name="email">
+                    {(field) => (
+                      <TextField
+                        placeholder={Platform.select({ ios: 'Email', default: '' })}
+                        label={Platform.select({ ios: undefined, default: 'Email' })}
+                        onSubmitEditing={() => form.handleSubmit()}
+                        submitBehavior="submit"
+                        autoFocus
+                        keyboardType="email-address"
+                        textContentType="emailAddress"
+                        returnKeyType="next"
+                        value={field.state.value}
+                        onChangeText={field.handleChange}
+                        errorMessage={field.state.meta.errors[0]?.message}
+                      />
+                    )}
+                  </form.Field>
                 </FormItem>
               </FormSection>
             </Form>
@@ -104,10 +125,17 @@ export default function ForgotPasswordScreen() {
       </KeyboardAwareScrollView>
       <KeyboardStickyView offset={{ closed: 0, opened: insets.bottom }}>
         {Platform.OS === 'ios' ? (
-          <View className=" px-12 py-4">
-            <Button size="lg" onPress={onSubmit}>
-              <Text>Submit</Text>
-            </Button>
+          <View className="px-12 py-4">
+            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <Button
+                  size="lg"
+                  onPress={() => form.handleSubmit()}
+                  disabled={!canSubmit || isLoading}>
+                  <Text>{isLoading ? 'Sending...' : 'Send Code'}</Text>
+                </Button>
+              )}
+            </form.Subscribe>
           </View>
         ) : (
           <View className="flex-row justify-between py-4 pl-6 pr-8">
@@ -117,11 +145,15 @@ export default function ForgotPasswordScreen() {
               onPress={() => {
                 router.replace('/auth/(create-account)');
               }}>
-              <Text className="text-primary text-sm">Create Account</Text>
+              <Text className="text-sm text-primary">Create Account</Text>
             </Button>
-            <Button onPress={onSubmit}>
-              <Text className="text-sm">Submit</Text>
-            </Button>
+            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <Button onPress={() => form.handleSubmit()} disabled={!canSubmit || isLoading}>
+                  <Text className="text-sm">{isLoading ? 'Sending...' : 'Send Code'}</Text>
+                </Button>
+              )}
+            </form.Subscribe>
           </View>
         )}
       </KeyboardStickyView>

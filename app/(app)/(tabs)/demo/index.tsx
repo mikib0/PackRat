@@ -145,6 +145,9 @@ const COMPONENTS: ComponentItem[] = [
             <Button onPress={() => router.push('/settings')}>
               <Text>Settings</Text>
             </Button>
+            <Button onPress={() => router.push('/auth/one-time-password')}>
+              <Text>OTP</Text>
+            </Button>
             <Button onPress={() => router.push('/auth')}>
               <Text>Login</Text>
             </Button>
