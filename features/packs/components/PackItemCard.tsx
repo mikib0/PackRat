@@ -5,9 +5,9 @@ import type { PackItem } from '~/types';
 import { Alert } from '../../../components/nativewindui/Alert';
 import { Button } from '../../../components/nativewindui/Button';
 import { Icon } from '@roninoss/icons';
-import { useDeleteItem } from '~/hooks/usePackItems';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { useDeleteItem } from '../hooks';
 
 type PackItemCardProps = {
   item: PackItem;
@@ -24,9 +24,9 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
       className="mb-3 flex-row overflow-hidden rounded-lg bg-card shadow-sm"
       onPress={() => onPress(item)}>
       {item.image ? (
-        <Image source={{ uri: item.image }} className="h-20 w-20" resizeMode="cover" />
+        <Image source={{ uri: item.image }} className="h-20 w-28" resizeMode="cover" />
       ) : (
-        <View className="h-20 w-20 items-center justify-center bg-muted">
+        <View className="h-20 w-20 items-center justify-center bg-muted px-2">
           <Text className="text-muted-foreground">No image</Text>
         </View>
       )}
@@ -50,7 +50,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
         )}
 
         <View className="flex-row items-baseline justify-between">
-          <View className="mt-2 flex-row gap-2">
+          <View className="mt-2 flex-row items-center gap-2">
             {item.quantity > 1 && (
               <View className="rounded-full bg-muted px-2 py-0.5">
                 <Text className="text-xs text-muted-foreground">Qty: {item.quantity}</Text>
@@ -81,7 +81,8 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
                 {
                   text: 'OK',
                   onPress: () => {
-                    deleteItem.mutate(item);
+                    console.log('itemitemid', item.id);
+                    deleteItem.mutate({ itemId: item.id, packId: item.packId });
                   },
                 },
               ]}>

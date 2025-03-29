@@ -4,6 +4,7 @@ import axiosInstance, { handleApiError } from '~/lib/api/client';
 // API function
 export const deletePackItem = async (packId: string, itemId: string): Promise<void> => {
   try {
+    console.log(packId, itemId);
     await axiosInstance.delete(`/api/packs/${packId}/items/${itemId}`);
   } catch (error) {
     const { message } = handleApiError(error);
