@@ -18,7 +18,7 @@ import { z } from 'zod';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { SegmentedControl } from '~/components/nativewindui/SegmentedControl';
 import { TextField } from '~/components/nativewindui/TextField';
-import { useCreateOrUpdateItem } from '~/hooks/usePackItems';
+import { useCreatePackItem, useUpdatePackItem } from '../hooks';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { WeightUnit } from '~/types';
 
@@ -57,8 +57,11 @@ export const CreatePackItemForm = ({
 }) => {
   const router = useRouter();
   const { colors } = useColorScheme();
-  const { mutateAsync: createOrUpdateItem, isPending } = useCreateOrUpdateItem();
+  const { mutateAsync: createPackItem } = useCreatePackItem();
+  const { mutateAsync: updatePackItem } = useUpdatePackItem();
   const isEditing = !!existingItem;
+
+  console.log('isEditing', isEditing);
 
   const form = useForm({
     defaultValues: existingItem || {
@@ -66,7 +69,7 @@ export const CreatePackItemForm = ({
       description: '',
       weight: 0,
       weightUnit: 'g',
-      quantity: 1,
+      quantity: '',
       category: '',
       consumable: false,
       worn: false,
@@ -78,22 +81,35 @@ export const CreatePackItemForm = ({
     },
     onSubmit: async ({ value }) => {
       console.log('Form Submitted:', value);
-      await createOrUpdateItem(
-        {
-          ...value,
-          packId,
-          id: existingItem?.id,
-        },
-        {
-          onSuccess: (item) => {
-            console.log('Item Created/Updated:', item);
-            router.back();
+      if (isEditing)
+        await updatePackItem(
+          { packId, itemId: existingItem.id, itemData: value },
+          {
+            onSuccess: (item) => {
+              console.log('Item Updated:', item);
+              router.back();
+            },
+            onError: (error) => {
+              console.error('Error Updating Item:', error);
+            },
+          }
+        );
+      else
+        await createPackItem(
+          {
+            packId,
+            itemData: value,
           },
-          onError: (error) => {
-            console.error('Error Creating/Updating Item:', error);
-          },
-        }
-      );
+          {
+            onSuccess: (item) => {
+              console.log('Item Created:', item);
+              router.back();
+            },
+            onError: (error) => {
+              console.error('Error Creating Item:', error);
+            },
+          }
+        );
     },
   });
 
@@ -218,7 +234,7 @@ export const CreatePackItemForm = ({
                 <FormItem>
                   <TextField
                     placeholder="Quantity"
-                    value={field.state.value.toString()}
+                    value={field.state.value?.toString()}
                     onBlur={field.handleBlur}
                     onChangeText={field.handleChange}
                     keyboardType="numeric"

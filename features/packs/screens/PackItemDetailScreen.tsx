@@ -3,8 +3,7 @@ import { Image, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Chip } from '~/components/initial/Chip';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { useCatalogItems } from '~/hooks/useItems';
-import { useAllPackItems } from '~/hooks/usePackItems';
-import { Icon } from "@roninoss/icons"
+import { Icon } from '@roninoss/icons';
 
 import {
   calculateTotalWeight,
@@ -16,27 +15,21 @@ import {
   isWorn,
   shouldShowQuantity,
 } from '~/lib/utils/itemCalculations';
-import { LoadingSpinnerScreen } from './LoadingSpinnerScreen';
-import { NotFoundScreen } from './NotFoundScreen';
-import { Button } from "~/components/nativewindui/Button"
+import { LoadingSpinnerScreen } from '../../../screens/LoadingSpinnerScreen';
+import { NotFoundScreen } from '../../../screens/NotFoundScreen';
+import { Button } from '~/components/nativewindui/Button';
+import { usePackItem } from '../hooks';
 
 export function ItemDetailScreen() {
-  const { id: itemId } = useLocalSearchParams();
+  const { id, packId } = useLocalSearchParams();
 
   const {
-    data: items,
-    isLoading: isCatalogItemsLoading,
-    isError: isCatalogItemsError,
-  } = useCatalogItems();
-  const {
-    data: packItems,
+    data: item,
     isLoading: isPackItemsLoading,
     isError: isPackItemsError,
-  } = useAllPackItems();
+  } = usePackItem(id as string, packId as string);
 
-  const item = items?.find((i) => i.id === itemId) || packItems?.find((i) => i.id === itemId);
-
-  if (isCatalogItemsError || isPackItemsError) {
+  if (isPackItemsError) {
     return (
       <NotFoundScreen
         title="Item Not Found"
@@ -46,7 +39,7 @@ export function ItemDetailScreen() {
     );
   }
 
-  if (isCatalogItemsLoading || isPackItemsLoading) {
+  if (isPackItemsLoading) {
     return <LoadingSpinnerScreen />;
   }
 
@@ -74,14 +67,14 @@ export function ItemDetailScreen() {
 
   const navigateToChat = () => {
     router.push({
-      pathname: "/ai-chat-better-ui",
+      pathname: '/ai-chat-better-ui',
       params: {
         itemId: item.id,
         itemName: item.name,
-        contextType: "item",
+        contextType: 'item',
       },
-    })
-  }
+    });
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -150,14 +143,13 @@ export function ItemDetailScreen() {
             </View>
           )}
         </View>
-        <View className="mt-6 mb-8 px-4">
+        <View className="mb-8 mt-6 px-4">
           <Button
             variant="primary"
             onPress={navigateToChat}
-            className="flex-row items-center justify-center bg-primary py-3 px-4 rounded-full"
-          >
-            <Icon name='message' size={20} color="white" />
-            <Text className="text-white font-semibold">Ask AI About This Item</Text>
+            className="flex-row items-center justify-center rounded-full bg-primary px-4 py-3">
+            <Icon name="message" size={20} color="white" />
+            <Text className="font-semibold text-white">Ask AI About This Item</Text>
           </Button>
         </View>
       </ScrollView>
