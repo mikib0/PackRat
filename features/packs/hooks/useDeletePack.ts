@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import axios from "axios"
-import { handleApiError } from "~/lib/api/client"
+import axiosInstance, { handleApiError } from '~/lib/api/client';
 
 // API function
 export const deletePack = async (id: string): Promise<void> => {
   try {
-    await axios.delete(`/api/packs/${id}`)
+    await axiosInstance.delete(`/api/packs/${id}`);
   } catch (error) {
     const { message } = handleApiError(error)
     throw new Error(`Failed to delete pack: ${message}`)

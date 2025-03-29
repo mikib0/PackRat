@@ -37,7 +37,7 @@ export async function GET(req: Request, params: { packId: string }) {
   }
 }
 
-export async function PUT(req: Request, { id }: { id: string }) {
+export async function PUT(req: Request, params: { packId: string }) {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(req);
@@ -46,7 +46,7 @@ export async function PUT(req: Request, { id }: { id: string }) {
     }
 
     const userId = auth.userId;
-    const packId = Number(id);
+    const packId = Number(params.packId);
     const data = await req.json();
 
     // Check if the pack exists and belongs to the user
@@ -94,7 +94,7 @@ export async function PUT(req: Request, { id }: { id: string }) {
   }
 }
 
-export async function DELETE(req: Request, { id }: { id: string }) {
+export async function DELETE(req: Request, params: { packId: string }) {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(req);
@@ -103,7 +103,7 @@ export async function DELETE(req: Request, { id }: { id: string }) {
     }
 
     const userId = auth.userId;
-    const packId = Number(id);
+    const packId = Number(params.packId);
 
     // Check if the pack exists and belongs to the user
     const existingPack = await db.query.packs.findFirst({
