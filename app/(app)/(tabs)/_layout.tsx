@@ -8,7 +8,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge } from '~/components/nativewindui/Badge';
 import { Text } from '~/components/nativewindui/Text';
-import { ThemeToggle } from '~/components/ThemeToggle';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 
@@ -21,8 +20,7 @@ export default function TabLayout() {
         screenOptions={{ headerShown: false, tabBarActiveTintColor: colors.primary }}>
         <Tabs.Screen name="(home)" options={INDEX_OPTIONS} />
         <Tabs.Screen name="packs" options={PACK_LIST_OPTIONS} />
-        <Tabs.Screen name="demo" options={DEMO_OPTIONS} />
-        <Tabs.Screen name="items" options={ITEM_LIST_OPTIONS} />
+        <Tabs.Screen name="catalog" options={ITEMS_CATALOG_OPTIONS} />
         <Tabs.Screen name="profile" options={PROFILE_OPTIONS} />
       </Tabs>
     </>
@@ -36,13 +34,6 @@ const INDEX_OPTIONS = {
   },
 } as const;
 
-const DEMO_OPTIONS = {
-  title: 'Demo',
-  tabBarIcon(props) {
-    return <Icon name="puzzle" {...props} size={27} />;
-  },
-} as const;
-
 const PACK_LIST_OPTIONS = {
   title: 'My Packs',
   tabBarIcon(props) {
@@ -50,8 +41,8 @@ const PACK_LIST_OPTIONS = {
   },
 } as const;
 
-const ITEM_LIST_OPTIONS = {
-  title: 'My Items',
+const ITEMS_CATALOG_OPTIONS = {
+  title: 'Catalog',
   tabBarIcon(props) {
     return <Icon name="clipboard-list" {...props} size={27} />;
   },
@@ -72,8 +63,8 @@ const TAB_BAR = Platform.select({
 const TAB_ICON = {
   '(home)': 'home',
   packs: 'backpack',
-  demo: 'puzzle',
-  items: 'clipboard-list',
+  catalog: 'clipboard-list',
+  profile: 'account-circle',
 } as const;
 
 function MaterialTabBar({ state, descriptors, navigation }: BottomTabBarProps) {

@@ -128,7 +128,7 @@ function getPackDetailOptions({
           <Pressable onPress={() => router.push({ pathname: '/pack/[id]/edit', params: { id } })}>
             <Icon name="pencil-box-outline" color={colors.foreground} />
           </Pressable>
-          <Pressable onPress={() => router.push('/item/new')}>
+          <Pressable onPress={() => router.push({ pathname: '/item/new', params: { packId: id } })}>
             <Icon name="plus" color={colors.foreground} />
           </Pressable>
         </View>

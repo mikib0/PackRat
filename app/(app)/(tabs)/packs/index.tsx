@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Platform } from 'react-native';
 
 import { useColorScheme } from '~/lib/useColorScheme';
-import { PackListScreen } from '~/screens/PackListScreen';
+import { PackListScreen } from '~/features/packs/screens/PackListScreen';
 
 export default function PacksScreen() {
   const { colorScheme } = useColorScheme();

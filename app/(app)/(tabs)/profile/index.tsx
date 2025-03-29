@@ -1,5 +1,6 @@
 import { Icon } from '@roninoss/icons';
 import { router, Stack } from 'expo-router';
+import { useAtom } from 'jotai';
 import { Linking, Platform, View } from 'react-native';
 
 import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
@@ -12,7 +13,9 @@ import {
   ListSectionHeader,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
+import { tokenAtom } from '~/features/auth/atoms/authAtoms';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
+import { useAuthState } from '~/features/auth/hooks/useAuthState';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 
@@ -27,6 +30,8 @@ const ESTIMATED_ITEM_SIZE =
   ESTIMATED_ITEM_HEIGHT[Platform.OS === 'ios' ? 'titleOnly' : 'withSubTitle'];
 
 export default function Profile() {
+  const [t] = useAtom(tokenAtom)
+  console.log('token', t)
   return (
     <>
       <Stack.Screen options={SCREEN_OPTIONS} />
