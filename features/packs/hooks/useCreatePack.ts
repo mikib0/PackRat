@@ -1,12 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { Pack, PackInput } from "../types"
-import axios from "axios"
-import { handleApiError } from "~/lib/api/client"
+import axiosInstance, { handleApiError } from '~/lib/api/client';
 
 // API function
 export const createPack = async (packData: PackInput): Promise<Pack> => {
   try {
-    const response = await axios.post("/api/packs", packData)
+    const response = await axiosInstance.post('/api/packs', packData);
     return response.data
   } catch (error) {
     const { message } = handleApiError(error)
