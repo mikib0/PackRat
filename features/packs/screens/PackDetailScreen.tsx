@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { FlatList, Image, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { Chip } from '~/components/initial/Chip';
-import { PackItemCard } from '~/components/initial/PackItemCard';
+import { PackItemCard } from '~/features/packs/components/PackItemCard';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { Button } from '~/components/nativewindui/Button';
 import { useDeletePack, usePackDetails } from '../hooks';

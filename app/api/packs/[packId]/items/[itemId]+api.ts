@@ -43,10 +43,7 @@ export async function GET(req: Request, params: { packId: string; itemId: string
   }
 }
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { packId: string; itemId: string } }
-) {
+export async function PUT(req: Request, params: { packId: string; itemId: string }) {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(req);
@@ -107,10 +104,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { packId: string; itemId: string } }
-) {
+export async function DELETE(req: Request, params: { packId: string; itemId: string }) {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(req);
