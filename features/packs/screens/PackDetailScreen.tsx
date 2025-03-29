@@ -30,7 +30,7 @@ export function PackDetailScreen() {
 
   const handleItemPress = (item: PackItem) => {
     if (!item.id) return;
-    router.push(`/item/${item.id}`);
+    router.push({ pathname: `/item/[id]`, params: { id: item.id, packId: item.packId } });
   };
 
   const getFilteredItems = () => {
@@ -206,7 +206,7 @@ export function PackDetailScreen() {
           />
 
           {/* AI Suggestions Section */}
-          {filteredItems.length && (
+          {!!filteredItems.length && (
             <PackItemSuggestions
               packId={pack.id}
               userId={pack.userId}

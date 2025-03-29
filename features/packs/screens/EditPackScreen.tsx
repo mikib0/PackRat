@@ -1,8 +1,8 @@
 import { useLocalSearchParams } from 'expo-router';
-import { PackForm } from '~/components/initial/PackForm';
+import { PackForm } from '~/features/packs/components/PackForm';
 import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
-import { usePackDetails } from '~/hooks/usePacks';
-import { NotFoundScreen } from './NotFoundScreen';
+import { NotFoundScreen } from '../../../screens/NotFoundScreen';
+import { usePackDetails } from '~/features/packs';
 
 export function EditPackScreen() {
   const { id } = useLocalSearchParams();
