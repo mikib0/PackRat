@@ -31,6 +31,11 @@ async function getWeatherData(location: string) {
 }
 
 export async function POST(req: Request) {
+  const auth = await authenticateRequest(req);
+  if (!auth) {
+    return unauthorizedResponse();
+  }
+
   try {
     const { messages, contextType, itemId, packId, userId, location } = await req.json();
 
