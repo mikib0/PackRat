@@ -1,5 +1,5 @@
 import { ScrollView } from 'react-native';
-import { PackForm } from '~/components/initial/PackForm';
+import { PackForm } from '../components/PackForm';
 
 export function CreatePackScreen() {
   return (

@@ -17,10 +17,10 @@ import { DropdownMenu } from '~/components/nativewindui/DropdownMenu';
 import { createDropdownItem } from '~/components/nativewindui/DropdownMenu/utils';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { TextField } from '~/components/nativewindui/TextField';
-import { useCreatePack, useUpdatePack } from '~/hooks/usePacks';
+import { useCreatePack, useUpdatePack } from '../hooks';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { Pack, PackCategory } from '~/types';
-import { Button } from '../nativewindui/Button';
+import { Button } from '../../../components/nativewindui/Button';
 // Define Zod schema
 const packFormSchema = z.object({
   name: z.string().min(1, 'Pack name is required'),
@@ -59,7 +59,7 @@ const CATEGORIES = [
 export const PackForm = ({ pack }: { pack?: Pack }) => {
   const router = useRouter();
   const { colors } = useColorScheme();
-  const { mutateAsync: createPack, isPending } = useCreatePack();
+  const { mutateAsync: createPack, isPending } = useCreatePack(); // TODO show feedback for error
   const { mutateAsync: updatePack } = useUpdatePack();
   const isEditingExistingPack = !!pack;
 
@@ -97,9 +97,6 @@ export const PackForm = ({ pack }: { pack?: Pack }) => {
         await createPack(
           {
             ...value,
-            userId: 'default',
-            items: [],
-            baseWeight: 0,
             category: value.category as
               | 'hiking'
               | 'backpacking'
@@ -236,7 +233,14 @@ export const PackForm = ({ pack }: { pack?: Pack }) => {
               disabled={!canSubmit || isSubmitting}
               className={`mt-6 rounded-lg px-4 py-3.5 ${!canSubmit || isSubmitting ? 'bg-primary/70' : 'bg-primary'}`}>
               <Text className="text-center text-base font-semibold text-primary-foreground">
-                {isSubmitting ? 'Creating...' : 'Create Pack'}
+                {isSubmitting
+                  ? isEditingExistingPack
+                    ? 'Updating...'
+                    : 'Creating...'
+                  : isEditingExistingPack
+                    ? 'Update Pack'
+                    : 'Create Pack'}
+                {/* TODO use activity indicator */}
               </Text>
             </Pressable>
           )}

@@ -1,7 +1,8 @@
 import { verifyJWT } from './auth';
 
 export async function authenticateRequest(request: Request): Promise<{ userId: number } | null> {
-  const authHeader = request.headers.get('authorization');
+  const authHeader = request.headers.get('Authorization');
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }

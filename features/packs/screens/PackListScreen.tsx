@@ -1,9 +1,7 @@
 'use client';
 
-import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
-import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -14,14 +12,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { searchValueAtom } from '~/atoms/packListAtoms';
-import { PackCard } from '~/components/initial/PackCard';
+import { Icon } from '@roninoss/icons';
+import { Link } from 'expo-router';
+import { activeFilterAtom, searchValueAtom } from '~/features/packs/packListAtoms';
+import { PackCard } from '~/features/packs/components/PackCard';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
-import { usePacks } from '../hooks/usePacks';
-import type { Pack, PackCategory } from '../types';
+import { usePacks } from '~/features/packs/hooks/usePacks'; // Updated import
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Link } from 'expo-router';
+import type { Pack, PackCategory } from '~/features/packs/types'; // Updated import
 
 type FilterOption = {
   label: string;
@@ -54,7 +53,7 @@ export function PackListScreen() {
   const router = useRouter();
   const { data: packs, isLoading, isError, refetch } = usePacks();
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
-  const [activeFilter, setActiveFilter] = useState<PackCategory | 'all'>('all');
+  const [activeFilter, setActiveFilter] = useAtom(activeFilterAtom);
 
   useHeaderSearchBar({
     hideWhenScrolling: false,
@@ -62,6 +61,7 @@ export function PackListScreen() {
   });
 
   const handlePackPress = (pack: Pack) => {
+    console.log('passed pack', pack.id);
     // Navigate to pack detail screen
     router.push({ pathname: '/pack/[id]', params: { id: pack.id } });
   };

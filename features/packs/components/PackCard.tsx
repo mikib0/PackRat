@@ -4,10 +4,10 @@ import type { Pack } from '~/types';
 import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { Icon } from '@roninoss/icons';
-import { useDeletePack } from '~/hooks/usePacks';
 import { Alert } from '~/components/nativewindui/Alert';
-import { Button } from '../nativewindui/Button';
+import { Button } from '../../../components/nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { useDeletePack } from '../hooks';
 
 type PackCardProps = {
   pack: Pack;
