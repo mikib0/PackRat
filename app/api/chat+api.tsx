@@ -2,6 +2,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { serverEnv } from '~/env/serverEnvs';
 import { mockPacks, mockPackItems, mockCatalogItems } from '~/data/mockData';
+import { authenticateRequest, unauthorizedResponse } from '~/utils/api-middleware';
 
 // Mock function to get pack details
 async function getPackDetails(packId: string) {
