@@ -14,10 +14,11 @@ import {
   View,
 } from 'react-native';
 import { searchValueAtom } from '~/atoms/itemListAtoms';
-import { CatalogItemCard } from '~/components/catalog/CatalogItemCard';
+import { CatalogItemCard } from '~/features/catalog/components/CatalogItemCard';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
-import { useCatalogItems } from '~/hooks/useItems';
-import type { CatalogItem } from '~/types';
+import { useCatalogItems } from '../hooks';
+import type { CatalogItem } from '../types';
+import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 
 type FilterOption = {
   label: string;
@@ -93,6 +94,11 @@ export function CatalogItemsScreen() {
 
   return (
     <SafeAreaView className="flex-1">
+      <LargeTitleHeader
+        title="Catalog"
+        backVisible={false}
+        searchBar={{ iosHideWhenScrolling: true }}
+      />
       <View className="bg-background px-4 py-2">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-1">
           {filterOptions.map(renderFilterChip)}

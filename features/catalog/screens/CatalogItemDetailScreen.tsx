@@ -1,5 +1,3 @@
-'use client';
-
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScrollView, View, Image, SafeAreaView } from 'react-native';
 import { Icon } from '@roninoss/icons';
@@ -7,10 +5,10 @@ import { Button } from '~/components/nativewindui/Button';
 import { Chip } from '~/components/initial/Chip';
 import { ItemLinks } from '~/components/catalog/ItemLinks';
 import { ItemReviews } from '~/components/catalog/ItemReviews';
-import { useCatalogItemDetails } from '~/hooks/useItems';
-import { LoadingSpinnerScreen } from './LoadingSpinnerScreen';
-import { ErrorScreen } from './ErrorScreen';
-import { NotFoundScreen } from './NotFoundScreen';
+import { useCatalogItemDetails } from '../hooks';
+import { LoadingSpinnerScreen } from '../../../screens/LoadingSpinnerScreen';
+import { ErrorScreen } from '../../../screens/ErrorScreen';
+import { NotFoundScreen } from '../../../screens/NotFoundScreen';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 

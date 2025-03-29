@@ -13,12 +13,12 @@ import {
 } from 'react-native';
 import { Icon } from '@roninoss/icons';
 import { Button } from '~/components/nativewindui/Button';
-import { usePacks } from '~/hooks/usePacks';
-import { useCatalogItemDetails } from '~/hooks/useItems';
+import { useCatalogItemDetails } from '../hooks';
 import type { Pack } from '~/types';
 import { SearchInput } from '~/components/nativewindui/SearchInput';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { usePacks } from '~/features/packs';
 
 export function PackSelectionScreen() {
   const router = useRouter();

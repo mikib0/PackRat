@@ -17,12 +17,11 @@ import {
 } from 'react-native';
 import { Icon } from '@roninoss/icons';
 import { Button } from '~/components/nativewindui/Button';
-import { useCatalogItemDetails } from '~/hooks/useItems';
-import { usePackDetails } from '~/hooks/usePacks';
-import { useCreateOrUpdateItem } from '~/hooks/usePackItems';
+import { useCatalogItemDetails } from '../hooks';
 import type { WeightUnit } from '~/types';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Text } from '~/components/nativewindui/Text';
+import { useCreatePackItem, usePackDetails } from '~/features/packs';
 
 export function AddCatalogItemDetailsScreen() {
   const router = useRouter();
@@ -31,7 +30,7 @@ export function AddCatalogItemDetailsScreen() {
     catalogItemId as string
   );
   const { data: pack, isLoading: isLoadingPack } = usePackDetails(packId as string);
-  const { mutate: createItem, isPending: isCreating } = useCreateOrUpdateItem();
+  const { mutate: createItem, isPending: isCreating } = useCreatePackItem();
   const fadeAnim = useState(new Animated.Value(0))[0];
 
   // Form state
@@ -66,17 +65,19 @@ export function AddCatalogItemDetailsScreen() {
     createItem(
       {
         packId: packId as string,
-        name: catalogItem.name,
-        description: catalogItem.description,
-        weight: catalogItem.defaultWeight,
-        weightUnit: catalogItem.weightUnit as WeightUnit,
-        quantity: Number.parseInt(quantity, 10) || 1,
-        category: catalogItem.category,
-        consumable: isConsumable,
-        worn: isWorn,
-        notes: notes,
-        image: catalogItem.image,
-        catalogItemId: catalogItem.id,
+        itemData: {
+          name: catalogItem.name,
+          description: catalogItem.description,
+          weight: catalogItem.defaultWeight,
+          weightUnit: catalogItem.defaultWeightUnit as WeightUnit,
+          quantity: Number.parseInt(quantity, 10) || 1,
+          category: catalogItem.category,
+          consumable: isConsumable,
+          worn: isWorn,
+          notes: notes,
+          image: catalogItem.image,
+          catalogItemId: catalogItem.id,
+        },
       },
       {
         onSuccess: () => {
