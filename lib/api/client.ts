@@ -5,7 +5,7 @@ import axios, {
   type AxiosResponse,
 } from 'axios';
 import { store } from '~/atoms/store';
-import { tokenAtom } from '~/features/auth/atoms/authAtoms';
+import { tokenAtom, refreshTokenAtom } from '~/features/auth/atoms/authAtoms';
 
 // Define base API URL based on environment
 export const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -20,13 +20,34 @@ const axiosInstance: AxiosInstance = axios.create({
   },
 });
 
+// Flag to prevent multiple refresh requests
+let isRefreshing = false;
+// Queue of failed requests to retry after token refresh
+let failedQueue: Array<{
+  resolve: (value: unknown) => void;
+  reject: (reason?: any) => void;
+  config: AxiosRequestConfig;
+}> = [];
+
+// Process the queue of failed requests
+const processQueue = (error: Error | null, token: string | null = null) => {
+  failedQueue.forEach((request) => {
+    if (error) {
+      request.reject(error);
+    } else if (token && request.config.headers) {
+      request.config.headers.Authorization = `Bearer ${token}`;
+      request.resolve(axios(request.config));
+    }
+  });
+
+  failedQueue = [];
+};
+
 // Request interceptor to attach auth token
 axiosInstance.interceptors.request.use(
   async (config: AxiosRequestConfig) => {
     try {
       const token = await store.get(tokenAtom);
-
-      console.log('token', token);
 
       // If token exists, attach it to the request
       if (token && config.headers) {
@@ -48,11 +69,65 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+
     // Handle 401 Unauthorized errors
-    if (error.response?.status === 401) {
-      // You could dispatch a logout action or redirect to login
-      console.warn('Authentication error: Token may be expired');
-      // Could add logic to refresh token here if needed
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // If already refreshing, add request to queue
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject, config: originalRequest });
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Get refresh token
+        const refreshToken = await store.get(refreshTokenAtom);
+
+        if (!refreshToken) {
+          // No refresh token, logout user
+          // You could dispatch a logout action here
+          processQueue(new Error('No refresh token'));
+          return Promise.reject(error);
+        }
+
+        // Call refresh token endpoint
+        const response = await axios.post(`${API_URL}/api/auth/refresh`, {
+          refreshToken,
+        });
+
+        if (response.data.success) {
+          // Store new tokens
+          await store.set(tokenAtom, response.data.accessToken);
+          await store.set(refreshTokenAtom, response.data.refreshToken);
+
+          // Update authorization header
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+          }
+
+          // Process queue with new token
+          processQueue(null, response.data.accessToken);
+
+          // Retry original request
+          return axios(originalRequest);
+        } else {
+          // Refresh failed, logout user
+          // You could dispatch a logout action here
+          processQueue(new Error('Token refresh failed'));
+          return Promise.reject(error);
+        }
+      } catch (refreshError) {
+        // Refresh failed, logout user
+        // You could dispatch a logout action here
+        processQueue(refreshError as Error);
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
 
     return Promise.reject(error);

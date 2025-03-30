@@ -3,20 +3,13 @@ import { router } from 'expo-router';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
-import {
-  tokenAtom,
-  userAtom,
-  isLoadingAtom,
-  showLinkingModalAtom,
-  linkingDataAtom,
-} from '../atoms/authAtoms';
+import { tokenAtom, refreshTokenAtom, userAtom, isLoadingAtom } from '../atoms/authAtoms';
 
 export function useAuthActions() {
   const setToken = useSetAtom(tokenAtom);
+  const setRefreshToken = useSetAtom(refreshTokenAtom);
   const setUser = useSetAtom(userAtom);
   const setIsLoading = useSetAtom(isLoadingAtom);
-  const setShowLinkingModal = useSetAtom(showLinkingModalAtom);
-  const setLinkingData = useSetAtom(linkingDataAtom);
 
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
@@ -35,7 +28,14 @@ export function useAuthActions() {
         throw new Error(data.error || 'Failed to sign in');
       }
 
-      await setToken(data.token);
+      console.log(data.accessToken, data.refreshToken);
+      // Store both tokens
+      await SecureStore.setItemAsync('access_token', data.accessToken);
+      await SecureStore.setItemAsync('refresh_token', data.refreshToken);
+
+
+      await setToken(data.accessToken);
+      await setRefreshToken(data.refreshToken);
       setUser(data.user);
       router.replace('/(app)');
     } catch (error) {
@@ -63,7 +63,7 @@ export function useAuthActions() {
         throw new Error('No ID token received from Google');
       }
 
-      // Send the token to your backend
+      // Send the token to backend
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/google`, {
         method: 'POST',
         headers: {
@@ -74,23 +74,16 @@ export function useAuthActions() {
 
       const data = await response.json();
 
-      if (response.status === 409) {
-        // Account linking needed
-        setLinkingData({
-          provider: 'google',
-          email: data.email,
-          token: idToken,
-        });
-        setShowLinkingModal(true);
-        setIsLoading(false);
-        return;
-      }
-
       if (!response.ok) {
         throw new Error(data.error || 'Failed to sign in with Google');
       }
 
-      await setToken(data.token);
+      // Store both tokens
+      await SecureStore.setItemAsync('access_token', data.accessToken);
+      await SecureStore.setItemAsync('refresh_token', data.refreshToken);
+
+      await setToken(data.accessToken);
+      await setRefreshToken(data.refreshToken);
       setUser(data.user);
       router.replace('/(app)');
     } catch (error: any) {
@@ -134,23 +127,16 @@ export function useAuthActions() {
 
       const data = await response.json();
 
-      if (response.status === 409) {
-        // Account linking needed
-        setLinkingData({
-          provider: 'apple',
-          email: data.email,
-          token: credential.identityToken!,
-        });
-        setShowLinkingModal(true);
-        setIsLoading(false);
-        return;
-      }
-
       if (!response.ok) {
         throw new Error(data.error || 'Failed to sign in with Apple');
       }
 
-      await setToken(data.token);
+      // Store both tokens
+      await SecureStore.setItemAsync('access_token', data.accessToken);
+      await SecureStore.setItemAsync('refresh_token', data.refreshToken);
+
+      await setToken(data.accessToken);
+      await setRefreshToken(data.refreshToken);
       setUser(data.user);
       router.replace('/(app)');
     } catch (error) {
@@ -194,19 +180,27 @@ export function useAuthActions() {
         await GoogleSignin.signOut();
       }
 
-      const token = await GoogleSignin.getTokens()
-        .then((tokens) => tokens.idToken)
-        .catch(() => null);
-      if (token) {
+      // Get the refresh token
+      const refreshToken = await SecureStore.getItemAsync('refresh_token');
+
+      if (refreshToken) {
+        // Call the logout endpoint to revoke the refresh token
         await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/logout`, {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ refreshToken }),
         });
       }
 
+      // Clear tokens from secure storage
+      await SecureStore.deleteItemAsync('access_token');
+      await SecureStore.deleteItemAsync('refresh_token');
+
+      // Clear state
       await setToken(null);
+      await setRefreshToken(null);
       setUser(null);
       router.replace('/auth');
     } catch (error) {
@@ -278,9 +272,13 @@ export function useAuthActions() {
         throw new Error(data.error || 'Failed to verify email');
       }
 
-      // If verification is successful, set the user and token
-      if (data.token && data.user) {
-        await setToken(data.token);
+      // If verification is successful, set the user and tokens
+      if (data.accessToken && data.refreshToken && data.user) {
+        await SecureStore.setItemAsync('access_token', data.accessToken);
+        await SecureStore.setItemAsync('refresh_token', data.refreshToken);
+
+        await setToken(data.accessToken);
+        await setRefreshToken(data.refreshToken);
         setUser(data.user);
       }
 
@@ -317,31 +315,6 @@ export function useAuthActions() {
     }
   };
 
-  const linkAccount = async (provider: string, token: string) => {
-    try {
-      const currentToken = await SecureStore.getItemAsync('auth_token');
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/link-account`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${currentToken}`,
-        },
-        body: JSON.stringify({ provider, token }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to link account');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Account linking error:', error);
-      throw error;
-    }
-  };
-
   return {
     signIn,
     signInWithGoogle,
@@ -352,6 +325,5 @@ export function useAuthActions() {
     resetPassword,
     verifyEmail,
     resendVerificationEmail,
-    linkAccount,
   };
 }
