@@ -1,10 +1,10 @@
 import { ConfigContext, ExpoConfig } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
-  name: 'packrat-expo-v2-poc',
-  slug: 'packrat-v2',
-  version: '1.0.0',
-  scheme: 'packrat-expo-v2-poc',
+  name: 'Packrat',
+  slug: 'packrat',
+  version: '2.0.0',
+  scheme: 'packrat',
   web: {
     bundler: 'metro',
     output: 'static',
@@ -16,12 +16,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     tsconfigPaths: true,
   },
   orientation: 'portrait',
-  icon: './assets/icon.png',
+  icon: './assets/packrat-app-icon-gradient.png',
   userInterfaceStyle: 'automatic',
   splash: {
     image: './assets/splash.png',
-    resizeMode: 'contain',
-    backgroundColor: '#ffffff',
   },
   assetBundlePatterns: ['**/*'],
   ios: {
@@ -31,13 +29,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#ffffff',
+      backgroundColor: '#026A9F',
     },
-    package: 'com.andrewbierman.myexpoapp',
+    package: 'com.andrewbierman.packrat',
   },
   extra: {
     eas: {
-      projectId: 'e2be0630-0e40-4e0a-9d95-739b3955c7cd',
+      projectId: '267945b1-d9ac-4621-8541-826a2c70576d',
     },
   },
 
