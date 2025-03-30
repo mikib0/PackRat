@@ -14,7 +14,7 @@ import { ErrorScreen } from '../../../screens/ErrorScreen';
 import { LoadingSpinnerScreen } from '../../../screens/LoadingSpinnerScreen';
 import { Icon } from '@roninoss/icons';
 import { Alert } from '~/components/nativewindui/Alert';
-import { PackItemSuggestions } from '~/components/initial/PackItemSuggestions';
+import { PackItemSuggestions } from '~/features/packs/components/PackItemSuggestions';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Text } from '~/components/nativewindui/Text';
 
@@ -172,23 +172,6 @@ export function PackDetailScreen() {
               <Text>Ask AI</Text>
             </Button>
           </View>
-
-          <View className="flex-row border-b border-border">
-            <TouchableOpacity className={getTabStyle('all')} onPress={() => setActiveTab('all')}>
-              <Text className={getTabStyle('all')}>All Items</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className={getTabStyle('worn')} onPress={() => setActiveTab('worn')}>
-              <Text className={getTabStyle('worn')}>Worn</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              className={getTabStyle('consumable')}
-              onPress={() => setActiveTab('consumable')}>
-              <Text className={getTabStyle('consumable')}>Consumable</Text>
-            </TouchableOpacity>
-          </View>
-
           <FlatList
             data={filteredItems}
             keyExtractor={(item) => item.id}
@@ -197,6 +180,27 @@ export function PackDetailScreen() {
                 <PackItemCard item={item} onPress={handleItemPress} />
               </View>
             )}
+            ListHeaderComponent={
+              <View className="flex-row border-b border-border">
+                <TouchableOpacity
+                  className={getTabStyle('all')}
+                  onPress={() => setActiveTab('all')}>
+                  <Text className={getTabStyle('all')}>All Items</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className={getTabStyle('worn')}
+                  onPress={() => setActiveTab('worn')}>
+                  <Text className={getTabStyle('worn')}>Worn</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className={getTabStyle('consumable')}
+                  onPress={() => setActiveTab('consumable')}>
+                  <Text className={getTabStyle('consumable')}>Consumable</Text>
+                </TouchableOpacity>
+              </View>
+            }
             ListEmptyComponent={
               <View className="items-center justify-center p-4">
                 <Text className="text-muted-foreground">No items found</Text>

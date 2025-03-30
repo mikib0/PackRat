@@ -17,9 +17,7 @@ import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
 
-const LOGO_SOURCE = {
-  uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
-};
+const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
 // Define Zod schema for name validation
 const nameFormSchema = z.object({
@@ -68,7 +66,7 @@ export default function InfoScreen() {
           <View className="items-center pb-1">
             <Image
               source={LOGO_SOURCE}
-              className="ios:h-12 ios:w-12 h-8 w-8"
+              className="ios:h-12 ios:w-12 h-8 w-8 rounded-md"
               resizeMode="contain"
             />
             <Text variant="title1" className="ios:font-bold pb-1 pt-4 text-center">

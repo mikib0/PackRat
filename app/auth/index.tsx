@@ -9,9 +9,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 
-const LOGO_SOURCE = {
-  uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
-};
+const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
 const GOOGLE_SOURCE = {
   uri: 'https://www.pngall.com/wp-content/uploads/13/Google-Logo.png',
@@ -28,7 +26,7 @@ export default function AuthIndexScreen() {
           <View className="items-center">
             <Image
               source={LOGO_SOURCE}
-              className="ios:h-12 ios:w-12 h-8 w-8"
+              className="ios:h-12 ios:w-12 h-8 w-8 rounded-md"
               resizeMode="contain"
             />
           </View>
