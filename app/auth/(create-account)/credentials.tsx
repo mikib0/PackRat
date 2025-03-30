@@ -20,9 +20,7 @@ import { AlertAnchor } from '~/components/nativewindui/Alert';
 import type { AlertRef } from '~/components/nativewindui/Alert/types';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 
-const LOGO_SOURCE = {
-  uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
-};
+const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
 // Enhanced password validation schema
 const passwordSchema = z
@@ -170,7 +168,7 @@ export default function CredentialsScreen() {
           <View className="items-center pb-1">
             <Image
               source={LOGO_SOURCE}
-              className="ios:h-12 ios:w-12 h-8 w-8"
+              className="ios:h-12 ios:w-12 h-8 w-8 rounded-md"
               resizeMode="contain"
             />
             <Text variant="title1" className="ios:font-bold pb-1 pt-4 text-center">

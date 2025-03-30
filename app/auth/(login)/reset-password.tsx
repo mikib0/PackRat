@@ -17,9 +17,7 @@ import { Checkbox } from "~/components/nativewindui/Checkbox"
 import { AlertAnchor } from "~/components/nativewindui/Alert"
 import type { AlertRef } from "~/components/nativewindui/Alert/types"
 
-const LOGO_SOURCE = {
-  uri: "https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75",
-}
+const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
 // Enhanced password validation schema
 const passwordSchema = z
@@ -156,7 +154,7 @@ export default function ResetPasswordScreen() {
     <View className="ios:bg-card flex-1" style={{ paddingBottom: insets.bottom }}>
       <Stack.Screen
         options={{
-          title: "Reset Password",
+          title: 'Reset Password',
           headerShadowVisible: false,
         }}
       />
@@ -165,11 +163,14 @@ export default function ResetPasswordScreen() {
         bounces={false}
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"
-        contentContainerClassName="ios:pt-12 pt-20"
-      >
+        contentContainerClassName="ios:pt-12 pt-20">
         <View className="ios:px-12 flex-1 px-8">
           <View className="items-center pb-1">
-            <Image source={LOGO_SOURCE} className="ios:h-12 ios:w-12 h-8 w-8" resizeMode="contain" />
+            <Image
+              source={LOGO_SOURCE}
+              className="ios:h-12 ios:w-12 h-8 w-8 rounded-md"
+              resizeMode="contain"
+            />
             <Text variant="title1" className="ios:font-bold pb-1 pt-4 text-center">
               Create New Password
             </Text>
@@ -183,17 +184,17 @@ export default function ResetPasswordScreen() {
                 <FormItem>
                   <form.Field name="password">
                     {(field) => {
-                      const passwordStrength = getPasswordStrength(field.state.value)
+                      const passwordStrength = getPasswordStrength(field.state.value);
                       return (
                         <View>
                           <TextField
-                            placeholder={Platform.select({ ios: "New Password", default: "" })}
-                            label={Platform.select({ ios: undefined, default: "New Password" })}
-                            onSubmitEditing={() => KeyboardController.setFocusTo("next")}
-                            onFocus={() => setFocusedTextField("password")}
+                            placeholder={Platform.select({ ios: 'New Password', default: '' })}
+                            label={Platform.select({ ios: undefined, default: 'New Password' })}
+                            onSubmitEditing={() => KeyboardController.setFocusTo('next')}
+                            onFocus={() => setFocusedTextField('password')}
                             onBlur={() => {
-                              setFocusedTextField(null)
-                              field.handleBlur()
+                              setFocusedTextField(null);
+                              field.handleBlur();
                             }}
                             submitBehavior="submit"
                             secureTextEntry={!passwordVisible}
@@ -209,7 +210,9 @@ export default function ResetPasswordScreen() {
                             <View className="mt-2 px-1">
                               <View className="mb-1 flex-row justify-between">
                                 <Text className="text-xs text-gray-500">Password strength:</Text>
-                                <Text className="text-xs font-medium">{passwordStrength.label}</Text>
+                                <Text className="text-xs font-medium">
+                                  {passwordStrength.label}
+                                </Text>
                               </View>
                               <View className="h-1 overflow-hidden rounded-full bg-gray-200">
                                 <View
@@ -222,49 +225,71 @@ export default function ResetPasswordScreen() {
                               <View className="mt-2 space-y-1">
                                 <View className="flex-row items-center">
                                   <Icon
-                                    name={field.state.value.length >= 8 ? "check-circle" : "circle"}
+                                    name={field.state.value.length >= 8 ? 'check-circle' : 'circle'}
                                     size={14}
-                                    color={field.state.value.length >= 8 ? "#10B981" : "#9CA3AF"}
+                                    color={field.state.value.length >= 8 ? '#10B981' : '#9CA3AF'}
                                   />
-                                  <Text className="ml-1 text-xs text-gray-500">At least 8 characters</Text>
+                                  <Text className="ml-1 text-xs text-gray-500">
+                                    At least 8 characters
+                                  </Text>
                                 </View>
                                 <View className="flex-row items-center">
                                   <Icon
-                                    name={/[A-Z]/.test(field.state.value) ? "check-circle" : "circle"}
+                                    name={
+                                      /[A-Z]/.test(field.state.value) ? 'check-circle' : 'circle'
+                                    }
                                     size={14}
-                                    color={/[A-Z]/.test(field.state.value) ? "#10B981" : "#9CA3AF"}
+                                    color={/[A-Z]/.test(field.state.value) ? '#10B981' : '#9CA3AF'}
                                   />
-                                  <Text className="ml-1 text-xs text-gray-500">At least 1 uppercase letter</Text>
+                                  <Text className="ml-1 text-xs text-gray-500">
+                                    At least 1 uppercase letter
+                                  </Text>
                                 </View>
                                 <View className="flex-row items-center">
                                   <Icon
-                                    name={/[a-z]/.test(field.state.value) ? "check-circle" : "circle"}
+                                    name={
+                                      /[a-z]/.test(field.state.value) ? 'check-circle' : 'circle'
+                                    }
                                     size={14}
-                                    color={/[a-z]/.test(field.state.value) ? "#10B981" : "#9CA3AF"}
+                                    color={/[a-z]/.test(field.state.value) ? '#10B981' : '#9CA3AF'}
                                   />
-                                  <Text className="ml-1 text-xs text-gray-500">At least 1 lowercase letter</Text>
+                                  <Text className="ml-1 text-xs text-gray-500">
+                                    At least 1 lowercase letter
+                                  </Text>
                                 </View>
                                 <View className="flex-row items-center">
                                   <Icon
-                                    name={/[0-9]/.test(field.state.value) ? "check-circle" : "circle"}
+                                    name={
+                                      /[0-9]/.test(field.state.value) ? 'check-circle' : 'circle'
+                                    }
                                     size={14}
-                                    color={/[0-9]/.test(field.state.value) ? "#10B981" : "#9CA3AF"}
+                                    color={/[0-9]/.test(field.state.value) ? '#10B981' : '#9CA3AF'}
                                   />
-                                  <Text className="ml-1 text-xs text-gray-500">At least 1 number</Text>
+                                  <Text className="ml-1 text-xs text-gray-500">
+                                    At least 1 number
+                                  </Text>
                                 </View>
                                 <View className="flex-row items-center">
                                   <Icon
-                                    name={/[^A-Za-z0-9]/.test(field.state.value) ? "check-circle" : "circle"}
+                                    name={
+                                      /[^A-Za-z0-9]/.test(field.state.value)
+                                        ? 'check-circle'
+                                        : 'circle'
+                                    }
                                     size={14}
-                                    color={/[^A-Za-z0-9]/.test(field.state.value) ? "#10B981" : "#9CA3AF"}
+                                    color={
+                                      /[^A-Za-z0-9]/.test(field.state.value) ? '#10B981' : '#9CA3AF'
+                                    }
                                   />
-                                  <Text className="ml-1 text-xs text-gray-500">At least 1 special character</Text>
+                                  <Text className="ml-1 text-xs text-gray-500">
+                                    At least 1 special character
+                                  </Text>
                                 </View>
                               </View>
                             </View>
                           ) : null}
                         </View>
-                      )
+                      );
                     }}
                   </form.Field>
                 </FormItem>
@@ -272,12 +297,12 @@ export default function ResetPasswordScreen() {
                   <form.Field name="confirmPassword">
                     {(field) => (
                       <TextField
-                        placeholder={Platform.select({ ios: "Confirm password", default: "" })}
-                        label={Platform.select({ ios: undefined, default: "Confirm password" })}
-                        onFocus={() => setFocusedTextField("confirm-password")}
+                        placeholder={Platform.select({ ios: 'Confirm password', default: '' })}
+                        label={Platform.select({ ios: undefined, default: 'Confirm password' })}
+                        onFocus={() => setFocusedTextField('confirm-password')}
                         onBlur={() => {
-                          setFocusedTextField(null)
-                          field.handleBlur()
+                          setFocusedTextField(null);
+                          field.handleBlur();
                         }}
                         onSubmitEditing={() => form.handleSubmit()}
                         secureTextEntry={!passwordVisible}
@@ -293,7 +318,11 @@ export default function ResetPasswordScreen() {
 
                 {/* Password visibility checkbox */}
                 <View className="mb-4 mt-2 flex-row items-center">
-                  <Checkbox checked={passwordVisible} onCheckedChange={setPasswordVisible} id="show-password" />
+                  <Checkbox
+                    checked={passwordVisible}
+                    onCheckedChange={setPasswordVisible}
+                    id="show-password"
+                  />
                   <Text className="ml-2 text-sm text-gray-700">Show password</Text>
                 </View>
               </FormSection>
@@ -302,12 +331,15 @@ export default function ResetPasswordScreen() {
         </View>
       </KeyboardAwareScrollView>
       <KeyboardStickyView offset={{ closed: 0, opened: insets.bottom }}>
-        {Platform.OS === "ios" ? (
+        {Platform.OS === 'ios' ? (
           <View className="px-12 py-4">
             <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
-                <Button size="lg" disabled={!canSubmit || isLoading} onPress={() => form.handleSubmit()}>
-                  <Text>{isLoading ? "Resetting..." : "Reset Password"}</Text>
+                <Button
+                  size="lg"
+                  disabled={!canSubmit || isLoading}
+                  onPress={() => form.handleSubmit()}>
+                  <Text>{isLoading ? 'Resetting...' : 'Reset Password'}</Text>
                 </Button>
               )}
             </form.Subscribe>
@@ -319,16 +351,19 @@ export default function ResetPasswordScreen() {
                 <Button
                   disabled={!canSubmit || isLoading}
                   onPress={() => {
-                    if (focusedTextField !== "confirm-password") {
-                      KeyboardController.setFocusTo("next")
-                      return
+                    if (focusedTextField !== 'confirm-password') {
+                      KeyboardController.setFocusTo('next');
+                      return;
                     }
-                    KeyboardController.dismiss()
-                    form.handleSubmit()
-                  }}
-                >
+                    KeyboardController.dismiss();
+                    form.handleSubmit();
+                  }}>
                   <Text className="text-sm">
-                    {isLoading ? "Resetting..." : focusedTextField !== "confirm-password" ? "Next" : "Reset Password"}
+                    {isLoading
+                      ? 'Resetting...'
+                      : focusedTextField !== 'confirm-password'
+                        ? 'Next'
+                        : 'Reset Password'}
                   </Text>
                 </Button>
               )}
@@ -338,6 +373,6 @@ export default function ResetPasswordScreen() {
       </KeyboardStickyView>
       <AlertAnchor ref={alertRef} />
     </View>
-  )
+  );
 }
 

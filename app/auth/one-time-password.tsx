@@ -26,9 +26,8 @@ import { TextField } from '~/components/nativewindui/TextField';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 
-const LOGO_SOURCE = {
-  uri: 'https://nativewindui.com/_next/image?url=/_next/static/media/logo.28276aeb.png&w=2048&q=75',
-};
+const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
+
 const COUNTDOWN_SECONDS_TO_RESEND_CODE = 60;
 const NUM_OF_CODE_CHARACTERS = 5;
 const SCREEN_OPTIONS = { headerBackTitle: 'Back', headerTransparent: true, title: '' };
@@ -152,7 +151,7 @@ export default function OneTimePasswordScreen() {
         extraKeyboardSpace={-insets.bottom + 12}>
         <View className="flex-1 justify-center gap-3">
           <View className="items-center pb-1">
-            <Image source={LOGO_SOURCE} className="h-10 w-10" resizeMode="contain" />
+            <Image source={LOGO_SOURCE} className="h-10 w-10 rounded-md" resizeMode="contain" />
           </View>
           <View className="gap-1">
             <Text variant="title1" className="text-center font-semibold">
