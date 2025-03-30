@@ -1,7 +1,10 @@
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-// Create a transporter
-const transporter = nodemailer.createTransport({
+type EmailProvider = 'nodemailer' | 'resend';
+
+// Create email providers
+const nodemailerTransporter = nodemailer.createTransport({
   service: 'gmail',
   port: 587,
   auth: {
@@ -11,14 +14,28 @@ const transporter = nodemailer.createTransport({
   secure: false,
 });
 
-// Send an email
+const resendClient = new Resend(process.env.RESEND_API_KEY);
+
+// Send an email using the configured provider
 export async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  await transporter.sendMail({
-    from: `"PackRat" <${process.env.EMAIL_FROM}>`,
+  const provider = (process.env.EMAIL_PROVIDER as EmailProvider) || 'nodemailer';
+
+  const options = {
+    from: `PackRat <${process.env.EMAIL_FROM}>`,
     to,
     subject,
     html,
-  });
+  };
+
+  switch (provider) {
+    case 'resend':
+      await resendClient.emails.send(options);
+      break;
+    case 'nodemailer':
+    default:
+      await nodemailerTransporter.sendMail(options);
+      break;
+  }
 }
 
 // Send a verification code email

@@ -1,5 +1,5 @@
 import { Icon, type MaterialIconName } from '@roninoss/icons';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import type React from 'react';
 import { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
@@ -88,13 +88,15 @@ function renderItem<T extends (typeof DATA)[number]>(info: ListRenderItemInfo<T>
   const handlePress = () => {
     if (info.item.id === '13') {
       // Navigate to AI chat
-      const { router } = require('expo-router');
       router.push({
         pathname: '/ai-chat-better-ui',
         params: {
           contextType: 'general',
         },
       });
+    } else if (info.item.route) {
+      // Navigate to the specified route
+      router.push(info.item.route);
     } else {
       console.log('onPress');
     }
@@ -125,7 +127,10 @@ function renderItem<T extends (typeof DATA)[number]>(info: ListRenderItemInfo<T>
           <ChevronRight />
         </View>
       }
-      {...info}
+      item={{
+        title: info.item.title,
+        subTitle: info.item.subTitle,
+      }}
       onPress={handlePress}
     />
   );
@@ -146,7 +151,9 @@ function IconView({ className, name }: { className?: string; name: MaterialIconN
   );
 }
 
-function keyExtractor(item: (Omit<ListDataItem, string> & { id: string }) | string) {
+function keyExtractor(
+  item: (Omit<ListDataItem, string> & { id: string; route?: string }) | string
+) {
   return typeof item === 'string' ? item : item.id;
 }
 
@@ -158,6 +165,7 @@ type MockData =
       leftView?: React.ReactNode;
       rightText?: string;
       badge?: number;
+      route?: string;
     }
   | string;
 
@@ -181,6 +189,7 @@ const DATA: MockData[] = [
       </View>
     ),
     rightText: '12.4 lbs',
+    route: '/current-pack',
   },
   {
     id: '2',
@@ -210,6 +219,7 @@ const DATA: MockData[] = [
       </View>
     ),
     badge: 3,
+    route: '/recent-packs',
   },
   'gap 1',
   {
@@ -223,18 +233,21 @@ const DATA: MockData[] = [
     id: '3',
     title: 'Pack Stats',
     leftView: <IconView name="chart-pie" className="bg-blue-500" />,
+    route: '/pack-stats',
   },
   {
     id: '4',
     title: 'Weight Analysis',
     leftView: <IconView name="ruler" className="bg-blue-600" />,
     rightText: 'Base: 8.2 lbs',
+    route: '/weight-analysis',
   },
   {
     id: '5',
     title: 'Pack Categories',
     leftView: <IconView name="puzzle" className="bg-green-500" />,
     badge: 7,
+    route: '/pack-categories',
   },
   'gap 2',
   {
@@ -242,17 +255,20 @@ const DATA: MockData[] = [
     title: 'Upcoming Trips',
     leftView: <IconView name="map" className="bg-red-500" />,
     badge: 2,
+    route: '/upcoming-trips',
   },
   {
     id: '7',
     title: 'Weather Alerts',
     leftView: <IconView name="weather-rainy" className="bg-amber-500" />,
     rightText: '2 active',
+    route: '/weather-alerts',
   },
   {
     id: '8',
     title: 'Trail Conditions',
     leftView: <IconView name="soccer-field" className="bg-violet-500" />,
+    route: '/trail-conditions',
   },
   'gap 3',
   {
@@ -260,22 +276,26 @@ const DATA: MockData[] = [
     title: 'Gear Inventory',
     leftView: <IconView name="backpack" className="bg-gray-500" />,
     rightText: '42 items',
+    route: '/gear-inventory',
   },
   {
     id: '10',
     title: 'Shopping List',
     leftView: <IconView name="cart-outline" className="bg-gray-600" />,
     badge: 5,
+    route: '/shopping-list',
   },
   {
     id: '11',
     title: 'Shared Packs',
     leftView: <IconView name="account-multiple" className="bg-sky-500" />,
+    route: '/shared-packs',
   },
   {
     id: '12',
     title: 'Pack Templates',
     leftView: <IconView name="file-document-multiple" className="bg-sky-400" />,
     rightText: '4 templates',
+    route: '/pack-templates',
   },
 ];
