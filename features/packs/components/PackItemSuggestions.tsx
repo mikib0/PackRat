@@ -10,7 +10,7 @@ import type { CatalogItem, PackItem } from '~/types';
 import { PackItemSuggestionSkeleton } from './PackItemSuggestionSkeleton';
 import { Button } from '~/components/nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Text } from '../nativewindui/Text';
+import { Text } from '../../../components/nativewindui/Text';
 
 interface AISuggestionsProps {
   packId: string;
