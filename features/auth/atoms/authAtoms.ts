@@ -12,7 +12,18 @@ export type User = {
 };
 
 // Token storage atom
-export const tokenAtom = atomWithStorage<string | null>('auth_token', null, {
+export const tokenAtom = atomWithStorage<string | null>('access_token', null, {
+  getItem: async (key) => SecureStore.getItemAsync(key),
+  setItem: async (key, value) => {
+    if (value === null) {
+      return SecureStore.deleteItemAsync(key);
+    }
+    return SecureStore.setItemAsync(key, value);
+  },
+  removeItem: async (key) => SecureStore.deleteItemAsync(key),
+});
+
+export const refreshTokenAtom = atomWithStorage<string | null>('refresh_token', null, {
   getItem: async (key) => SecureStore.getItemAsync(key),
   setItem: async (key, value) => {
     if (value === null) {
@@ -28,14 +39,6 @@ export const userAtom = atom<User | null>(null);
 
 // Loading state atom
 export const isLoadingAtom = atom(true);
-
-// Account linking modal state atoms
-export const showLinkingModalAtom = atom(false);
-export const linkingDataAtom = atom<{
-  provider: 'google' | 'apple';
-  email: string;
-  token: string;
-} | null>(null);
 
 // Derived atom for authentication status
 export const isAuthenticatedAtom = atom((get) => !!get(userAtom));

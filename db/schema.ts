@@ -34,17 +34,17 @@ export const authProviders = pgTable('auth_providers', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
-// Sessions table
-export const sessions = pgTable('sessions', {
+// Refresh tokens table
+export const refreshTokens = pgTable('refresh_tokens', {
   id: serial('id').primaryKey(),
   userId: integer('user_id')
     .references(() => users.id)
     .notNull(),
-  token: text('token').notNull(),
+  token: text('token').notNull().unique(),
   expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  lastActiveAt: timestamp('last_active_at').defaultNow(),
-  deviceInfo: jsonb('device_info'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  revokedAt: timestamp('revoked_at'),
+  replacedByToken: text('replaced_by_token'),
 });
 
 // One-time password table

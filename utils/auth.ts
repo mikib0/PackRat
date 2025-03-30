@@ -18,6 +18,11 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return await bcrypt.compare(password, hash);
 }
 
+// Generate a refresh token
+export function generateRefreshToken(): string {
+  return randomBytes(40).toString("hex")
+}
+
 // Generate a JWT token
 export function generateJWT(payload: any, expiresIn = '7d'): string {
   return sign(payload, process.env.JWT_SECRET!, { expiresIn });

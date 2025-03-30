@@ -1,6 +1,6 @@
 import { db } from '../../../db';
-import { users, authProviders, sessions } from '../../../db/schema';
-import { generateJWT, generateToken } from '../../../utils/auth';
+import { users, authProviders, refreshTokens } from '../../../db/schema';
+import { generateJWT, generateRefreshToken } from '../../../utils/auth';
 import { eq, and } from 'drizzle-orm';
 import { OAuth2Client } from 'google-auth-library';
 
@@ -93,26 +93,23 @@ export async function POST(request: Request) {
       .where(eq(users.id, userId))
       .limit(1);
 
-    // Generate session token
-    const sessionToken = generateToken();
+    // Generate refresh token
+    const refreshToken = generateRefreshToken();
 
-    // Get device info from request
-    const userAgent = request.headers.get('user-agent') || '';
-
-    // Store session
-    await db.insert(sessions).values({
+    // Store refresh token
+    await db.insert(refreshTokens).values({
       userId,
-      token: sessionToken,
+      token: refreshToken,
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-      deviceInfo: { userAgent },
     });
 
-    // Generate JWT
-    const token = generateJWT({ userId, sessionToken });
+    // Generate JWT (access token)
+    const accessToken = generateJWT({ userId });
 
     return Response.json({
       success: true,
-      token,
+      accessToken,
+      refreshToken,
       user: user[0],
       isNewUser,
     });

@@ -1,29 +1,26 @@
 import { db } from "../../../db"
-import { sessions } from "../../../db/schema"
-import { verifyJWT } from "../../../utils/auth"
+import { refreshTokens } from '../../../db/schema';
 import { eq } from "drizzle-orm"
 
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get("authorization")
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 })
+    // Get refresh token from request body
+    const { refreshToken } = await request.json();
+
+    if (!refreshToken) {
+      return Response.json({ error: 'Refresh token is required' }, { status: 400 });
     }
 
-    const token = authHeader.split(" ")[1]
-    const payload = verifyJWT(token)
-
-    if (!payload || !payload.sessionToken) {
-      return Response.json({ error: "Invalid token" }, { status: 401 })
-    }
-
-    // Delete session
-    await db.delete(sessions).where(eq(sessions.token, payload.sessionToken))
+    // Revoke the refresh token
+    await db
+      .update(refreshTokens)
+      .set({ revokedAt: new Date() })
+      .where(eq(refreshTokens.token, refreshToken));
 
     return Response.json({
       success: true,
-      message: "Logged out successfully",
-    })
+      message: 'Logged out successfully',
+    });
   } catch (error) {
     console.error("Logout error:", error)
     return Response.json({ error: "An error occurred during logout" }, { status: 500 })
