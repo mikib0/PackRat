@@ -40,6 +40,8 @@ import { cn } from "~/lib/cn"
 import { useColorScheme } from "~/lib/useColorScheme"
 import { formatAIResponse } from "~/utils/format-ai-response"
 import { getContextualGreeting, getContextualSuggestions } from "~/utils/chatContextHelpers"
+import { useAtomValue } from "jotai"
+import { tokenAtom } from "~/features/auth/atoms/authAtoms"
 
 const USER = "User"
 const AI = "PackRat AI"
@@ -155,15 +157,19 @@ export default function AIChat() {
         ? context.packName
         : undefined
 
+  const token = useAtomValue(tokenAtom);
   // Call the chat hook at the top level.
   const { messages, error, handleInputChange, input, setInput, handleSubmit, isLoading } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
-    api: 'http://localhost:8081/api/chat',
+    api: `${process.env.EXPO_PUBLIC_API_URL}/api/chat`,
     onError: (error: Error) => console.log(error, 'ERROR'),
     body: {
       contextType: context.contextType,
       itemId: context.itemId,
       packId: context.packId,
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
     initialMessages: [
       {

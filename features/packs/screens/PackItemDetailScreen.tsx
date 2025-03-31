@@ -2,7 +2,6 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { Image, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Chip } from '~/components/initial/Chip';
 import { WeightBadge } from '~/components/initial/WeightBadge';
-import { useCatalogItems } from '~/hooks/useItems';
 import { Icon } from '@roninoss/icons';
 
 import {
