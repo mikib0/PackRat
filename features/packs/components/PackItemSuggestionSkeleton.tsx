@@ -18,7 +18,7 @@ export function PackItemSuggestionSkeleton({ hideSuggestions }: { hideSuggestion
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {[1, 2, 3].map((i) => (
-          <View key={i} className="mr-3 w-40 rounded-lg border border-border bg-card p-3">
+          <View key={i} className="mr-2 w-40 rounded-lg border border-border bg-card p-3">
             <View className="mb-1 h-4 w-3/4 rounded bg-muted" />
             <View className="mb-1 h-3 w-full rounded bg-muted" />
             <View className="mb-2 h-3 w-2/3 rounded bg-muted" />

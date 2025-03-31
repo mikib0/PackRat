@@ -7,4 +7,5 @@ export * from './usePackItem';
 export * from './useCreatePackItem';
 export * from './useUpdatePackItem';
 export * from './useDeleteItem';
+export * from './usePackItemSuggestions';
 

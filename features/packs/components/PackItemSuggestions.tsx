@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { FlatList, Platform, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@roninoss/icons';
-import { useCreateOrUpdateItem } from '~/hooks/usePackItems';
-import { usePackItemSuggestions } from '~/hooks/usePackItemSuggestions';
+import { useCreatePackItem, usePackItemSuggestions } from '../hooks';
 import { cn } from '~/lib/cn';
 import type { CatalogItem, PackItem } from '~/types';
 import { PackItemSuggestionSkeleton } from './PackItemSuggestionSkeleton';
 import { Button } from '~/components/nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Text } from '../../../components/nativewindui/Text';
+import type { PackItemInput } from '../types';
 
 interface AISuggestionsProps {
   packId: string;
@@ -34,34 +34,36 @@ export function PackItemSuggestions({
     isError,
   } = usePackItemSuggestions(packId, packItems, showSuggestions);
 
-  const createItem = useCreateOrUpdateItem();
+  const createItem = useCreatePackItem();
   const { colors } = useColorScheme();
 
   const handleAddItem = (item: CatalogItem) => {
     // Create a new pack item from the catalog item
-    const newItem: Omit<PackItem, 'id'> = {
+    const newItem: PackItemInput = {
       name: item.name,
-      description: item.description,
-      weight: item.defaultWeight,
-      weightUnit: item.weightUnit,
+      description: item.description || '',
+      weight: item.defaultWeight || 0,
+      weightUnit: item.defaultWeightUnit || 'oz',
       quantity: 1,
-      category: item.category,
+      category: item.category || 'Uncategorized',
       consumable: false,
       worn: false,
       image: item.image,
       notes: 'Added from AI suggestions',
-      packId: packId,
-      userId,
       catalogItemId: item.id,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
-    createItem.mutate(newItem as any, {
-      onSuccess: () => {
-        if (onItemAdded) onItemAdded();
+    createItem.mutate(
+      {
+        packId,
+        itemData: newItem,
       },
-    });
+      {
+        onSuccess: () => {
+          if (onItemAdded) onItemAdded();
+        },
+      }
+    );
   };
 
   const handleGenerateSuggestions = () => {
@@ -144,7 +146,7 @@ export function PackItemSuggestions({
         keyExtractor={(item) => item.id}
         className="mb-2"
         renderItem={({ item }) => (
-          <View className={cn('mr-3 rounded-lg border border-border p-3', 'w-40 bg-card')}>
+          <View className={cn('mr-2 rounded-lg border border-border p-3', 'w-40 bg-card')}>
             <Text className="mb-1 font-medium text-foreground" numberOfLines={1}>
               {item.name}
             </Text>
