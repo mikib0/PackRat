@@ -20,7 +20,7 @@ packRoutes.get("/:packId", async (c) => {
   try {
     const packId = c.req.param("packId");
     const pack = await db.query.packs.findFirst({
-      where: eq(packs.id, packId),
+      where: eq(packs.id, Number(packId)),
       with: {
         items: true,
       },
@@ -60,7 +60,7 @@ packRoutes.put("/:packId", async (c) => {
         tags: data.tags,
         updatedAt: new Date(),
       })
-      .where(eq(packs.id, packId))
+      .where(eq(packs.id, Number(packId)))
       .returning();
 
     if (!updatedPack) {
@@ -84,7 +84,7 @@ packRoutes.delete("/:packId", async (c) => {
 
   try {
     const packId = c.req.param("packId");
-    await db.delete(packs).where(eq(packs.id, packId));
+    await db.delete(packs).where(eq(packs.id, Number(packId)));
     return c.json({ success: true });
   } catch (error) {
     console.error("Error deleting pack:", error);

@@ -4,13 +4,13 @@ import {
   authenticateRequest,
   unauthorizedResponse,
 } from "@/utils/api-middleware";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 
 const packItemsRoutes = new Hono();
 
 // Get all items for a pack
-packItemsRoutes.get("/", async (c) => {
+packItemsRoutes.get("/:packId/items", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -19,7 +19,7 @@ packItemsRoutes.get("/", async (c) => {
   try {
     const packId = c.req.param("packId");
     const items = await db.query.packItems.findMany({
-      where: eq(packItems.packId, packId),
+      where: eq(packItems.packId, Number(packId)),
       with: {
         catalogItem: true,
       },
@@ -31,8 +31,49 @@ packItemsRoutes.get("/", async (c) => {
   }
 });
 
+// Get pack item by ID
+packItemsRoutes.get("/:packId/items/:itemId", async (c) => {
+  try {
+    // Authenticate the request
+    const auth = await authenticateRequest(c);
+    if (!auth) {
+      return unauthorizedResponse();
+    }
+
+    const userId = auth.userId;
+    const packId = Number(c.req.param("packId"));
+    const itemId = Number(c.req.param("itemId"));
+
+    // Check if the pack exists and belongs to the user
+    const pack = await db.query.packs.findFirst({
+      where: and(eq(packs.id, packId), eq(packs.userId, userId)),
+    });
+
+    if (!pack) {
+      return c.json({ error: "Pack not found" }, { status: 404 });
+    }
+
+    // Get the item
+    const item = await db.query.packItems.findFirst({
+      where: and(eq(packItems.id, itemId), eq(packItems.packId, packId)),
+      with: {
+        catalogItem: true,
+      },
+    });
+
+    if (!item) {
+      return c.json({ error: "Item not found" }, { status: 404 });
+    }
+
+    return c.json(item);
+  } catch (error) {
+    console.error("Error fetching pack item:", error);
+    return c.json({ error: "Failed to fetch pack item" }, { status: 500 });
+  }
+});
+
 // Add an item to a pack
-packItemsRoutes.post("/", async (c) => {
+packItemsRoutes.post("/:packId/items", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -49,7 +90,7 @@ packItemsRoutes.post("/", async (c) => {
     const [newItem] = await db
       .insert(packItems)
       .values({
-        packId,
+        packId: Number(packId),
         catalogItemId: data.catalogItemId ? Number(data.catalogItemId) : null,
         name: data.name,
         description: data.description,
@@ -69,7 +110,7 @@ packItemsRoutes.post("/", async (c) => {
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, packId));
+      .where(eq(packs.id, Number(packId)));
 
     return c.json(newItem);
   } catch (error) {
@@ -79,7 +120,7 @@ packItemsRoutes.post("/", async (c) => {
 });
 
 // Update a pack item
-packItemsRoutes.put("/:itemId", async (c) => {
+packItemsRoutes.put("/:packId/items/:itemId", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -106,7 +147,7 @@ packItemsRoutes.put("/:itemId", async (c) => {
         catalogItemId: data.catalogItemId ? Number(data.catalogItemId) : null,
         updatedAt: new Date(),
       })
-      .where(eq(packItems.id, itemId))
+      .where(eq(packItems.id, Number(itemId)))
       .returning();
 
     if (!updatedItem) {
@@ -117,7 +158,7 @@ packItemsRoutes.put("/:itemId", async (c) => {
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, packId));
+      .where(eq(packs.id, Number(packId)));
 
     return c.json(updatedItem);
   } catch (error) {
@@ -127,7 +168,7 @@ packItemsRoutes.put("/:itemId", async (c) => {
 });
 
 // Delete a pack item
-packItemsRoutes.delete("/:itemId", async (c) => {
+packItemsRoutes.delete("/:packId/items/:itemId", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -136,13 +177,13 @@ packItemsRoutes.delete("/:itemId", async (c) => {
   try {
     const packId = c.req.param("packId");
     const itemId = c.req.param("itemId");
-    await db.delete(packItems).where(eq(packItems.id, itemId));
+    await db.delete(packItems).where(eq(packItems.id, Number(itemId)));
 
     // Update the pack's updatedAt timestamp
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, packId));
+      .where(eq(packs.id, Number(packId)));
 
     return c.json({ success: true });
   } catch (error) {
