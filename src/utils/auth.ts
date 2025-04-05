@@ -1,7 +1,7 @@
 import * as bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
 import { sign, verify } from "hono/jwt";
 import { JWTPayload } from "hono/utils/jwt/types";
+import { randomBytes } from "node:crypto";
 
 // Generate a random token
 export function generateToken(length = 32): string {

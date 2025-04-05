@@ -1,18 +1,6 @@
-import * as nodemailer from "nodemailer";
 import { Resend } from "resend";
 
 type EmailProvider = "nodemailer" | "resend";
-
-// Create email providers
-const nodemailerTransporter = nodemailer.createTransport({
-  service: "gmail",
-  port: 587,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-  secure: false,
-});
 
 const resendClient = new Resend(process.env.RESEND_API_KEY);
 
