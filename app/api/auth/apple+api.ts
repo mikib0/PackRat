@@ -1,8 +1,8 @@
-import { db } from "../../../db"
-import { users, authProviders, refreshTokens } from '../../../db/schema';
-import { generateJWT, generateRefreshToken } from '../../../utils/auth';
-import { eq, and } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
+import { db } from '../../../db';
+import { authProviders, refreshTokens, users } from '../../../db/schema';
+import { generateJWT, generateRefreshToken } from '../../../utils/auth';
 
 export async function POST(request: Request) {
   try {
@@ -127,4 +127,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
