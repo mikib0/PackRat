@@ -6,11 +6,13 @@ import {
 } from "@/utils/api-middleware";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { catalogItemRoutes } from "./id";
 
 const catalogRoutes = new Hono();
 
-// Get catalog item by ID
-catalogRoutes.get("/:id", async (c) => {
+catalogRoutes.route("/", catalogItemRoutes);
+
+catalogRoutes.get("/", async (c) => {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(c);
@@ -18,48 +20,50 @@ catalogRoutes.get("/:id", async (c) => {
       return unauthorizedResponse();
     }
 
-    const itemId = Number(c.req.param("id"));
+    const id = c.req.query("id");
 
-    const item = await db.query.catalogItems.findFirst({
-      where: eq(catalogItems.id, itemId),
-    });
+    if (id) {
+      // Get a specific catalog item
+      const item = await db.query.catalogItems.findFirst({
+        where: eq(catalogItems.id, Number.parseInt(id)),
+      });
 
-    if (!item) {
-      return c.json({ error: "Catalog item not found" }, 404);
+      if (!item) {
+        return Response.json(
+          { error: "Catalog item not found" },
+          { status: 404 }
+        );
+      }
+
+      return c.json(item);
+    } else {
+      // Get all catalog items
+      const items = await db.query.catalogItems.findMany();
+      return c.json(items);
     }
-
-    return c.json(item);
   } catch (error) {
-    console.error("Error fetching catalog item:", error);
-    return c.json({ error: "Failed to fetch catalog item" }, 500);
+    console.error("Error fetching catalog items:", error);
+    return c.json({ error: "Failed to fetch catalog items" }, { status: 500 });
   }
 });
 
-// Update catalog item
-catalogRoutes.put("/:id", async (c) => {
+catalogRoutes.post("/", async (c) => {
   try {
-    // Only admins should be able to update catalog items
+    // Only admins should be able to create catalog items
     const auth = await authenticateRequest(c);
     if (!auth) {
       return unauthorizedResponse();
     }
 
-    const itemId = Number(c.req.param("id"));
+    // In a real app, you would check if the user is an admin
+    // For now, we'll just use authentication
+
     const data = await c.req.json();
 
-    // Check if the catalog item exists
-    const existingItem = await db.query.catalogItems.findFirst({
-      where: eq(catalogItems.id, itemId),
-    });
-
-    if (!existingItem) {
-      return c.json({ error: "Catalog item not found" }, 404);
-    }
-
-    // Update the catalog item
-    const [updatedItem] = await db
-      .update(catalogItems)
-      .set({
+    // Create the catalog item
+    const [newItem] = await db
+      .insert(catalogItems)
+      .values({
         name: data.name,
         description: data.description,
         defaultWeight: data.defaultWeight,
@@ -69,6 +73,8 @@ catalogRoutes.put("/:id", async (c) => {
         brand: data.brand,
         model: data.model,
         url: data.url,
+
+        // New fields
         ratingValue: data.ratingValue,
         productUrl: data.productUrl,
         color: data.color,
@@ -84,45 +90,13 @@ catalogRoutes.put("/:id", async (c) => {
         techs: data.techs,
         links: data.links,
         reviews: data.reviews,
-        updatedAt: new Date(),
       })
-      .where(eq(catalogItems.id, itemId))
       .returning();
 
-    return c.json(updatedItem);
+    return c.json(newItem);
   } catch (error) {
-    console.error("Error updating catalog item:", error);
-    return c.json({ error: "Failed to update catalog item" }, 500);
-  }
-});
-
-// Delete catalog item
-catalogRoutes.delete("/:id", async (c) => {
-  try {
-    // Only admins should be able to delete catalog items
-    const auth = await authenticateRequest(c);
-    if (!auth) {
-      return unauthorizedResponse();
-    }
-
-    const itemId = Number(c.req.param("id"));
-
-    // Check if the catalog item exists
-    const existingItem = await db.query.catalogItems.findFirst({
-      where: eq(catalogItems.id, itemId),
-    });
-
-    if (!existingItem) {
-      return c.json({ error: "Catalog item not found" }, 404);
-    }
-
-    // Delete the catalog item
-    await db.delete(catalogItems).where(eq(catalogItems.id, itemId));
-
-    return c.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting catalog item:", error);
-    return c.json({ error: "Failed to delete catalog item" }, 500);
+    console.error("Error creating catalog item:", error);
+    return c.json({ error: "Failed to create catalog item" }, { status: 500 });
   }
 });
 

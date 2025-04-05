@@ -1,6 +1,7 @@
 import * as bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { sign, verify } from "hono/jwt";
+import { JWTPayload } from "hono/utils/jwt/types";
 
 // Generate a random token
 export function generateToken(length = 32): string {
@@ -27,14 +28,14 @@ export function generateRefreshToken(): string {
 }
 
 // Generate a JWT token
-export async function generateJWT(payload: any): Promise<string> {
+export async function generateJWT(payload: JWTPayload): Promise<string> {
   return await sign(payload, process.env.JWT_SECRET!);
 }
 
 // Verify a JWT token
-export function verifyJWT(token: string): any {
+export async function verifyJWT(token: string): Promise<any> {
   try {
-    return verify(token, process.env.JWT_SECRET!);
+    return await verify(token, process.env.JWT_SECRET!);
   } catch (error) {
     return null;
   }

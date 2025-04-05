@@ -11,7 +11,12 @@ export async function authenticateRequest(
   }
 
   const token = authHeader.split(" ")[1];
-  const payload = verifyJWT(token);
+
+  if (!token) {
+    return null;
+  }
+
+  const payload = await verifyJWT(token);
 
   if (!payload) {
     return null;

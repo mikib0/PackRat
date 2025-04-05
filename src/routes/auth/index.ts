@@ -69,7 +69,10 @@ authRoutes.post("/login", async (c) => {
     });
 
     // Generate JWT (access token)
-    const accessToken = generateJWT({ userId: user[0].id });
+    const accessToken = await generateJWT({
+      userId: user[0].id,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days
+    });
 
     return c.json({
       success: true,
