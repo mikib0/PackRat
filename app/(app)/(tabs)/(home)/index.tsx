@@ -37,6 +37,10 @@ function SettingsIcon() {
 function DemoIcon() {
   const { colors } = useColorScheme();
 
+  if (process.env.NODE_ENV !== 'development') {
+    return null;
+  }
+
   return (
     <Link href="/demo" asChild>
       <Pressable className="opacity-80">
