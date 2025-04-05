@@ -12,7 +12,8 @@
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
     "web": "expo start --web",
     "check-types": "tsc --noEmit",
-    "check-types-watch": "tsc --noEmit --watch"
+    "check-types-watch": "tsc --noEmit --watch",
+    "clean": "rimraf .expo node_modules"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.2.5",
@@ -105,6 +106,7 @@
     "eslint-config-universe": "^12.0.1",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.11",
+    "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.0",
     "typescript": "~5.3.3"
   },
