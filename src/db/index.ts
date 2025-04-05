@@ -1,7 +1,7 @@
-import { drizzle } from 'drizzle-orm/neon-http';
-import { neon, neonConfig } from '@neondatabase/serverless';
-import * as schema from '~/db/schema';
-import ws from 'ws';
+import * as schema from "@/db/schema";
+import { neon, neonConfig } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import * as ws from "ws";
 
 // Required for Neon serverless driver to work in Node.js
 neonConfig.webSocketConstructor = ws;

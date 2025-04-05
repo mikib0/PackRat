@@ -1,9 +1,9 @@
-import { Hono } from "hono";
 import {
   authenticateRequest,
   unauthorizedResponse,
-} from "../utils/api-middleware";
-import { getCatalogItems, getPackDetails } from "../utils/DbUtils";
+} from "@/utils/api-middleware";
+import { getCatalogItems, getPackDetails } from "@/utils/DbUtils";
+import { Hono } from "hono";
 
 const packItemSuggestionsRoutes = new Hono();
 

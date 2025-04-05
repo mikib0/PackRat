@@ -1,11 +1,11 @@
-import nodemailer from 'nodemailer';
-import { Resend } from 'resend';
+import * as nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-type EmailProvider = 'nodemailer' | 'resend';
+type EmailProvider = "nodemailer" | "resend";
 
 // Create email providers
 const nodemailerTransporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   port: 587,
   auth: {
     user: process.env.EMAIL_USER,
@@ -17,8 +17,13 @@ const nodemailerTransporter = nodemailer.createTransport({
 const resendClient = new Resend(process.env.RESEND_API_KEY);
 
 // Send an email using the configured provider
-export async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  const provider = (process.env.EMAIL_PROVIDER as EmailProvider) || 'nodemailer';
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string
+): Promise<void> {
+  const provider =
+    (process.env.EMAIL_PROVIDER as EmailProvider) || "nodemailer";
 
   const options = {
     from: `PackRat <${process.env.EMAIL_FROM}>`,
@@ -28,10 +33,10 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   };
 
   switch (provider) {
-    case 'resend':
+    case "resend":
       await resendClient.emails.send(options);
       break;
-    case 'nodemailer':
+    case "nodemailer":
     default:
       await nodemailerTransporter.sendMail(options);
       break;
@@ -39,7 +44,10 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
 }
 
 // Send a verification code email
-export async function sendVerificationCodeEmail(to: string, code: string): Promise<void> {
+export async function sendVerificationCodeEmail(
+  to: string,
+  code: string
+): Promise<void> {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2>Verify Your Email Address</h2>
@@ -55,11 +63,14 @@ export async function sendVerificationCodeEmail(to: string, code: string): Promi
     </div>
   `;
 
-  await sendEmail(to, 'Verify Your PackRat Account', html);
+  await sendEmail(to, "Verify Your PackRat Account", html);
 }
 
 // Send a password reset email
-export async function sendPasswordResetEmail(to: string, code: string): Promise<void> {
+export async function sendPasswordResetEmail(
+  to: string,
+  code: string
+): Promise<void> {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2>Reset Your Password</h2>
@@ -75,5 +86,5 @@ export async function sendPasswordResetEmail(to: string, code: string): Promise<
     </div>
   `;
 
-  await sendEmail(to, 'Reset Your PackRat Password', html);
+  await sendEmail(to, "Reset Your PackRat Password", html);
 }

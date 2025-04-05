@@ -1,12 +1,12 @@
-import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
-import { Hono } from "hono";
-import { getWeatherData } from "../services/getWeatherData";
+import { getWeatherData } from "@/services/getWeatherData";
 import {
   authenticateRequest,
   unauthorizedResponse,
-} from "../utils/api-middleware";
-import { getItemDetails, getPackDetails } from "../utils/DbUtils";
+} from "@/utils/api-middleware";
+import { getItemDetails, getPackDetails } from "@/utils/DbUtils";
+import { createOpenAI } from "@ai-sdk/openai";
+import { streamText } from "ai";
+import { Hono } from "hono";
 
 const chatRoutes = new Hono();
 
@@ -35,8 +35,8 @@ chatRoutes.post("/", async (c) => {
         systemPrompt = `
           You are PackRat AI, a helpful assistant for hikers and outdoor enthusiasts.
           You're currently helping with an item named: ${item.name} (${
-          item.category || "Uncategorized"
-        }).
+            item.category || "Uncategorized"
+          }).
           
           Item details:
           - Weight: ${
@@ -54,8 +54,8 @@ chatRoutes.post("/", async (c) => {
           ${!isPackItem && item.model ? `- Model: ${item.model}` : ""}
           
           Current weather in ${weatherData.location}: ${
-          weatherData.temperature
-        }°F, ${weatherData.conditions}, 
+            weatherData.temperature
+          }°F, ${weatherData.conditions}, 
           ${weatherData.humidity}% humidity, wind ${weatherData.windSpeed} mph.
           
           Provide friendly, concise advice about this item. You can suggest alternatives, 
@@ -81,21 +81,21 @@ chatRoutes.post("/", async (c) => {
         systemPrompt = `
           You are PackRat AI, a helpful assistant for hikers and outdoor enthusiasts.
           You're currently helping with a pack named: ${pack.name} (${
-          pack.category || "Uncategorized"
-        }).
+            pack.category || "Uncategorized"
+          }).
           
           Pack details:
           - Items: ${JSON.stringify(pack.items)}
           - Base Weight: ${totalWeight.toFixed(2)} ${
-          pack.items[0]?.weightUnit || "oz"
-        }
+            pack.items[0]?.weightUnit || "oz"
+          }
           - Categories: ${categories.join(", ")}
           ${pack.description ? `- Description: ${pack.description}` : ""}
           ${pack.tags?.length ? `- Tags: ${pack.tags.join(", ")}` : ""}
           
           Current weather in ${weatherData.location}: ${
-          weatherData.temperature
-        }°F, ${weatherData.conditions}, 
+            weatherData.temperature
+          }°F, ${weatherData.conditions}, 
           ${weatherData.humidity}% humidity, wind ${weatherData.windSpeed} mph.
           
           Provide friendly, concise advice about this pack. You can suggest items that might be missing,

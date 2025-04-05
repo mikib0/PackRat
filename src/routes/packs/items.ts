@@ -1,11 +1,11 @@
-import { eq } from "drizzle-orm";
-import { Hono } from "hono";
-import { db } from "../../db";
-import { packItems, packs } from "../../db/schema";
+import { db } from "@/db";
+import { packItems, packs } from "@/db/schema";
 import {
   authenticateRequest,
   unauthorizedResponse,
-} from "../../utils/api-middleware";
+} from "@/utils/api-middleware";
+import { eq } from "drizzle-orm";
+import { Hono } from "hono";
 
 const packItemsRoutes = new Hono();
 
@@ -41,6 +41,10 @@ packItemsRoutes.post("/", async (c) => {
   try {
     const packId = c.req.param("packId");
     const data = await c.req.json();
+
+    if (!packId) {
+      return c.json({ error: "Pack ID is required" }, 400);
+    }
 
     const [newItem] = await db
       .insert(packItems)

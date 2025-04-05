@@ -1,11 +1,11 @@
-import { eq } from "drizzle-orm";
-import { Hono } from "hono";
-import { db } from "../../db";
-import { catalogItems } from "../../db/schema";
+import { db } from "@/db";
+import { catalogItems } from "@/db/schema";
 import {
   authenticateRequest,
   unauthorizedResponse,
-} from "../../utils/api-middleware";
+} from "@/utils/api-middleware";
+import { eq } from "drizzle-orm";
+import { Hono } from "hono";
 
 const catalogRoutes = new Hono();
 

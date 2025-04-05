@@ -1,11 +1,9 @@
-import { and, eq, gt, isNull } from "drizzle-orm";
-import { Hono } from "hono";
-import { db } from "../../db";
-import { oneTimePasswords, refreshTokens, users } from "../../db/schema";
+import { db } from "@/db";
+import { oneTimePasswords, refreshTokens, users } from "@/db/schema";
 import {
   authenticateRequest,
   unauthorizedResponse,
-} from "../../utils/api-middleware";
+} from "@/utils/api-middleware";
 import {
   generateJWT,
   generateRefreshToken,
@@ -14,8 +12,10 @@ import {
   validateEmail,
   validatePassword,
   verifyPassword,
-} from "../../utils/auth";
-import { sendVerificationCodeEmail } from "../../utils/email";
+} from "@/utils/auth";
+import { sendVerificationCodeEmail } from "@/utils/email";
+import { and, eq, gt, isNull } from "drizzle-orm";
+import { Hono } from "hono";
 
 const authRoutes = new Hono();
 

@@ -1,12 +1,12 @@
-import { eq } from "drizzle-orm";
-import { Hono } from "hono";
-import { db } from "../../db";
-import { packs } from "../../db/schema";
-import { computePacksWeights } from "../../lib/utils/compute-pack";
+import { db } from "@/db";
+import { packs } from "@/db/schema";
 import {
   authenticateRequest,
   unauthorizedResponse,
-} from "../../utils/api-middleware";
+} from "@/utils/api-middleware";
+import { computePacksWeights } from "@/utils/compute-pack";
+import { eq } from "drizzle-orm";
+import { Hono } from "hono";
 
 const packRoutes = new Hono();
 
