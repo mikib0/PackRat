@@ -1,7 +1,7 @@
 import { ConfigContext, ExpoConfig } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
-  name: 'Packrat',
+  name: 'PackRat',
   slug: 'packrat',
   version: '2.0.0',
   scheme: 'packrat',
