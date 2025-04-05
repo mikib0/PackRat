@@ -1,24 +1,23 @@
-import { authRoutes } from "@/routes/auth";
-import { catalogRoutes } from "@/routes/catalog";
-import { chatRoutes } from "@/routes/chat";
-import { helloRoutes } from "@/routes/hello";
-import { packItemSuggestionsRoutes } from "@/routes/pack-item-suggestions";
-import { packsRoutes } from "@/routes/packs";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { routes } from "./routes";
 
 const app = new Hono();
 
+// Apply global middleware
+app.use(logger());
+app.use(cors());
+
 // Mount routes
-app.route("/auth", authRoutes);
-app.route("/catalog", catalogRoutes);
-app.route("/packs", packsRoutes);
-app.route("/chat", chatRoutes);
-app.route("/hello", helloRoutes);
-app.route("/pack-item-suggestions", packItemSuggestionsRoutes);
+app.route("/api", routes);
 
 // Health check endpoint
 app.get("/", (c) => {
   return c.text("PackRat API is running!");
 });
 
-export default app;
+export default {
+  port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
+  fetch: app.fetch,
+};
