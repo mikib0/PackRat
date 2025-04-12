@@ -18,7 +18,6 @@ const protectedRoutes = new Hono();
 protectedRoutes.use(authMiddleware);
 
 // Mount protected routes
-protectedRoutes.route("/auth", authRoutes);
 protectedRoutes.route("/hello", helloRoutes);
 protectedRoutes.route("/catalog", catalogRoutes);
 protectedRoutes.route("/packs", packsRoutes);
