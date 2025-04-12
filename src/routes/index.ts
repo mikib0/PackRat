@@ -11,14 +11,12 @@ const publicRoutes = new Hono();
 
 // Mount public routes
 publicRoutes.route("/auth", authRoutes);
-publicRoutes.route("/hello", helloRoutes);
 
 const protectedRoutes = new Hono();
 
 protectedRoutes.use(authMiddleware);
 
 // Mount protected routes
-protectedRoutes.route("/hello", helloRoutes);
 protectedRoutes.route("/catalog", catalogRoutes);
 protectedRoutes.route("/packs", packsRoutes);
 protectedRoutes.route("/chat", chatRoutes);
