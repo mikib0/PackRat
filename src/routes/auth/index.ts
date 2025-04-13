@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { createDb } from "@/db";
 import { oneTimePasswords, refreshTokens, users } from "@/db/schema";
 import {
   authenticateRequest,
@@ -13,7 +13,10 @@ import {
   validatePassword,
   verifyPassword,
 } from "@/utils/auth";
-import { sendPasswordResetEmail, sendVerificationCodeEmail } from "@/utils/email";
+import {
+  sendPasswordResetEmail,
+  sendVerificationCodeEmail,
+} from "@/utils/email";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 
@@ -23,6 +26,7 @@ const authRoutes = new Hono();
 authRoutes.post("/login", async (c) => {
   try {
     const { email, password } = await c.req.json();
+    const db = createDb(c);
 
     // Validate input
     if (!email || !password) {
@@ -69,10 +73,13 @@ authRoutes.post("/login", async (c) => {
     });
 
     // Generate JWT (access token)
-    const accessToken = await generateJWT({
-      userId: user[0].id,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days
-    });
+    const accessToken = await generateJWT(
+      {
+        userId: user[0].id,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days
+      },
+      c
+    );
 
     return c.json({
       success: true,
@@ -96,6 +103,7 @@ authRoutes.post("/login", async (c) => {
 authRoutes.post("/register", async (c) => {
   try {
     const { email, password, firstName, lastName } = await c.req.json();
+    const db = createDb(c);
 
     // Validate input
     if (!email || !password) {
@@ -147,7 +155,7 @@ authRoutes.post("/register", async (c) => {
     });
 
     // Send verification email with code
-    await sendVerificationCodeEmail(email, code);
+    await sendVerificationCodeEmail({ to: email, code, c });
 
     return c.json({
       success: true,
@@ -165,6 +173,7 @@ authRoutes.post("/register", async (c) => {
 authRoutes.post("/verify-email", async (c) => {
   try {
     const { email, code } = await c.req.json();
+    const db = createDb(c);
 
     if (!email || !code) {
       return c.json({ error: "Email and verification code are required" }, 400);
@@ -212,7 +221,7 @@ authRoutes.post("/verify-email", async (c) => {
       .where(eq(oneTimePasswords.userId, userId));
 
     // Generate JWT token
-    const token = generateJWT({ userId: userId });
+    const token = await generateJWT({ payload: { userId }, c });
 
     return c.json({
       success: true,
@@ -241,25 +250,36 @@ authRoutes.post("resend-verification", async (c) => {
     const { email } = await c.req.json();
 
     if (!email) {
-      return Response.json({ error: 'Email is required' }, { status: 400 });
+      return Response.json({ error: "Email is required" }, { status: 400 });
     }
 
+    const db = createDb(c);
+
     // Find the user by email
-    const user = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email.toLowerCase()))
+      .limit(1);
 
     if (user.length === 0) {
-      return Response.json({ error: 'User not found' }, { status: 404 });
+      return Response.json({ error: "User not found" }, { status: 404 });
     }
 
     const userId = user[0].id;
 
     // Check if user is already verified
     if (user[0].emailVerified) {
-      return Response.json({ error: 'Email is already verified' }, { status: 400 });
+      return Response.json(
+        { error: "Email is already verified" },
+        { status: 400 }
+      );
     }
 
     // Delete any existing verification codes
-    await db.delete(oneTimePasswords).where(eq(oneTimePasswords.userId, userId));
+    await db
+      .delete(oneTimePasswords)
+      .where(eq(oneTimePasswords.userId, userId));
 
     // Generate new verification code
     const code = generateVerificationCode(5);
@@ -272,38 +292,45 @@ authRoutes.post("resend-verification", async (c) => {
     });
 
     // Send verification email with code
-    await sendVerificationCodeEmail(email, code);
+    await sendVerificationCodeEmail({ to: email, code, c });
 
     return Response.json({
       success: true,
-      message: 'Verification code sent successfully',
+      message: "Verification code sent successfully",
     });
   } catch (error) {
-    console.error('Resend verification error:', error);
+    console.error("Resend verification error:", error);
     return Response.json(
-      { error: 'An error occurred while resending verification code' },
+      { error: "An error occurred while resending verification code" },
       { status: 500 }
     );
   }
-})
+});
 
 // Forgot password route
 authRoutes.post("forgot-password", async (c) => {
   try {
     const { email } = await c.req.json();
 
+    const db = createDb(c);
+
     if (!email) {
-      return Response.json({ error: 'Email is required' }, { status: 400 });
+      return Response.json({ error: "Email is required" }, { status: 400 });
     }
 
     // Find user
-    const user = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email.toLowerCase()))
+      .limit(1);
 
     // Always return success even if user doesn't exist (security best practice)
     if (user.length === 0) {
       return Response.json({
         success: true,
-        message: 'If your email is registered, you will receive a verification code',
+        message:
+          "If your email is registered, you will receive a verification code",
       });
     }
 
@@ -311,7 +338,9 @@ authRoutes.post("forgot-password", async (c) => {
     const code = generateVerificationCode(5);
 
     // Delete any existing codes for this user
-    await db.delete(oneTimePasswords).where(eq(oneTimePasswords.userId, user[0].id));
+    await db
+      .delete(oneTimePasswords)
+      .where(eq(oneTimePasswords.userId, user[0].id));
 
     // Store code in database
     await db.insert(oneTimePasswords).values({
@@ -321,26 +350,29 @@ authRoutes.post("forgot-password", async (c) => {
     });
 
     // Send password reset email with code
-    await sendPasswordResetEmail(email, code);
+    await sendPasswordResetEmail({ to: email, code, c });
 
     return Response.json({
       success: true,
-      message: 'If your email is registered, you will receive a verification code',
+      message:
+        "If your email is registered, you will receive a verification code",
     });
   } catch (error) {
-    console.error('Forgot password error:', error);
-    return Response.json({ error: 'An error occurred' }, { status: 500 });
+    console.error("Forgot password error:", error);
+    return Response.json({ error: "An error occurred" }, { status: 500 });
   }
-})
+});
 
 // Reset password route
 authRoutes.post("/reset-password", async (c) => {
   try {
     const { email, code, newPassword } = await c.req.json();
 
+    const db = createDb(c);
+
     if (!email || !code || !newPassword) {
       return Response.json(
-        { error: 'Email, code, and new password are required' },
+        { error: "Email, code, and new password are required" },
         { status: 400 }
       );
     }
@@ -348,7 +380,10 @@ authRoutes.post("/reset-password", async (c) => {
     // Validate password
     const passwordValidation = validatePassword(newPassword);
     if (!passwordValidation.valid) {
-      return Response.json({ error: passwordValidation.message }, { status: 400 });
+      return Response.json(
+        { error: passwordValidation.message },
+        { status: 400 }
+      );
     }
 
     // Find user by email
@@ -359,7 +394,7 @@ authRoutes.post("/reset-password", async (c) => {
       .limit(1);
 
     if (userResult.length === 0) {
-      return Response.json({ error: 'User not found' }, { status: 404 });
+      return Response.json({ error: "User not found" }, { status: 404 });
     }
 
     const user = userResult[0];
@@ -368,16 +403,27 @@ authRoutes.post("/reset-password", async (c) => {
     const codeRecord = await db
       .select()
       .from(oneTimePasswords)
-      .where(and(eq(oneTimePasswords.userId, user.id), eq(oneTimePasswords.code, code)))
+      .where(
+        and(
+          eq(oneTimePasswords.userId, user.id),
+          eq(oneTimePasswords.code, code)
+        )
+      )
       .limit(1);
 
     if (codeRecord.length === 0) {
-      return Response.json({ error: 'Invalid verification code' }, { status: 400 });
+      return Response.json(
+        { error: "Invalid verification code" },
+        { status: 400 }
+      );
     }
 
     // Check if code is expired
     if (new Date() > codeRecord[0].expiresAt) {
-      return Response.json({ error: 'Verification code has expired' }, { status: 400 });
+      return Response.json(
+        { error: "Verification code has expired" },
+        { status: 400 }
+      );
     }
 
     // Hash new password
@@ -387,17 +433,22 @@ authRoutes.post("/reset-password", async (c) => {
     await db.update(users).set({ passwordHash }).where(eq(users.id, user.id));
 
     // Delete the used verification code
-    await db.delete(oneTimePasswords).where(eq(oneTimePasswords.id, codeRecord[0].id));
+    await db
+      .delete(oneTimePasswords)
+      .where(eq(oneTimePasswords.id, codeRecord[0].id));
 
     return Response.json({
       success: true,
-      message: 'Password reset successfully',
+      message: "Password reset successfully",
     });
   } catch (error) {
-    console.error('Reset password error:', error);
-    return Response.json({ error: 'An error occurred during password reset' }, { status: 500 });
+    console.error("Reset password error:", error);
+    return Response.json(
+      { error: "An error occurred during password reset" },
+      { status: 500 }
+    );
   }
-})
+});
 
 // Refresh token route
 authRoutes.post("/refresh", async (c) => {
@@ -407,6 +458,8 @@ authRoutes.post("/refresh", async (c) => {
     if (!refreshToken) {
       return c.json({ error: "Refresh token is required" }, 400);
     }
+
+    const db = createDb(c);
 
     // Find the refresh token in the database
     const tokenRecord = await db
@@ -455,7 +508,10 @@ authRoutes.post("/refresh", async (c) => {
     });
 
     // Generate new access token
-    const accessToken = generateJWT({ userId: token.userId });
+    const accessToken = await generateJWT({
+      payload: { userId: token.userId },
+      c,
+    });
 
     // Get user info
     const user = await db
@@ -485,6 +541,8 @@ authRoutes.post("/refresh", async (c) => {
 // Logout route
 authRoutes.post("/logout", async (c) => {
   try {
+    const db = createDb(c);
+
     // Get refresh token from request body
     const { refreshToken } = await c.req.json();
 
@@ -512,6 +570,7 @@ authRoutes.post("/logout", async (c) => {
 authRoutes.get("/me", async (c) => {
   try {
     const auth = await authenticateRequest(c);
+    const db = createDb(c);
 
     if (!auth) {
       return unauthorizedResponse();

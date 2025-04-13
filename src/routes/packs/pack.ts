@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { createDb } from "@/db";
 import { packs } from "@/db/schema";
 import {
   authenticateRequest,
@@ -17,6 +17,7 @@ packRoutes.get("/:packId", async (c) => {
     return unauthorizedResponse();
   }
 
+  const db = createDb(c);
   try {
     const packId = c.req.param("packId");
     const pack = await db.query.packs.findFirst({
@@ -45,6 +46,7 @@ packRoutes.put("/:packId", async (c) => {
     return unauthorizedResponse();
   }
 
+  const db = createDb(c);
   try {
     const packId = c.req.param("packId");
     const data = await c.req.json();
@@ -82,6 +84,7 @@ packRoutes.delete("/:packId", async (c) => {
     return unauthorizedResponse();
   }
 
+  const db = createDb(c);
   try {
     const packId = c.req.param("packId");
     await db.delete(packs).where(eq(packs.id, Number(packId)));
