@@ -1,38 +1,20 @@
 import type { LocationSearchResult } from '~/features/locations/types';
 import { getWeatherIconName as getIconNameFromCode } from './weatherIcons';
-
-// Your API key should be stored in environment variables
-const WEATHER_API_KEY = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
-
-// Base URL for the weather API
-const API_BASE_URL = 'https://api.weatherapi.com/v1';
+import axiosInstance, { handleApiError } from '~/lib/api/client';
 
 /**
  * Search for locations by name
  */
 export async function searchLocations(query: string): Promise<LocationSearchResult[]> {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/search.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
-    );
+    const response = await axiosInstance.get(`/api/weather/search`, {
+      params: { q: query },
+    });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    // Transform API response to our LocationSearchResult type
-    return data.map((item: any) => ({
-      id: `${item.id || item.lat}_${item.lon}`,
-      name: item.name,
-      region: item.region,
-      country: item.country,
-      lat: item.lat,
-      lon: item.lon,
-    }));
+    return response.data;
   } catch (error) {
-    console.error('Error searching locations:', error);
+    const { message } = handleApiError(error);
+    console.error('Error searching locations:', message);
     throw new Error('Failed to search locations');
   }
 }
@@ -45,58 +27,17 @@ export async function searchLocationsByCoordinates(
   longitude: number
 ): Promise<LocationSearchResult[]> {
   try {
-    // Format coordinates for the API query
-    const query = `${latitude.toFixed(6)},${longitude.toFixed(6)}`;
+    const response = await axiosInstance.get(`/api/weather/search-by-coordinates`, {
+      params: {
+        lat: latitude.toFixed(6),
+        lon: longitude.toFixed(6),
+      },
+    });
 
-    // Use the same search endpoint but with coordinates
-    const response = await fetch(
-      `${API_BASE_URL}/search.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    // If no results, try a reverse geocoding approach with current conditions API
-    if (!data || data.length === 0) {
-      const currentResponse = await fetch(
-        `${API_BASE_URL}/current.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
-      );
-
-      if (!currentResponse.ok) {
-        throw new Error(`API error: ${currentResponse.status}`);
-      }
-
-      const currentData = await currentResponse.json();
-
-      if (currentData && currentData.location) {
-        // Create a single result from the current conditions response
-        return [
-          {
-            id: `${currentData.location.lat}_${currentData.location.lon}`,
-            name: currentData.location.name,
-            region: currentData.location.region,
-            country: currentData.location.country,
-            lat: Number.parseFloat(currentData.location.lat),
-            lon: Number.parseFloat(currentData.location.lon),
-          },
-        ];
-      }
-    }
-
-    // Transform API response to our LocationSearchResult type
-    return data.map((item: any) => ({
-      id: `${item.id || item.lat}_${item.lon}`,
-      name: item.name,
-      region: item.region,
-      country: item.country,
-      lat: Number.parseFloat(item.lat),
-      lon: Number.parseFloat(item.lon),
-    }));
+    return response.data;
   } catch (error) {
-    console.error('Error searching locations by coordinates:', error);
+    const { message } = handleApiError(error);
+    console.error('Error searching locations by coordinates:', message);
     throw new Error('Failed to find locations near you');
   }
 }
@@ -106,21 +47,17 @@ export async function searchLocationsByCoordinates(
  */
 export async function getWeatherData(latitude: number, longitude: number) {
   try {
-    // Format coordinates for the API query
-    const query = `${latitude.toFixed(6)},${longitude.toFixed(6)}`;
+    const response = await axiosInstance.get(`/api/weather/forecast`, {
+      params: {
+        lat: latitude.toFixed(6),
+        lon: longitude.toFixed(6),
+      },
+    });
 
-    // Get forecast data with all the details we need
-    const response = await fetch(
-      `${API_BASE_URL}/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}&days=10&aqi=yes&alerts=yes`
-    );
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    return await response.json();
+    return response.data;
   } catch (error) {
-    console.error('Error getting weather data:', error);
+    const { message } = handleApiError(error);
+    console.error('Error getting weather data:', message);
     throw new Error('Failed to get weather data');
   }
 }
