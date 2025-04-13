@@ -1,12 +1,10 @@
-"use client"
-
-import { useChat } from "@ai-sdk/react"
-import { Icon } from "@roninoss/icons"
-import { FlashList } from "@shopify/flash-list"
-import { BlurView } from "expo-blur"
-import { router, Stack, useLocalSearchParams } from "expo-router"
-import { fetch as expoFetch } from "expo/fetch"
-import * as React from "react"
+import { useChat } from '@ai-sdk/react';
+import { Icon } from '@roninoss/icons';
+import { FlashList } from '@shopify/flash-list';
+import { BlurView } from 'expo-blur';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { fetch as expoFetch } from 'expo/fetch';
+import * as React from 'react';
 import {
   Dimensions,
   type NativeSyntheticEvent,
@@ -15,16 +13,16 @@ import {
   TextInput,
   type TextInputContentSizeChangeEventData,
   type TextStyle,
-  View,
   type ViewStyle,
-  TouchableOpacity, // Import TouchableOpacity
-} from "react-native"
-import { Gesture, GestureDetector } from "react-native-gesture-handler"
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
   KeyboardAvoidingView,
   KeyboardStickyView,
   useReanimatedKeyboardAnimation,
-} from "react-native-keyboard-controller"
+} from 'react-native-keyboard-controller';
 import Animated, {
   clamp,
   interpolate,
@@ -32,26 +30,28 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-} from "react-native-reanimated"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { Button } from "~/components/nativewindui/Button"
-import { Text } from "~/components/nativewindui/Text"
-import { cn } from "~/lib/cn"
-import { useColorScheme } from "~/lib/useColorScheme"
-import { formatAIResponse } from "~/utils/format-ai-response"
-import { getContextualGreeting, getContextualSuggestions } from "~/utils/chatContextHelpers"
-import { useAtomValue } from "jotai"
-import { tokenAtom } from "~/features/auth/atoms/authAtoms"
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '~/components/nativewindui/Button';
+import { Text } from '~/components/nativewindui/Text';
+import { LocationSelector } from '~/features/locations/components/LocationSelector';
+import { cn } from '~/lib/cn';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { formatAIResponse } from '~/utils/format-ai-response';
+import { getContextualGreeting, getContextualSuggestions } from '~/utils/chatContextHelpers';
+import { useAtomValue } from 'jotai';
+import { tokenAtom } from '~/features/auth/atoms/authAtoms';
+import { useActiveLocation } from '~/features/locations/hooks';
 
-const USER = "User"
-const AI = "PackRat AI"
-const HEADER_HEIGHT = Platform.select({ ios: 88, default: 64 })
-const dimensions = Dimensions.get("window")
+const USER = 'User';
+const AI = 'PackRat AI';
+const HEADER_HEIGHT = Platform.select({ ios: 88, default: 64 });
+const dimensions = Dimensions.get('window');
 
 const ROOT_STYLE: ViewStyle = {
   flex: 1,
   minHeight: 2,
-}
+};
 
 const SPRING_CONFIG = {
   damping: 15,
@@ -60,13 +60,13 @@ const SPRING_CONFIG = {
   overshootClamping: false,
   restDisplacementThreshold: 0.01,
   restSpeedThreshold: 0.01,
-}
+};
 
 type Message = {
-  id: string
-  role: "user" | "assistant"
-  content: string
-}
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+};
 
 // Define the Header component outside so that its reference stays stable.
 function Header() {
@@ -122,23 +122,24 @@ function Header() {
 }
 
 const HEADER_POSITION_STYLE: ViewStyle = {
-  position: "absolute",
+  position: 'absolute',
   zIndex: 50,
   top: 0,
   left: 0,
   right: 0,
-}
+};
 
 export default function AIChat() {
-  const { colors, isDarkColorScheme } = useColorScheme()
-  const insets = useSafeAreaInsets()
-  const { progress } = useReanimatedKeyboardAnimation()
-  const textInputHeight = useSharedValue(17)
-  const translateX = useSharedValue(0)
-  const previousTranslateX = useSharedValue(0)
-  const initialTouchLocation = useSharedValue<{ x: number; y: number } | null>(null)
-  const params = useLocalSearchParams()
-  const [showSuggestions, setShowSuggestions] = React.useState(true)
+  const { colors, isDarkColorScheme } = useColorScheme();
+  const insets = useSafeAreaInsets();
+  const { progress } = useReanimatedKeyboardAnimation();
+  const textInputHeight = useSharedValue(17);
+  const translateX = useSharedValue(0);
+  const previousTranslateX = useSharedValue(0);
+  const initialTouchLocation = useSharedValue<{ x: number; y: number } | null>(null);
+  const params = useLocalSearchParams();
+  const [showSuggestions, setShowSuggestions] = React.useState(true);
+  const { activeLocation } = useActiveLocation();
 
   // Extract context from params
   const context = {
@@ -146,16 +147,17 @@ export default function AIChat() {
     itemName: params.itemName as string,
     packId: params.packId as string,
     packName: params.packName as string,
-    contextType: (params.contextType as "item" | "pack" | "general") || "general",
-  }
+    contextType: (params.contextType as 'item' | 'pack' | 'general') || 'general',
+    location: activeLocation ? activeLocation.name : undefined,
+  };
 
   // Get contextual information
   const contextName =
-    context.contextType === "item"
+    context.contextType === 'item'
       ? context.itemName
-      : context.contextType === "pack"
+      : context.contextType === 'pack'
         ? context.packName
-        : undefined
+        : undefined;
 
   const token = useAtomValue(tokenAtom);
   // Call the chat hook at the top level.
@@ -167,6 +169,7 @@ export default function AIChat() {
       contextType: context.contextType,
       itemId: context.itemId,
       packId: context.packId,
+      location: context.location,
     },
     headers: {
       Authorization: `Bearer ${token}`,
@@ -185,95 +188,97 @@ export default function AIChat() {
   });
 
   const handleSuggestionPress = (suggestion: string) => {
-    setInput(suggestion)
-    handleSubmit()
-    setShowSuggestions(false)
-  }
+    setInput(suggestion);
+    handleSubmit();
+    setShowSuggestions(false);
+  };
 
   const toolbarHeightStyle = useAnimatedStyle(() => ({
-    height: interpolate(progress.value, [0, 1], [52 + insets.bottom, insets.bottom + textInputHeight.value - 2]),
-  }))
+    height: interpolate(
+      progress.value,
+      [0, 1],
+      [52 + insets.bottom, insets.bottom + textInputHeight.value - 2]
+    ),
+  }));
 
   const pan = Gesture.Pan()
     .minDistance(10)
     .onBegin((evt) => {
-      initialTouchLocation.value = { x: evt.x, y: evt.y }
+      initialTouchLocation.value = { x: evt.x, y: evt.y };
     })
     .onStart(() => {
-      previousTranslateX.value = translateX.value
+      previousTranslateX.value = translateX.value;
     })
     .onTouchesMove((evt, state) => {
       if (!initialTouchLocation.value || !evt.changedTouches.length) {
-        state.fail()
-        return
+        state.fail();
+        return;
       }
-      const xDiff = evt.changedTouches[0].x - initialTouchLocation.value.x
-      const yDiff = Math.abs(evt.changedTouches[0].y - initialTouchLocation.value.y)
-      const isHorizontalPanning = Math.abs(xDiff) > yDiff
+      const xDiff = evt.changedTouches[0].x - initialTouchLocation.value.x;
+      const yDiff = Math.abs(evt.changedTouches[0].y - initialTouchLocation.value.y);
+      const isHorizontalPanning = Math.abs(xDiff) > yDiff;
       if (isHorizontalPanning && xDiff < 0) {
-        state.activate()
+        state.activate();
       } else {
-        state.fail()
+        state.fail();
       }
     })
     .onUpdate((event) => {
-      translateX.value = clamp(event.translationX / 2 + previousTranslateX.value, -75, 0)
+      translateX.value = clamp(event.translationX / 2 + previousTranslateX.value, -75, 0);
     })
     .onEnd((event) => {
-      const right = event.translationX > 0 && translateX.value > 0
-      const left = event.translationX < 0 && translateX.value < 0
+      const right = event.translationX > 0 && translateX.value > 0;
+      const left = event.translationX < 0 && translateX.value < 0;
       if (right) {
         if (translateX.value > dimensions.width / 2) {
-          translateX.value = withSpring(dimensions.width, SPRING_CONFIG)
-          return
+          translateX.value = withSpring(dimensions.width, SPRING_CONFIG);
+          return;
         }
-        translateX.value = withSpring(0, SPRING_CONFIG)
-        return
+        translateX.value = withSpring(0, SPRING_CONFIG);
+        return;
       }
       if (left) {
         if (translateX.value < -dimensions.width / 2) {
-          translateX.value = withSpring(-dimensions.width, SPRING_CONFIG)
-          return
+          translateX.value = withSpring(-dimensions.width, SPRING_CONFIG);
+          return;
         }
-        translateX.value = withSpring(0, SPRING_CONFIG)
-        return
+        translateX.value = withSpring(0, SPRING_CONFIG);
+        return;
       }
-      translateX.value = withSpring(0, SPRING_CONFIG)
-    })
+      translateX.value = withSpring(0, SPRING_CONFIG);
+    });
 
   // Format messages for the UI.
   const chatMessages = React.useMemo(() => {
     if (messages.length === 0) {
-      return []
+      return [];
     }
 
     const formattedMessages = messages.map((message) => {
-      const now = new Date()
+      const now = new Date();
       return {
         id: message.id,
-        sender: message.role === "user" ? USER : AI,
+        sender: message.role === 'user' ? USER : AI,
         text: message.content,
-        date: now.toISOString().split("T")[0],
-        time: now.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
+        date: now.toISOString().split('T')[0],
+        time: now.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
         }),
         reactions: {},
         attachments: [],
-      }
-    })
+      };
+    });
     // Add a date separator at the beginning.
-    const today = new Date().toLocaleDateString("en-US", {
-      weekday: "short",
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
+    const today = new Date().toLocaleDateString('en-US', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
 
-    console.log('messages', messages)
-
-    return [today, ...formattedMessages]
-  }, [messages])
+    return [today, ...formattedMessages];
+  }, [messages]);
 
   return (
     <>
@@ -292,7 +297,12 @@ export default function AIChat() {
           <FlashList
             // inverted
             estimatedItemSize={70}
-            ListHeaderComponent={<View style={{ height: HEADER_HEIGHT + insets.top }} />}
+            ListHeaderComponent={
+              <View>
+                <View style={{ height: HEADER_HEIGHT + insets.top }} />
+                <LocationSelector />
+              </View>
+            }
             ListFooterComponent={
               <>
                 {showSuggestions && messages.length <= 2 && (
@@ -370,12 +380,12 @@ function DateSeparator({ date }: { date: string }) {
         {date}
       </Text>
     </View>
-  )
+  );
 }
 
 const BORDER_CURVE: ViewStyle = {
-  borderCurve: "continuous",
-}
+  borderCurve: 'continuous',
+};
 
 function ChatBubble({
   item,
@@ -383,29 +393,29 @@ function ChatBubble({
   translateX,
 }: {
   item: {
-    id: string
-    sender: string
-    text: string
-    date: string
-    time: string
-    reactions: Record<string, string[] | undefined>
-    attachments: { type: string; url: string }[]
-  }
-  isSameNextSender: boolean
-  translateX: SharedValue<number>
+    id: string;
+    sender: string;
+    text: string;
+    date: string;
+    time: string;
+    reactions: Record<string, string[] | undefined>;
+    attachments: { type: string; url: string }[];
+  };
+  isSameNextSender: boolean;
+  translateX: SharedValue<number>;
 }) {
-  const { colors } = useColorScheme()
+  const { colors } = useColorScheme();
   const rootStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
-  }))
+  }));
   const dateStyle = useAnimatedStyle(() => ({
     width: 75,
-    position: "absolute",
+    position: 'absolute',
     right: 0,
     paddingLeft: 8,
     transform: [{ translateX: interpolate(translateX.value, [-75, 0], [0, 75]) }],
-  }))
-  const isAI = item.sender === AI
+  }));
+  const isAI = item.sender === AI;
 
   return (
     <View
@@ -475,17 +485,17 @@ function ChatBubble({
 }
 
 const COMPOSER_STYLE: ViewStyle = {
-  position: "absolute",
+  position: 'absolute',
   zIndex: 50,
   bottom: 0,
   left: 0,
   right: 0,
-}
+};
 
 const TEXT_INPUT_STYLE: TextStyle = {
-  borderCurve: "continuous",
+  borderCurve: 'continuous',
   maxHeight: 300,
-}
+};
 
 function Composer({
   textInputHeight,

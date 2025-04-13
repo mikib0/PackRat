@@ -20,6 +20,7 @@ import { useDashboardData } from '~/features/packs/hooks/useDashboardData';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Pack } from '~/types';
+import { WeatherWidget } from '~/features/locations/components';
 
 function SettingsIcon() {
   const { colors } = useColorScheme();
@@ -55,6 +56,7 @@ function DemoIcon() {
     </Link>
   );
 }
+
 export default function DashboardScreen() {
   const { data, isLoading } = useDashboardData();
   const { user } = useAuthState();
@@ -96,6 +98,7 @@ export default function DashboardScreen() {
           contentContainerClassName="pt-4"
           contentInsetAdjustmentBehavior="automatic"
           variant="insets"
+          ListHeaderComponent={<WeatherWidget />}
           data={transformDashboardData(data)}
           estimatedItemSize={ESTIMATED_ITEM_HEIGHT.titleOnly}
           renderItem={renderItem}

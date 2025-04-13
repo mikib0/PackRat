@@ -13,8 +13,8 @@ export async function POST(req: Request) {
   try {
     const { messages, contextType, itemId, packId, userId, location } = await req.json();
 
-    // Get weather data for the specified location or default to user's location
-    const weatherData = await getWeatherData(location || 'New York, USA');
+    // Only get weather data if location is defined
+    const weatherData = location ? await getWeatherData(location) : null;
 
     // Build context based on what was passed
     let systemPrompt = '';
@@ -38,11 +38,15 @@ export async function POST(req: Request) {
           ${!isPackItem && item.brand ? `- Brand: ${item.brand}` : ''}
           ${!isPackItem && item.model ? `- Model: ${item.model}` : ''}
           
-          Current weather in ${weatherData.location}: ${weatherData.temperature}°F, ${weatherData.conditions}, 
-          ${weatherData.humidity}% humidity, wind ${weatherData.windSpeed} mph.
+          ${
+            weatherData
+              ? `Current weather in ${weatherData.location}: ${weatherData.temperature}°F, ${weatherData.conditions}, 
+          ${weatherData.humidity}% humidity, wind ${weatherData.windSpeed} mph.`
+              : ''
+          }
           
           Provide friendly, concise advice about this item. You can suggest alternatives, 
-          maintenance tips, or ways to use it effectively based on the current weather conditions.
+          maintenance tips, or ways to use it effectively${weatherData ? ' based on the current weather conditions' : ''}.
           Keep your responses brief and focused on ultralight hiking principles when appropriate.
         `;
       }
@@ -72,11 +76,15 @@ export async function POST(req: Request) {
           ${pack.description ? `- Description: ${pack.description}` : ''}
           ${pack.tags?.length ? `- Tags: ${pack.tags.join(', ')}` : ''}
           
-          Current weather in ${weatherData.location}: ${weatherData.temperature}°F, ${weatherData.conditions}, 
-          ${weatherData.humidity}% humidity, wind ${weatherData.windSpeed} mph.
+          ${
+            weatherData
+              ? `Current weather in ${weatherData.location}: ${weatherData.temperature}°F, ${weatherData.conditions}, 
+          ${weatherData.humidity}% humidity, wind ${weatherData.windSpeed} mph.`
+              : ''
+          }
           
           Provide friendly, concise advice about this pack. You can suggest items that might be missing,
-          ways to reduce weight, or improvements based on the pack's purpose and current weather conditions.
+          ways to reduce weight, or improvements based on the pack's purpose${weatherData ? ' and current weather conditions' : ''}.
           Keep your responses brief and focused on ultralight hiking principles when appropriate.
         `;
       }
@@ -85,12 +93,16 @@ export async function POST(req: Request) {
       systemPrompt = `
         You are PackRat AI, a helpful assistant for hikers and outdoor enthusiasts.
         You provide advice on what items users should take in their packs based on their needs,
-        weather conditions, and ultralight hiking best practices.
+        ${weatherData ? 'weather conditions, and' : 'and'} ultralight hiking best practices.
         
-        Current weather in ${weatherData.location}: ${weatherData.temperature}°F, ${weatherData.conditions}, 
-        ${weatherData.humidity}% humidity, wind ${weatherData.windSpeed} mph.
+        ${
+          weatherData
+            ? `Current weather in ${weatherData.location}: ${weatherData.temperature}°F, ${weatherData.conditions}, 
+        ${weatherData.humidity}% humidity, wind ${weatherData.windSpeed} mph.`
+            : ''
+        }
         
-        Provide friendly, concise advice. Suggest items based on the user's questions and current weather.
+        Provide friendly, concise advice. Suggest items based on the user's questions${weatherData ? ' and current weather' : ''}.
         For ultralight hikers, focus on multi-purpose items and weight savings.
         For beginners, emphasize safety and comfort.
         Keep your responses brief and to the point.
