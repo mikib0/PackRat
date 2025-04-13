@@ -1,20 +1,28 @@
+import { Env } from "@/types/env";
+import { Context } from "hono";
+import { env } from "hono/adapter";
 import { Resend } from "resend";
 
 type EmailProvider = "nodemailer" | "resend";
 
-const resendClient = new Resend(process.env.RESEND_API_KEY);
-
 // Send an email using the configured provider
-export async function sendEmail(
-  to: string,
-  subject: string,
-  html: string
-): Promise<void> {
-  const provider =
-    (process.env.EMAIL_PROVIDER as EmailProvider) || "nodemailer";
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  c,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  c: Context;
+}): Promise<void> {
+  const { EMAIL_PROVIDER, RESEND_API_KEY, EMAIL_FROM } = env<Env>(c);
+  const provider = (EMAIL_PROVIDER as EmailProvider) || "nodemailer";
+  const resendClient = new Resend(RESEND_API_KEY);
 
   const options = {
-    from: `PackRat <${process.env.EMAIL_FROM}>`,
+    from: `PackRat <${EMAIL_FROM}>`,
     to,
     subject,
     html,
@@ -26,16 +34,20 @@ export async function sendEmail(
       break;
     case "nodemailer":
     default:
-      await nodemailerTransporter.sendMail(options);
-      break;
+      throw new Error("Nodemailer is not supported in Cloudflare Workers");
   }
 }
 
 // Send a verification code email
-export async function sendVerificationCodeEmail(
-  to: string,
-  code: string
-): Promise<void> {
+export async function sendVerificationCodeEmail({
+  to,
+  code,
+  c,
+}: {
+  to: string;
+  code: string;
+  c: Context;
+}): Promise<void> {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2>Verify Your Email Address</h2>
@@ -51,14 +63,19 @@ export async function sendVerificationCodeEmail(
     </div>
   `;
 
-  await sendEmail(to, "Verify Your PackRat Account", html);
+  await sendEmail({ to, subject: "Verify Your PackRat Account", html, c });
 }
 
 // Send a password reset email
-export async function sendPasswordResetEmail(
-  to: string,
-  code: string
-): Promise<void> {
+export async function sendPasswordResetEmail({
+  to,
+  code,
+  c,
+}: {
+  to: string;
+  code: string;
+  c: Context;
+}): Promise<void> {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2>Reset Your Password</h2>
@@ -74,5 +91,5 @@ export async function sendPasswordResetEmail(
     </div>
   `;
 
-  await sendEmail(to, "Reset Your PackRat Password", html);
+  await sendEmail({ to, subject: "Reset Your PackRat Password", html, c });
 }

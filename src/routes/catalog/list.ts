@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { createDb } from "@/db";
 import { catalogItems } from "@/db/schema";
 import {
   authenticateRequest,
@@ -17,6 +17,7 @@ catalogListRoutes.get("/", async (c) => {
       return unauthorizedResponse();
     }
 
+    const db = createDb(c);
     const id = c.req.query("id");
 
     if (id) {
@@ -52,6 +53,7 @@ catalogListRoutes.post("/", async (c) => {
     // In a real app, you would check if the user is an admin
     // For now, we'll just use authentication
 
+    const db = createDb(c);
     const data = await c.req.json();
 
     // Create the catalog item

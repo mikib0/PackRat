@@ -1,4 +1,7 @@
+import { Env } from "@/types/env";
 import * as bcrypt from "bcryptjs";
+import { Context } from "hono";
+import { env } from "hono/adapter";
 import { sign, verify } from "hono/jwt";
 import { JWTPayload } from "hono/utils/jwt/types";
 import { randomBytes } from "node:crypto";
@@ -27,15 +30,29 @@ export function generateRefreshToken(): string {
   return randomBytes(40).toString("hex");
 }
 
-// Generate a JWT token
-export async function generateJWT(payload: JWTPayload): Promise<string> {
-  return await sign(payload, process.env.JWT_SECRET!);
+// Generate a JWT token{
+export async function generateJWT({
+  payload,
+  c,
+}: {
+  payload: JWTPayload;
+  c: Context;
+}): Promise<string> {
+  const { JWT_SECRET } = env<Env>(c);
+  return await sign(payload, JWT_SECRET);
 }
 
 // Verify a JWT token
-export async function verifyJWT(token: string): Promise<any> {
+export async function verifyJWT({
+  token,
+  c,
+}: {
+  token: string;
+  c: Context;
+}): Promise<any> {
   try {
-    return await verify(token, process.env.JWT_SECRET!);
+    const { JWT_SECRET } = env<Env>(c);
+    return await verify(token, JWT_SECRET);
   } catch (error) {
     return null;
   }

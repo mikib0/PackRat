@@ -1,9 +1,15 @@
 import * as schema from "@/db/schema";
-import { neon, neonConfig } from "@neondatabase/serverless";
+import { Env } from "@/types/env";
+import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
+import { Context } from "hono";
+import { env } from "hono/adapter";
 
 // Create SQL client with Neon
-const sql = neon(process.env.NEON_DATABASE_URL!);
+export const createDb = (c: Context) => {
+  const { NEON_DATABASE_URL } = env<Env>(c);
 
-// Create Drizzle ORM instance with schema
-export const db = drizzle(sql, { schema });
+  const sql = neon(NEON_DATABASE_URL);
+
+  return drizzle(sql, { schema });
+};
