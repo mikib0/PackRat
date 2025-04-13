@@ -1,0 +1,11 @@
+{
+  "name": "packrat-monorepo",
+  "private": true,
+  "version": "2.0.0",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.2.2"
+  }
+}
