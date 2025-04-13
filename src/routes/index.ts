@@ -3,9 +3,10 @@ import { Hono } from "hono";
 import { authRoutes } from "./auth";
 import { catalogRoutes } from "./catalog";
 import { chatRoutes } from "./chat";
-import { helloRoutes } from "./hello";
 import { packItemSuggestionsRoutes } from "./pack-item-suggestions";
 import { packsRoutes } from "./packs";
+import { weatherRoutes } from "./weather";
+import { dashboardRoutes } from "./dashboard";
 
 const publicRoutes = new Hono();
 
@@ -21,6 +22,8 @@ protectedRoutes.route("/catalog", catalogRoutes);
 protectedRoutes.route("/packs", packsRoutes);
 protectedRoutes.route("/chat", chatRoutes);
 protectedRoutes.route("/pack-item-suggestions", packItemSuggestionsRoutes);
+publicRoutes.route("/weather", weatherRoutes);
+protectedRoutes.route("/dashboard", dashboardRoutes);
 
 const routes = new Hono();
 
