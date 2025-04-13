@@ -11,13 +11,13 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-async function HomeContent() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
   const search = searchParams.get("search");
 
-  const allPosts = await getAllPosts();
-  const categories = await getAllCategories();
+  const allPosts = getAllPosts();
+  const categories = getAllCategories();
 
   // Filter posts by category if provided
   let filteredPosts = allPosts;

@@ -13,7 +13,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts();
+  const posts = getAllPosts();
   return posts.map((post) => ({
     slug: post.slug,
   }));
@@ -22,9 +22,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const post = await getPostBySlug(params.slug);
+  const { slug } = await params;
+
+  const post = getPostBySlug(slug);
 
   if (!post) {
     return {
@@ -41,19 +43,21 @@ export async function generateMetadata({
 export default async function GuidePage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const post = await getPostBySlug(params.slug);
+  const { slug } = await params;
+
+  const post = getPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
   // Get the compiled MDX content
-  const content = await getMdxContent(params.slug);
+  const content = getMdxContent(slug);
 
   // Get related posts
-  const relatedPosts = await getRelatedPosts(post, 3);
+  const relatedPosts = getRelatedPosts(post, 3);
 
   return (
     <div>

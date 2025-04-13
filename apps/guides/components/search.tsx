@@ -1,78 +1,83 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
-import { SearchIcon, X } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
-import { Input } from "@/components/ui/input"
-import type { Post } from "@/lib/types"
-import { fetchPosts } from "@/lib/api"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { Input } from "@/components/ui/input";
+import { getAllPosts } from "@/lib/mdx-static";
+import type { Post } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { SearchIcon, X } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function Search() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [query, setQuery] = useState("")
-  const [results, setResults] = useState<Post[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const searchRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const router = useRouter()
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   // Fetch posts using TanStack Query
   const { data: posts = [] } = useQuery({
     queryKey: ["posts"],
-    queryFn: fetchPosts,
-  })
+    queryFn: getAllPosts,
+  });
 
   // Handle click outside to close search
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Focus input when search is opened
   useEffect(() => {
     if (isOpen && inputRef.current) {
-      inputRef.current.focus()
+      inputRef.current.focus();
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   // Handle search
   useEffect(() => {
     if (!query.trim()) {
-      setResults([])
-      return
+      setResults([]);
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     // Simple client-side search
     const searchResults = posts.filter((post) => {
-      const searchContent = `${post.title} ${post.description} ${post.categories?.join(" ")}`.toLowerCase()
-      return searchContent.includes(query.toLowerCase())
-    })
+      const searchContent = `${post.title} ${
+        post.description
+      } ${post.categories?.join(" ")}`.toLowerCase();
+      return searchContent.includes(query.toLowerCase());
+    });
 
-    setResults(searchResults)
-    setIsLoading(false)
-  }, [query, posts])
+    setResults(searchResults);
+    setIsLoading(false);
+  }, [query, posts]);
 
   // Handle search submission
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (query.trim()) {
-      router.push(`/?search=${encodeURIComponent(query)}`)
-      setIsOpen(false)
+      router.push(`/?search=${encodeURIComponent(query)}`);
+      setIsOpen(false);
     }
-  }
+  };
 
   return (
     <div ref={searchRef} className="relative">
@@ -109,7 +114,9 @@ export function Search() {
             {query.trim() && (
               <div className="mt-3 max-h-80 overflow-auto">
                 {isLoading ? (
-                  <div className="py-6 text-center text-sm text-muted-foreground">Searching...</div>
+                  <div className="py-6 text-center text-sm text-muted-foreground">
+                    Searching...
+                  </div>
                 ) : results.length > 0 ? (
                   <div className="space-y-1">
                     {results.map((post) => (
@@ -120,12 +127,16 @@ export function Search() {
                         className="block rounded-lg p-2 hover:bg-black/5 dark:hover:bg-white/10"
                       >
                         <div className="text-sm font-medium">{post.title}</div>
-                        <div className="text-xs text-muted-foreground line-clamp-1">{post.description}</div>
+                        <div className="text-xs text-muted-foreground line-clamp-1">
+                          {post.description}
+                        </div>
                       </Link>
                     ))}
                   </div>
                 ) : (
-                  <div className="py-6 text-center text-sm text-muted-foreground">No results found.</div>
+                  <div className="py-6 text-center text-sm text-muted-foreground">
+                    No results found.
+                  </div>
                 )}
               </div>
             )}
@@ -133,6 +144,5 @@ export function Search() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

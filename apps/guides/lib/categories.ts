@@ -1,7 +1,7 @@
 import { getAllPosts } from "./mdx-static";
 
-export async function getAllCategories(): Promise<string[]> {
-  const posts = await getAllPosts();
+export function getAllCategories(): string[] {
+  const posts = getAllPosts();
 
   const categories = new Set<string>();
 

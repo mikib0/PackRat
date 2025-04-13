@@ -6,8 +6,13 @@
     "apps/*",
     "packages/*"
   ],
+  "scripts": {
+    "clean:all": "bun run --cwd apps/* clean && bun run --cwd packages/* clean",
+    "clean": "bun run clean:all && bunx rimraf node_modules"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "rimraf": "^5.0.5"
   },
   "peerDependencies": {
     "typescript": "^5.2.2"

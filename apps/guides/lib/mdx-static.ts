@@ -2,25 +2,19 @@
 import { postContent, posts } from "./content";
 import type { Post } from "./types";
 
-export async function getAllPosts(): Promise<Post[]> {
+export function getAllPosts(): Post[] {
   return posts;
 }
 
-// Cache for individual posts
-const postCache: Record<string, Post | null> = {};
-
-export async function getPostBySlug(slug: string): Promise<Post | null> {
+export function getPostBySlug(slug: string): Post | null {
   return posts.find((p) => p.slug === slug) || null;
 }
 
-// For static exports, the content would be pre-processed
-const contentCache: Record<string, string> = {};
-
-export async function getMdxContent(slug: string): Promise<string> {
+export function getMdxContent(slug: string): string {
   return postContent[slug] || `<p>Content not found for ${slug}</p>`;
 }
 
-export async function getRelatedPosts(post: Post, count = 3): Promise<Post[]> {
+export function getRelatedPosts(post: Post, count = 3): Post[] {
   // Filter out the current post
   const otherPosts = posts.filter((p) => p.slug !== post.slug);
 
