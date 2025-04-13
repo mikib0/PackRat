@@ -5,6 +5,8 @@ import { ErrorBoundary } from '~/components/initial/ErrorBoundary';
 import '~/utils/polyfills';
 import { JotaiProvider } from './JotaiProvider';
 import { TanstackProvider } from './TanstackProvider';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -13,7 +15,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <TanstackProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <KeyboardProvider>
-              {children}
+              <ActionSheetProvider>
+                <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+              </ActionSheetProvider>
               <PortalHost />
             </KeyboardProvider>
           </GestureHandlerRootView>

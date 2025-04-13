@@ -18,6 +18,7 @@ import { Text } from '~/components/nativewindui/Text';
 import { useAuthState } from '~/features/auth/hooks/useAuthState';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { WeatherWidget } from '~/features/locations/components';
 
 function SettingsIcon() {
   const { colors } = useColorScheme();
@@ -53,6 +54,7 @@ function DemoIcon() {
     </Link>
   );
 }
+
 export default function DashboardScreen() {
   const { user } = useAuthState();
   useEffect(() => {
@@ -74,6 +76,7 @@ export default function DashboardScreen() {
         contentContainerClassName="pt-4"
         contentInsetAdjustmentBehavior="automatic"
         variant="insets"
+        ListHeaderComponent={<WeatherWidget />}
         data={DATA}
         estimatedItemSize={ESTIMATED_ITEM_HEIGHT.titleOnly}
         renderItem={renderItem}
