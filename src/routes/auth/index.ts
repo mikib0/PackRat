@@ -13,7 +13,7 @@ import {
   validatePassword,
   verifyPassword,
 } from "@/utils/auth";
-import { sendVerificationCodeEmail } from "@/utils/email";
+import { sendPasswordResetEmail, sendVerificationCodeEmail } from "@/utils/email";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 
@@ -234,6 +234,170 @@ authRoutes.post("/verify-email", async (c) => {
     );
   }
 });
+
+// Resend verification route
+authRoutes.post("resend-verification", async (c) => {
+  try {
+    const { email } = await c.req.json();
+
+    if (!email) {
+      return Response.json({ error: 'Email is required' }, { status: 400 });
+    }
+
+    // Find the user by email
+    const user = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+
+    if (user.length === 0) {
+      return Response.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const userId = user[0].id;
+
+    // Check if user is already verified
+    if (user[0].emailVerified) {
+      return Response.json({ error: 'Email is already verified' }, { status: 400 });
+    }
+
+    // Delete any existing verification codes
+    await db.delete(oneTimePasswords).where(eq(oneTimePasswords.userId, userId));
+
+    // Generate new verification code
+    const code = generateVerificationCode(5);
+
+    // Store code in database
+    await db.insert(oneTimePasswords).values({
+      userId,
+      code,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+    });
+
+    // Send verification email with code
+    await sendVerificationCodeEmail(email, code);
+
+    return Response.json({
+      success: true,
+      message: 'Verification code sent successfully',
+    });
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    return Response.json(
+      { error: 'An error occurred while resending verification code' },
+      { status: 500 }
+    );
+  }
+})
+
+// Forgot password route
+authRoutes.post("forgot-password", async (c) => {
+  try {
+    const { email } = await c.req.json();
+
+    if (!email) {
+      return Response.json({ error: 'Email is required' }, { status: 400 });
+    }
+
+    // Find user
+    const user = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+
+    // Always return success even if user doesn't exist (security best practice)
+    if (user.length === 0) {
+      return Response.json({
+        success: true,
+        message: 'If your email is registered, you will receive a verification code',
+      });
+    }
+
+    // Generate verification code
+    const code = generateVerificationCode(5);
+
+    // Delete any existing codes for this user
+    await db.delete(oneTimePasswords).where(eq(oneTimePasswords.userId, user[0].id));
+
+    // Store code in database
+    await db.insert(oneTimePasswords).values({
+      userId: user[0].id,
+      code,
+      expiresAt: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
+    });
+
+    // Send password reset email with code
+    await sendPasswordResetEmail(email, code);
+
+    return Response.json({
+      success: true,
+      message: 'If your email is registered, you will receive a verification code',
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return Response.json({ error: 'An error occurred' }, { status: 500 });
+  }
+})
+
+// Reset password route
+authRoutes.post("/reset-password", async (c) => {
+  try {
+    const { email, code, newPassword } = await c.req.json();
+
+    if (!email || !code || !newPassword) {
+      return Response.json(
+        { error: 'Email, code, and new password are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      return Response.json({ error: passwordValidation.message }, { status: 400 });
+    }
+
+    // Find user by email
+    const userResult = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email.toLowerCase()))
+      .limit(1);
+
+    if (userResult.length === 0) {
+      return Response.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const user = userResult[0];
+
+    // Find verification code
+    const codeRecord = await db
+      .select()
+      .from(oneTimePasswords)
+      .where(and(eq(oneTimePasswords.userId, user.id), eq(oneTimePasswords.code, code)))
+      .limit(1);
+
+    if (codeRecord.length === 0) {
+      return Response.json({ error: 'Invalid verification code' }, { status: 400 });
+    }
+
+    // Check if code is expired
+    if (new Date() > codeRecord[0].expiresAt) {
+      return Response.json({ error: 'Verification code has expired' }, { status: 400 });
+    }
+
+    // Hash new password
+    const passwordHash = await hashPassword(newPassword);
+
+    // Update user's password
+    await db.update(users).set({ passwordHash }).where(eq(users.id, user.id));
+
+    // Delete the used verification code
+    await db.delete(oneTimePasswords).where(eq(oneTimePasswords.id, codeRecord[0].id));
+
+    return Response.json({
+      success: true,
+      message: 'Password reset successfully',
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return Response.json({ error: 'An error occurred during password reset' }, { status: 500 });
+  }
+})
 
 // Refresh token route
 authRoutes.post("/refresh", async (c) => {
