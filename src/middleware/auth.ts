@@ -1,4 +1,6 @@
+import { Env } from "@/types/env";
 import { MiddlewareHandler } from "hono";
+import { env } from "hono/adapter";
 import { verify } from "hono/jwt";
 
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
@@ -13,8 +15,10 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
     return c.json({ error: "No token provided" }, 401);
   }
 
+  const { JWT_SECRET } = env<Env>(c);
+
   try {
-    const payload = verify(token, process.env.JWT_SECRET!);
+    const payload = verify(token, JWT_SECRET!);
     c.set("user", payload);
     await next();
   } catch (error) {

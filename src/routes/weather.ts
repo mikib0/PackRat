@@ -1,16 +1,19 @@
-import { Hono } from "hono";
+import { Env } from "@/types/env";
 import {
   authenticateRequest,
   unauthorizedResponse,
 } from "@/utils/api-middleware";
+import { Hono } from "hono";
+import { env } from "hono/adapter";
 
 const weatherRoutes = new Hono();
 
-const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
-const API_BASE_URL = "https://api.weatherapi.com/v1";
+const WEATHER_API_BASE_URL = "https://api.weatherapi.com/v1";
 
 // Search locations endpoint
 weatherRoutes.get("/search", async (c) => {
+  const { WEATHER_API_KEY } = env<Env>(c);
+
   // Authenticate the request
   const auth = await authenticateRequest(c);
   if (!auth) {
@@ -25,7 +28,7 @@ weatherRoutes.get("/search", async (c) => {
 
   try {
     const response = await fetch(
-      `${API_BASE_URL}/search.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
+      `${WEATHER_API_BASE_URL}/search.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
     );
 
     if (!response.ok) {
@@ -53,6 +56,8 @@ weatherRoutes.get("/search", async (c) => {
 
 // Search locations by coordinates endpoint
 weatherRoutes.get("/search-by-coordinates", async (c) => {
+  const { WEATHER_API_KEY } = env<Env>(c);
+
   // Authenticate the request
   const auth = await authenticateRequest(c);
   if (!auth) {
@@ -75,7 +80,7 @@ weatherRoutes.get("/search-by-coordinates", async (c) => {
 
     // Use the same search endpoint but with coordinates
     const response = await fetch(
-      `${API_BASE_URL}/search.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
+      `${WEATHER_API_BASE_URL}/search.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
     );
 
     if (!response.ok) {
@@ -87,7 +92,7 @@ weatherRoutes.get("/search-by-coordinates", async (c) => {
     // If no results, try a reverse geocoding approach with current conditions API
     if (!data || data.length === 0) {
       const currentResponse = await fetch(
-        `${API_BASE_URL}/current.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
+        `${WEATHER_API_BASE_URL}/current.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
       );
 
       if (!currentResponse.ok) {
@@ -130,6 +135,8 @@ weatherRoutes.get("/search-by-coordinates", async (c) => {
 
 // Get weather data endpoint
 weatherRoutes.get("/forecast", async (c) => {
+  const { WEATHER_API_KEY } = env<Env>(c);
+
   // Authenticate the request
   const auth = await authenticateRequest(c);
   if (!auth) {
@@ -152,7 +159,7 @@ weatherRoutes.get("/forecast", async (c) => {
 
     // Get forecast data with all the details we need
     const response = await fetch(
-      `${API_BASE_URL}/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}&days=10&aqi=yes&alerts=yes`
+      `${WEATHER_API_BASE_URL}/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}&days=10&aqi=yes&alerts=yes`
     );
 
     if (!response.ok) {

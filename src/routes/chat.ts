@@ -1,4 +1,5 @@
 import { getWeatherData } from "@/services/getWeatherData";
+import { Env } from "@/types/env";
 import {
   authenticateRequest,
   unauthorizedResponse,
@@ -7,6 +8,7 @@ import { getItemDetails, getPackDetails } from "@/utils/DbUtils";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { Hono } from "hono";
+import { env } from "hono/adapter";
 
 const chatRoutes = new Hono();
 
@@ -116,9 +118,11 @@ chatRoutes.post("/", async (c) => {
       `;
     }
 
+    const { OPENAI_API_KEY } = env<Env>(c);
+
     // Create a custom OpenAI provider with your API key
     const customOpenAI = createOpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: OPENAI_API_KEY,
     });
 
     // Stream the AI response
