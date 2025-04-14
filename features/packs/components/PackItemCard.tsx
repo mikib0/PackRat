@@ -24,7 +24,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
       className="mb-3 flex-row overflow-hidden rounded-lg bg-card shadow-sm"
       onPress={() => onPress(item)}>
       {item.image ? (
-        <Image source={{ uri: item.image }} className="h-20 w-28" resizeMode="cover" />
+          <Image source={{ uri: item.image }} className="w-28" resizeMode="cover" />
       ) : (
         <View className="h-20 w-20 items-center justify-center bg-muted px-2">
           <Text className="text-muted-foreground">No image</Text>
