@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { createDb } from "@/db";
 import { packs } from "@/db/schema";
 import {
   authenticateRequest,
@@ -17,6 +17,7 @@ packsListRoutes.get("/", async (c) => {
     return unauthorizedResponse();
   }
 
+  const db = createDb(c);
   try {
     const userPacks = await db.query.packs.findMany({
       where: eq(packs.userId, auth.userId),
@@ -40,6 +41,7 @@ packsListRoutes.post("/", async (c) => {
     return unauthorizedResponse();
   }
 
+  const db = createDb(c);
   try {
     const data = await c.req.json();
     const [newPack] = await db

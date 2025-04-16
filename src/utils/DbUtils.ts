@@ -1,9 +1,18 @@
-import { db } from "@/db";
+import { createDb } from "@/db";
 import { catalogItems, packItems, packs, users } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
+import { Context } from "hono";
 
 // Get pack details from the database
-export async function getPackDetails(packId: string) {
+export async function getPackDetails({
+  packId,
+  c,
+}: {
+  packId: string;
+  c: Context;
+}) {
+  const db = createDb(c);
+
   const packData = await db.query.packs.findFirst({
     where: eq(packs.id, Number.parseInt(packId)),
     with: {
@@ -20,7 +29,15 @@ export async function getPackDetails(packId: string) {
 }
 
 // Get item details from the database
-export async function getItemDetails(itemId: string) {
+export async function getItemDetails({
+  itemId,
+  c,
+}: {
+  itemId: string;
+  c: Context;
+}) {
+  const db = createDb(c);
+
   // First try to find it as a pack item
   const packItem = await db.query.packItems.findFirst({
     where: eq(packItems.id, Number.parseInt(itemId)),
@@ -40,18 +57,32 @@ export async function getItemDetails(itemId: string) {
 }
 
 // Get user details
-export async function getUserDetails(userId: string) {
+export async function getUserDetails({
+  userId,
+  c,
+}: {
+  userId: string;
+  c: Context;
+}) {
+  const db = createDb(c);
   return db.query.users.findFirst({
     where: eq(users.id, Number.parseInt(userId)),
   });
 }
 
 // Get catalog items from the database
-export async function getCatalogItems(options?: {
-  categories?: string[];
-  ids?: number[];
-  limit?: number;
+export async function getCatalogItems({
+  options,
+  c,
+}: {
+  options?: {
+    categories?: string[];
+    ids?: number[];
+    limit?: number;
+  };
+  c: Context;
 }) {
+  const db = createDb(c);
   let query = db.select().from(catalogItems);
 
   if (options?.categories?.length) {

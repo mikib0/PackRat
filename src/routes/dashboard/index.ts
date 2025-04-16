@@ -1,11 +1,11 @@
-import { db } from "@/db";
-import { packs, packItems } from "@/db/schema";
-import { desc, eq, sql } from "drizzle-orm";
-import { computePacksWeights } from "@/utils/compute-pack";
+import { createDb } from "@/db";
+import { packItems, packs } from "@/db/schema";
 import {
   authenticateRequest,
   unauthorizedResponse,
 } from "@/utils/api-middleware";
+import { computePacksWeights } from "@/utils/compute-pack";
+import { desc, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 
 const dashboardRoutes = new Hono();
@@ -15,6 +15,8 @@ dashboardRoutes.get("", async (c) => {
   if (!auth) {
     return unauthorizedResponse();
   }
+
+  const db = createDb(c);
 
   try {
     const recentPacks = computePacksWeights(
@@ -26,7 +28,7 @@ dashboardRoutes.get("", async (c) => {
           items: true,
         },
       }),
-      "g",
+      "g"
     );
 
     const currentPack = recentPacks[0];

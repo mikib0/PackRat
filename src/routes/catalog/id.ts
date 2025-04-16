@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { createDb } from "@/db";
 import { catalogItems } from "@/db/schema";
 import {
   authenticateRequest,
@@ -18,6 +18,7 @@ catalogItemRoutes.get("/:id", async (c) => {
       return unauthorizedResponse();
     }
 
+    const db = createDb(c);
     const itemId = Number(c.req.param("id"));
 
     const item = await db.query.catalogItems.findFirst({
@@ -44,6 +45,7 @@ catalogItemRoutes.put("/:id", async (c) => {
       return unauthorizedResponse();
     }
 
+    const db = createDb(c);
     const itemId = Number(c.req.param("id"));
     const data = await c.req.json();
 
@@ -105,6 +107,7 @@ catalogItemRoutes.delete("/:id", async (c) => {
       return unauthorizedResponse();
     }
 
+    const db = createDb(c);
     const itemId = Number(c.req.param("id"));
 
     // Check if the catalog item exists

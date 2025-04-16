@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { createDb } from "@/db";
 import { packItems, packs } from "@/db/schema";
 import {
   authenticateRequest,
@@ -15,6 +15,8 @@ packItemsRoutes.get("/:packId/items", async (c) => {
   if (!auth) {
     return unauthorizedResponse();
   }
+
+  const db = createDb(c);
 
   try {
     const packId = c.req.param("packId");
@@ -40,6 +42,7 @@ packItemsRoutes.get("/:packId/items/:itemId", async (c) => {
       return unauthorizedResponse();
     }
 
+    const db = createDb(c);
     const userId = auth.userId;
     const packId = Number(c.req.param("packId"));
     const itemId = Number(c.req.param("itemId"));
@@ -79,6 +82,7 @@ packItemsRoutes.post("/:packId/items", async (c) => {
     return unauthorizedResponse();
   }
 
+  const db = createDb(c);
   try {
     const packId = c.req.param("packId");
     const data = await c.req.json();
@@ -126,6 +130,7 @@ packItemsRoutes.put("/:packId/items/:itemId", async (c) => {
     return unauthorizedResponse();
   }
 
+  const db = createDb(c);
   try {
     const packId = c.req.param("packId");
     const itemId = c.req.param("itemId");
@@ -174,6 +179,7 @@ packItemsRoutes.delete("/:packId/items/:itemId", async (c) => {
     return unauthorizedResponse();
   }
 
+  const db = createDb(c);
   try {
     const packId = c.req.param("packId");
     const itemId = c.req.param("itemId");
