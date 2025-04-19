@@ -280,6 +280,7 @@ export function useAuthActions() {
         await setToken(data.accessToken);
         await setRefreshToken(data.refreshToken);
         setUser(data.user);
+        router.replace('/(app)');
       }
 
       return data;

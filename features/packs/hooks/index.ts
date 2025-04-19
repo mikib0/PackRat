@@ -6,6 +6,7 @@ export * from "./useDeletePack"
 export * from './usePackItem';
 export * from './useCreatePackItem';
 export * from './useUpdatePackItem';
+export * from './useImageUpload';
 export * from './useDeleteItem';
 export * from './usePackItemSuggestions';
 

@@ -2,7 +2,8 @@
 
 import { Icon } from '@roninoss/icons';
 import { useForm } from '@tanstack/react-form';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 import {
   Image,
   KeyboardAvoidingView,
@@ -13,14 +14,18 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { z } from 'zod';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { SegmentedControl } from '~/components/nativewindui/SegmentedControl';
 import { TextField } from '~/components/nativewindui/TextField';
 import { useCreatePackItem, useUpdatePackItem } from '../hooks';
+import { useImageUpload } from '../hooks/useImageUpload';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { WeightUnit } from '~/types';
+import { useState, useRef, useEffect } from 'react';
 
 // Define Zod schema
 const itemFormSchema = z.object({
@@ -56,12 +61,28 @@ export const CreatePackItemForm = ({
   existingItem?: any;
 }) => {
   const router = useRouter();
-  const { colors } = useColorScheme();
+  const { colorScheme, colors } = useColorScheme();
+  const { showActionSheetWithOptions } = useActionSheet();
   const { mutateAsync: createPackItem } = useCreatePackItem();
   const { mutateAsync: updatePackItem } = useUpdatePackItem();
+  const {
+    selectedImage,
+    pickImage,
+    takePhoto,
+    uploadSelectedImage,
+    deleteImage,
+    clearSelectedImage,
+    isUploading,
+    error,
+  } = useImageUpload();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Keep track of the initial image URL for comparison during updates
+  const initialImageUrl = useRef(existingItem?.image || null);
   const isEditing = !!existingItem;
 
-  console.log('isEditing', isEditing);
+  // Track if the image has been changed
+  const [imageChanged, setImageChanged] = useState(false);
 
   const form = useForm({
     defaultValues: existingItem || {
@@ -80,10 +101,39 @@ export const CreatePackItemForm = ({
       onChange: itemFormSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log('Form Submitted:', value);
-      if (isEditing)
+      // Don't handle submission here - we'll use our custom submit handler
+    },
+  });
+
+  // Custom submit handler to handle image upload
+  const handleSubmit = async () => {
+    if (!form.state.canSubmit || isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      // First upload the image if one is selected
+      let imageUrl = form.getFieldValue('image');
+      const oldImageUrl = initialImageUrl.current;
+
+      // Upload the new image if one is selected
+      if (selectedImage) {
+        imageUrl = await uploadSelectedImage();
+        if (!imageUrl) {
+          Alert.alert('Error', 'Failed to upload image. Please try again.');
+          setIsSubmitting(false);
+          return;
+        }
+        form.setFieldValue('image', imageUrl);
+      }
+
+      // Get the form values with the updated image URL
+      const formData = form.state.values;
+
+      // Submit the form with the image URL
+      if (isEditing) {
         await updatePackItem(
-          { packId, itemId: existingItem.id, itemData: value },
+          { packId, itemId: existingItem.id, itemData: formData },
           {
             onSuccess: (item) => {
               console.log('Item Updated:', item);
@@ -91,15 +141,13 @@ export const CreatePackItemForm = ({
             },
             onError: (error) => {
               console.error('Error Updating Item:', error);
+              Alert.alert('Error', 'Failed to update item. Please try again.');
             },
           }
         );
-      else
+      } else {
         await createPackItem(
-          {
-            packId,
-            itemData: value,
-          },
+          { packId, itemData: formData },
           {
             onSuccess: (item) => {
               console.log('Item Created:', item);
@@ -107,21 +155,93 @@ export const CreatePackItemForm = ({
             },
             onError: (error) => {
               console.error('Error Creating Item:', error);
+              Alert.alert('Error', 'Failed to create item. Please try again.');
             },
           }
         );
-    },
-  });
+      }
+
+      // Check if we need to delete the old image
+      if (isEditing && oldImageUrl && imageChanged) {
+        // Delete the old image in the background
+        deleteImage(oldImageUrl).catch((err) => {
+          console.error('Failed to delete old image:', err);
+          // Non-blocking error - the user doesn't need to know about this
+        });
+      }
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      Alert.alert('Error', 'Failed to save item. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleAddImage = async () => {
-    // In a real app, you would use expo-image-picker
-    // This is just a placeholder
-    form.setFieldValue('image', 'https://placehold.co/400x300/png');
+    const options = ['Take Photo', 'Choose from Library', 'Cancel'];
+    const cancelButtonIndex = 2;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        containerStyle: {
+          backgroundColor: colorScheme === 'dark' ? 'black' : 'white',
+        },
+        textStyle: {
+          color: colors.foreground,
+        },
+      },
+      async (selectedIndex) => {
+        try {
+          switch (selectedIndex) {
+            case 0: // Take Photo
+              await takePhoto();
+              setImageChanged(true);
+              break;
+            case 1: // Choose from Library
+              await pickImage();
+              setImageChanged(true);
+              break;
+            case cancelButtonIndex:
+              // Canceled
+              return;
+          }
+        } catch (err) {
+          console.error('Error handling image:', err);
+          Alert.alert('Error', 'Failed to process image. Please try again.');
+        }
+      }
+    );
   };
 
   const handleRemoveImage = () => {
-    form.setFieldValue('image', null);
+    // If we have a selected image (not yet uploaded), clear it
+    if (selectedImage) {
+      clearSelectedImage();
+    }
+
+    // If we have an existing image URL in the form, clear it
+    if (form.getFieldValue('image')) {
+      form.setFieldValue('image', null);
+      setImageChanged(true);
+    }
   };
+
+  useEffect(()=>{
+    // Show error alert if there's an error
+      if (error) {
+        Alert.alert('Image Error', error);
+      }
+  }, [error])
+
+
+  // Determine what image to show in the UI
+  const displayImage = selectedImage
+    ? { uri: selectedImage.uri }
+    : form.getFieldValue('image')
+      ? { uri: form.getFieldValue('image') }
+      : null;
 
   return (
     <KeyboardAvoidingView
@@ -300,10 +420,15 @@ export const CreatePackItemForm = ({
             <form.Field name="image">
               {(field) => (
                 <FormItem>
-                  {field.state.value ? (
+                  {isUploading ? (
+                    <View className="h-48 items-center justify-center rounded-lg border border-dashed border-input bg-background p-4">
+                      <ActivityIndicator size="large" color={colors.primary} />
+                      <Text className="mt-2 text-muted-foreground">Uploading image...</Text>
+                    </View>
+                  ) : displayImage ? (
                     <View className="relative">
                       <Image
-                        source={{ uri: field.state.value }}
+                        source={displayImage}
                         className="h-48 w-full rounded-lg"
                         resizeMode="cover"
                       />
@@ -350,12 +475,14 @@ export const CreatePackItemForm = ({
           </FormSection>
         </Form>
 
-        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-          {([canSubmit, isSubmitting]) => (
+        <form.Subscribe selector={(state) => [state.canSubmit]}>
+          {([canSubmit]) => (
             <Pressable
-              onPress={() => form.handleSubmit()}
-              disabled={!canSubmit || isSubmitting}
-              className={`mt-6 rounded-lg px-4 py-3.5 ${!canSubmit || isSubmitting ? 'bg-primary/70' : 'bg-primary'}`}>
+              onPress={handleSubmit}
+              disabled={!canSubmit || isSubmitting || isUploading}
+              className={`mt-6 rounded-lg px-4 py-3.5 ${
+                !canSubmit || isSubmitting || isUploading ? 'bg-primary/70' : 'bg-primary'
+              }`}>
               <Text className="text-center text-base font-semibold text-primary-foreground">
                 {isSubmitting ? 'Saving...' : isEditing ? 'Update Item' : 'Add Item'}
               </Text>
