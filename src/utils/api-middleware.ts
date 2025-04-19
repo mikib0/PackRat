@@ -16,7 +16,7 @@ export async function authenticateRequest(
     return null;
   }
 
-  const payload = await verifyJWT(token);
+  const payload = await verifyJWT({token, c});
 
   if (!payload) {
     return null;
