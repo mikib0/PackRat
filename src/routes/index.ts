@@ -7,6 +7,7 @@ import { packItemSuggestionsRoutes } from "./pack-item-suggestions";
 import { packsRoutes } from "./packs";
 import { weatherRoutes } from "./weather";
 import { dashboardRoutes } from "./dashboard";
+import { uploadRoutes } from "./upload";
 
 const publicRoutes = new Hono();
 
@@ -24,6 +25,7 @@ protectedRoutes.route("/chat", chatRoutes);
 protectedRoutes.route("/pack-item-suggestions", packItemSuggestionsRoutes);
 publicRoutes.route("/weather", weatherRoutes);
 protectedRoutes.route("/dashboard", dashboardRoutes);
+protectedRoutes.route("/upload", uploadRoutes);
 
 const routes = new Hono();
 
