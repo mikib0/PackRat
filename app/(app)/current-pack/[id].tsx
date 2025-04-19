@@ -1,18 +1,17 @@
 'use client';
 
-import type React from 'react';
 import { useLocalSearchParams } from 'expo-router';
+import type React from 'react';
 import { useState, useEffect } from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView } from 'react-native';
 
+import { CurrentPackSkeleton } from '~/components/SkeletonPlaceholder';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
+import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
+import { usePackDetails } from '~/features/packs/hooks/usePackDetails';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { usePackDetails } from '~/features/packs/hooks/usePackDetails';
-import { Pack } from '~/features/packs';
-import { CurrentPackSkeleton } from '~/components/SkeletonPlaceholder';
 
 function WeightCard({
   title,
@@ -35,7 +34,6 @@ function WeightCard({
   );
 }
 
-// Custom list component to avoid issues with the List component
 function CustomList({
   data,
   renderItem,
@@ -53,9 +51,10 @@ function CustomList({
     </View>
   );
 }
-
 function CategoryItem({ category, index }: { category: any; index: number }) {
   const { colors } = useColorScheme();
+  const itemLabel = category.items === 1 ? 'item' : 'items';
+
   return (
     <View
       className={cn(
@@ -65,7 +64,7 @@ function CategoryItem({ category, index }: { category: any; index: number }) {
       <View>
         <Text>{category.name}</Text>
         <Text variant="footnote" className="text-muted-foreground">
-          {category.weight} • {category.items} items
+          {category.weight.value} {category.weight.unit} • {category.items} {itemLabel}
         </Text>
       </View>
       <View
@@ -121,37 +120,6 @@ export default function CurrentPackScreen() {
 
   const { data: pack, isLoading, isError } = usePackDetails(params.id as string);
 
-  function getUniqueCategories(pack: Pack | undefined) {
-    const categoryMap: Record<string, { weight: number; items: number; weightUnit: string }> = {};
-
-    pack?.items.forEach(
-      (item: { category: any; weight: number; weightUnit: string; quantity: number }) => {
-        const category = item.category;
-        const weight = item.weight ?? 0;
-        console.log(JSON.stringify(item));
-
-        if (!categoryMap[category]) {
-          categoryMap[category] = {
-            weight: 0,
-            items: 0,
-            weightUnit: item.weightUnit,
-          };
-        }
-
-        categoryMap[category].weight += weight * item.quantity;
-        categoryMap[category].items += 1;
-      }
-    );
-
-    return Object.entries(categoryMap).map(([name, data]) => ({
-      name,
-      items: data.items,
-      weight: `${data.weight} ${data.weightUnit}`,
-    }));
-  }
-
-  const uniqueCategories = getUniqueCategories(pack);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setRefreshKey((prev) => prev + 1);
@@ -171,6 +139,8 @@ export default function CurrentPackScreen() {
     );
   }
 
+  const uniqueCategories = pack.categories ?? [];
+
   return (
     <View className="flex-1" key={refreshKey}>
       <LargeTitleHeader title="Current Pack" />
@@ -179,7 +149,7 @@ export default function CurrentPackScreen() {
         contentContainerStyle={{ paddingBottom: 32 }}
         removeClippedSubviews={false}>
         <View className="flex-row items-center p-4">
-          <Avatar className="mr-4 h-16 w-16" alt={''}>
+          <Avatar className="mr-4 h-16 w-16" alt="">
             <AvatarImage source={{ uri: pack.image }} />
             <AvatarFallback>
               <Text>{pack.name.substring(0, 2)}</Text>
@@ -196,8 +166,8 @@ export default function CurrentPackScreen() {
         </View>
 
         <View className="mb-4 flex-row gap-3 px-4">
-          <WeightCard title="Total Weight" weight={pack?.totalWeight} />
-          <WeightCard title="Base Weight" weight={pack?.baseWeight} />
+          <WeightCard title="Total Weight" weight={pack?.totalWeight ?? 0} />
+          <WeightCard title="Base Weight" weight={pack?.baseWeight ?? 0} />
         </View>
 
         {/* Categories Section */}

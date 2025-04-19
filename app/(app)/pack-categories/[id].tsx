@@ -1,80 +1,37 @@
+'use client';
+
 import { Icon } from '@roninoss/icons';
+import { useLocalSearchParams } from 'expo-router';
 import { View, ScrollView } from 'react-native';
 
+import { PackCategoriesSkeleton } from '~/components/SkeletonPlaceholder';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
+import { usePackDetails } from '~/features/packs/hooks/usePackDetails';
 import { useColorScheme } from '~/lib/useColorScheme';
 
-// Mock data for pack categories
-const CATEGORIES = [
-  {
-    id: '1',
-    name: 'Shelter',
-    itemCount: 3,
-    totalWeight: '2.3 lbs',
-    icon: 'home',
-    color: '#FF6384',
-  },
-  {
-    id: '2',
-    name: 'Sleep System',
-    itemCount: 2,
-    totalWeight: '1.8 lbs',
-    icon: 'power-sleep',
-    color: '#36A2EB',
-  },
-  {
-    id: '3',
-    name: 'Cooking',
-    itemCount: 4,
-    totalWeight: '0.9 lbs',
-    icon: 'fire',
-    color: '#FFCE56',
-  },
-  {
-    id: '4',
-    name: 'Water',
-    itemCount: 2,
-    totalWeight: '0.6 lbs',
-    icon: 'water',
-    color: '#4BC0C0',
-  },
-  {
-    id: '5',
-    name: 'Clothing',
-    itemCount: 7,
-    totalWeight: '1.5 lbs',
-    icon: 'backpack',
-    color: '#9966FF',
-  },
-  {
-    id: '6',
-    name: 'Electronics',
-    itemCount: 3,
-    totalWeight: '0.7 lbs',
-    icon: 'cellphone',
-    color: '#FF9F40',
-  },
-  {
-    id: '7',
-    name: 'First Aid',
-    itemCount: 8,
-    totalWeight: '0.4 lbs',
-    icon: 'bandage',
-    color: '#C9CBCF',
-  },
-];
-
-function CategoryCard({ category }: { category: (typeof CATEGORIES)[0] }) {
+function CategoryCard({
+  category,
+}: {
+  category: {
+    name: string;
+    itemCount: number;
+    totalWeight: number;
+    weightUnit: string;
+    icon?: string;
+    color?: string;
+  };
+}) {
   const { colors } = useColorScheme();
+  const itemLabel = category.itemCount === 1 ? 'item' : 'items';
 
   return (
     <View className="mx-4 mb-3 overflow-hidden rounded-xl bg-card shadow-sm">
       <View className="flex-row items-center p-4">
         <View
           className="h-12 w-12 items-center justify-center rounded-md"
-          style={{ backgroundColor: category.color }}>
-          <Icon name={category.icon} size={24} color="white" />
+          style={{ backgroundColor: category.color || colors.grey4 }}>
+          <Icon name={category.icon || 'backpack'} size={24} color="white" />
         </View>
 
         <View className="ml-4 flex-1">
@@ -83,12 +40,12 @@ function CategoryCard({ category }: { category: (typeof CATEGORIES)[0] }) {
           </Text>
           <View className="flex-row items-center justify-between">
             <Text variant="subhead" className="text-muted-foreground">
-              {category.itemCount} items
+              {category.itemCount} {itemLabel}
             </Text>
             <View className="flex-row items-center gap-1">
               <Icon name="dumbbell" size={14} color={colors.grey3} />
               <Text variant="subhead" className="text-muted-foreground">
-                {category.totalWeight}
+                {category.totalWeight} {category.weightUnit}
               </Text>
             </View>
           </View>
@@ -99,6 +56,21 @@ function CategoryCard({ category }: { category: (typeof CATEGORIES)[0] }) {
 }
 
 export default function PackCategoriesScreen() {
+  const params = useLocalSearchParams();
+  const { data: pack, isLoading, isError } = usePackDetails(params.id as string);
+
+  if (isLoading) {
+    return <PackCategoriesSkeleton />;
+  }
+
+  if (isError || !pack?.categories) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text className="text-red-500">Failed to load pack categories.</Text>
+      </View>
+    );
+  }
+
   return (
     <>
       <LargeTitleHeader title="Pack Categories" />
@@ -110,8 +82,8 @@ export default function PackCategoriesScreen() {
         </View>
 
         <View className="pb-4">
-          {CATEGORIES.map((category) => (
-            <CategoryCard key={category.id} category={category} />
+          {pack.categories.map((category: any) => (
+            <CategoryCard key={category.name} category={category} />
           ))}
         </View>
       </ScrollView>

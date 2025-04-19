@@ -279,7 +279,7 @@ function transformDashboardData(data: any): DashboardData[] {
       title: 'Weight Analysis',
       leftView: <IconView name="ruler" className="bg-blue-600" />,
       rightText: `Base: ${packWeight} g`,
-      route: '/weight-analysis',
+      route: `/weight-analysis/${currentPack.id}`,
     });
   }
 
@@ -289,7 +289,7 @@ function transformDashboardData(data: any): DashboardData[] {
       title: 'Pack Categories',
       leftView: <IconView name="puzzle" className="bg-green-500" />,
       badge: packCategoryCount,
-      route: '/pack-categories',
+      route: `/pack-categories/${currentPack.id}`,
     });
   }
 
