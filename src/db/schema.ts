@@ -60,7 +60,7 @@ export const oneTimePasswords = pgTable('one_time_passwords', {
 
 // Packs table
 export const packs = pgTable('packs', {
-  id: serial('id').primaryKey(),
+  id: text("id").primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
   category: text('category').notNull(),
@@ -70,6 +70,7 @@ export const packs = pgTable('packs', {
   isPublic: boolean('is_public').default(false),
   image: text('image'),
   tags: jsonb('tags').$type<string[]>(),
+  deleted: boolean('deleted').default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -138,7 +139,7 @@ export const packItems = pgTable('pack_items', {
   worn: boolean('worn').default(false),
   image: text('image'),
   notes: text('notes'),
-  packId: integer('pack_id')
+  packId: text("pack_id")
     .references(() => packs.id, { onDelete: 'cascade' })
     .notNull(),
   catalogItemId: integer('catalog_item_id').references(() => catalogItems.id),

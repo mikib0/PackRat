@@ -11,7 +11,7 @@ import { Hono } from "hono";
 const packRoutes = new Hono();
 
 // Get a specific pack
-packRoutes.get("/:packId", async (c) => {
+packRoutes.get('/:packId', async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -19,28 +19,28 @@ packRoutes.get("/:packId", async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param("packId");
+    const packId = c.req.param('packId');
     const pack = await db.query.packs.findFirst({
-      where: eq(packs.id, Number(packId)),
+      where: eq(packs.id, packId), // No need to convert to Number anymore
       with: {
         items: true,
       },
     });
 
     if (!pack) {
-      return c.json({ error: "Pack not found" }, 404);
+      return c.json({ error: 'Pack not found' }, 404);
     }
 
     const packWithWeights = computePacksWeights([pack])[0];
     return c.json(packWithWeights);
   } catch (error) {
-    console.error("Error fetching pack:", error);
-    return c.json({ error: "Failed to fetch pack" }, 500);
+    console.error('Error fetching pack:', error);
+    return c.json({ error: 'Failed to fetch pack' }, 500);
   }
 });
 
 // Update a pack
-packRoutes.put("/:packId", async (c) => {
+packRoutes.put('/:packId', async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -48,7 +48,7 @@ packRoutes.put("/:packId", async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param("packId");
+    const packId = c.req.param('packId');
     const data = await c.req.json();
 
     const [updatedPack] = await db
@@ -60,20 +60,21 @@ packRoutes.put("/:packId", async (c) => {
         isPublic: data.isPublic,
         image: data.image,
         tags: data.tags,
+        deleted: data.deleted,
         updatedAt: new Date(),
       })
-      .where(eq(packs.id, Number(packId)))
+      .where(eq(packs.id, packId))
       .returning();
 
     if (!updatedPack) {
-      return c.json({ error: "Pack not found" }, 404);
+      return c.json({ error: 'Pack not found' }, 404);
     }
 
-    const packWithWeights = computePacksWeights([updatedPack])[0];
+    const packWithWeights = computePacksWeights([{...updatedPack, items: []}])[0];
     return c.json(packWithWeights);
   } catch (error) {
-    console.error("Error updating pack:", error);
-    return c.json({ error: "Failed to update pack" }, 500);
+    console.error('Error updating pack:', error);
+    return c.json({ error: 'Failed to update pack' }, 500);
   }
 });
 
@@ -87,7 +88,7 @@ packRoutes.delete("/:packId", async (c) => {
   const db = createDb(c);
   try {
     const packId = c.req.param("packId");
-    await db.delete(packs).where(eq(packs.id, Number(packId)));
+    await db.delete(packs).where(eq(packs.id, packId));
     return c.json({ success: true });
   } catch (error) {
     console.error("Error deleting pack:", error);
