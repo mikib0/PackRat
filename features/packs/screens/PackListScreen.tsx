@@ -1,10 +1,9 @@
-'use client';
-
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
 import {
   ActivityIndicator,
   FlatList,
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -17,10 +16,14 @@ import { Link } from 'expo-router';
 import { activeFilterAtom, searchValueAtom } from '~/features/packs/packListAtoms';
 import { PackCard } from '~/features/packs/components/PackCard';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
-import { usePacks } from '~/features/packs/hooks/usePacks'; // Updated import
+import { usePacks } from '~/features/packs/hooks/usePacks';
+// import { useSync } from '~/common/hooks/useSync';
+import { useAuth } from '~/features/auth/hooks/useAuth';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { useColorScheme } from '~/lib/useColorScheme';
-import type { Pack, PackCategory } from '~/features/packs/types'; // Updated import
+import type { Pack, PackCategory } from '~/types';
+import { Button } from '~/components/nativewindui/Button';
+import { isAuthed } from '~/features/auth/store';
 
 type FilterOption = {
   label: string;
@@ -49,11 +52,31 @@ function CreatePackIconButton() {
   );
 }
 
+function SyncButton({ onPress, isSyncing }) {
+  const { colors } = useColorScheme();
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) return null;
+
+  return (
+    <Pressable onPress={onPress} className="mr-4">
+      {isSyncing ? (
+        <ActivityIndicator size="small" color={colors.foreground} />
+      ) : (
+        <Icon name="repeat" color={colors.foreground} />
+      )}
+    </Pressable>
+  );
+}
+
 export function PackListScreen() {
   const router = useRouter();
-  const { data: packs, isLoading, isError, refetch } = usePacks();
+  const packs = usePacks();
+  // const { data: packs, isLoading, isError, refetch } = {};
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
   const [activeFilter, setActiveFilter] = useAtom(activeFilterAtom);
+  // const { sync, isSyncing } = useSync();
+  const { isAuthenticated } = useAuth();
 
   useHeaderSearchBar({
     hideWhenScrolling: false,
@@ -71,9 +94,14 @@ export function PackListScreen() {
     router.push({ pathname: '/pack/new' });
   };
 
+  // const handleSync = async () => {
+  //   if (!isAuthenticated) return;
+  //   await sync();
+  // };
+
   const filteredPacks =
     activeFilter === 'all'
-      ? packs
+      ? packs?.filter((pack) => pack.name.toLowerCase().includes(searchValue.toLowerCase()))
       : packs?.filter(
           (pack) =>
             pack.category === activeFilter &&
@@ -92,19 +120,6 @@ export function PackListScreen() {
     </TouchableOpacity>
   );
 
-  if (isError) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <Text className="text-red-500">Failed to load packs</Text>
-        <TouchableOpacity
-          className="mt-4 rounded-lg bg-primary px-4 py-2"
-          onPress={() => refetch()}>
-          <Text className="font-medium text-primary-foreground">Retry</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView className="flex-1">
       <LargeTitleHeader
@@ -113,6 +128,7 @@ export function PackListScreen() {
         searchBar={{ iosHideWhenScrolling: true }}
         rightView={() => (
           <View className="flex-row items-center">
+            {/* <SyncButton onPress={handleSync} isSyncing={isSyncing} /> */}
             <CreatePackIconButton />
           </View>
         )}
@@ -123,47 +139,62 @@ export function PackListScreen() {
         </ScrollView>
       </View>
 
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator className="text-primary" size="large" />
-        </View>
-      ) : (
-        <FlatList
-          data={filteredPacks}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View className="px-4 pt-4">
-              <PackCard pack={item} onPress={handlePackPress} />
+      <FlatList
+        data={filteredPacks}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View className="px-4 pt-4">
+            <PackCard pack={item} onPress={handlePackPress} />
+          </View>
+        )}
+        ListHeaderComponent={
+          <View className="px-4 pb-0 pt-2">
+            <Text className="text-muted-foreground">
+              {filteredPacks?.length} {filteredPacks?.length === 1 ? 'pack' : 'packs'}
+            </Text>
+          </View>
+        }
+        ListFooterComponent={
+          <View className="ios:px-0 px-4 pt-8">
+            {isAuthenticated ? (
+              <Button
+                onPress={() => isAuthed.set(false)}
+                size="lg"
+                variant={Platform.select({ ios: 'primary', default: 'secondary' })}
+                className="border-border bg-card">
+                <Text className="text-destructive">Log Out</Text>
+              </Button>
+            ) : (
+              <Button
+                onPress={() => isAuthed.set(true)}
+                size="lg"
+                variant="secondary"
+                className="border-border bg-card">
+                <Text>Sign in</Text>
+              </Button>
+            )}
+          </View>
+        }
+        ListEmptyComponent={
+          <View className="flex-1 items-center justify-center p-8">
+            <View className="mb-4 rounded-full bg-muted p-4">
+              <Icon name="cog-outline" size={32} color="text-muted-foreground" />
             </View>
-          )}
-          ListHeaderComponent={
-            <View className="px-4 pb-0 pt-2">
-              <Text className="text-muted-foreground">
-                {filteredPacks?.length} {filteredPacks?.length === 1 ? 'pack' : 'packs'}
-              </Text>
-            </View>
-          }
-          ListEmptyComponent={
-            <View className="flex-1 items-center justify-center p-8">
-              <View className="mb-4 rounded-full bg-muted p-4">
-                <Icon name="cog-outline" size={32} color="text-muted-foreground" />
-              </View>
-              <Text className="mb-1 text-lg font-medium text-foreground">No packs found</Text>
-              <Text className="mb-6 text-center text-muted-foreground">
-                {activeFilter === 'all'
-                  ? "You haven't created any packs yet."
-                  : `You don't have any ${activeFilter} packs.`}
-              </Text>
-              <TouchableOpacity
-                className="rounded-lg bg-primary px-4 py-2"
-                onPress={handleCreatePack}>
-                <Text className="font-medium text-primary-foreground">Create New Pack</Text>
-              </TouchableOpacity>
-            </View>
-          }
-          contentContainerStyle={{ flexGrow: 1 }}
-        />
-      )}
+            <Text className="mb-1 text-lg font-medium text-foreground">No packs found</Text>
+            <Text className="mb-6 text-center text-muted-foreground">
+              {activeFilter === 'all'
+                ? "You haven't created any packs yet."
+                : `You don't have any ${activeFilter} packs.`}
+            </Text>
+            <TouchableOpacity
+              className="rounded-lg bg-primary px-4 py-2"
+              onPress={handleCreatePack}>
+              <Text className="font-medium text-primary-foreground">Create New Pack</Text>
+            </TouchableOpacity>
+          </View>
+        }
+        contentContainerStyle={{ flexGrow: 1 }}
+      />
     </SafeAreaView>
   );
 }

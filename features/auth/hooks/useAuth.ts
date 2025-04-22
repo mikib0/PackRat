@@ -1,5 +1,3 @@
-'use client';
-
 import { useAuthState } from './useAuthState';
 import { useAuthActions } from './useAuthActions';
 

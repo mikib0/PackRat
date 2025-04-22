@@ -1,24 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import type { Pack } from '../types';
-import axiosInstance, { handleApiError } from '~/lib/api/client';
+import { use$ } from '@legendapp/state/react';
+import { packsStore } from '~/features/packs/store';
 
-// API function
-export const getPackById = async (id: string): Promise<Pack> => {
-  try {
-    const response = await axiosInstance.get(`/api/packs/${id}`);
-    return response.data;
-  } catch (error) {
-    const { message } = handleApiError(error);
-    console.log(error);
-    throw new Error(`Failed to fetch pack: ${message}`);
-  }
-};
-
-// Hook
+// Hook to get a single pack
 export function usePackDetails(id: string) {
-  return useQuery({
-    queryKey: ['pack', id],
-    queryFn: () => getPackById(id),
-    enabled: !!id,
-  });
+  const pack = use$(packsStore[id]);
+
+  return pack;
 }

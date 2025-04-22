@@ -24,7 +24,7 @@ export function PackDetailScreen() {
 
   const [activeTab, setActiveTab] = useState('all');
 
-  const { data: pack, isLoading, isError, refetch } = usePackDetails(id as string);
+  const pack = usePackDetails(id as string);
   const deletePack = useDeletePack();
   const { colors } = useColorScheme();
 
@@ -55,21 +55,6 @@ export function PackDetailScreen() {
       activeTab === tab ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground'
     );
   };
-
-  if (isLoading) {
-    return <LoadingSpinnerScreen />;
-  }
-
-  if (isError) {
-    return (
-      <ErrorScreen
-        title="Error loading pack"
-        message="Please try again later."
-        onRetry={refetch}
-        variant="destructive"
-      />
-    );
-  }
 
   if (!pack) {
     return (

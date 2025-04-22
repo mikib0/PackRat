@@ -1,27 +1,18 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import type { Pack, PackInput } from "../types"
-import axiosInstance, { handleApiError } from '~/lib/api/client';
+import { packsStore } from '~/features/packs/store';
+import { useCallback } from 'react';
+import type { Pack } from '../types';
 
-// API function
-export const updatePack = async (id: string, packData: PackInput): Promise<Pack> => {
-  try {
-    const response = await axiosInstance.put(`/api/packs/${id}`, packData);
-    return response.data
-  } catch (error) {
-    const { message } = handleApiError(error)
-    throw new Error(`Failed to update pack: ${message}`)
-  }
-}
-
-// Hook
+// Hook to update a pack
 export function useUpdatePack() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, ...data }: PackInput & { id: string }) => updatePack(id, data),
-    onSuccess: (updatedPack) => {
-      queryClient.invalidateQueries({ queryKey: ["packs"] })
-      queryClient.invalidateQueries({ queryKey: ["pack", updatedPack.id] })
-    },
-  })
-}
+  const updatePack = useCallback((pack: Pack) => {
+    const updatedPack = {
+      ...pack,
+    };
 
+    packsStore[pack.id].set(updatedPack);
+
+    return updatedPack;
+  }, []);
+
+  return updatePack;
+}

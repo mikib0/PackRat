@@ -1,5 +1,3 @@
-'use client';
-
 import { Icon } from '@roninoss/icons';
 import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'expo-router';
@@ -59,8 +57,8 @@ const CATEGORIES = [
 export const PackForm = ({ pack }: { pack?: Pack }) => {
   const router = useRouter();
   const { colors } = useColorScheme();
-  const { mutateAsync: createPack, isPending } = useCreatePack(); // TODO show feedback for error
-  const { mutateAsync: updatePack } = useUpdatePack();
+  const createPack = useCreatePack(); // TODO show feedback for error
+  const updatePack = useUpdatePack();
   const isEditingExistingPack = !!pack;
 
   const form = useForm({
@@ -94,33 +92,23 @@ export const PackForm = ({ pack }: { pack?: Pack }) => {
           }
         );
       } else
-        await createPack(
-          {
-            ...value,
-            category: value.category as
-              | 'hiking'
-              | 'backpacking'
-              | 'camping'
-              | 'climbing'
-              | 'winter'
-              | 'desert'
-              | 'custom'
-              | 'water sports'
-              | 'skiing',
-          },
-          {
-            onSuccess: (pack) => {
-              console.log('Pack Created:', pack);
+        createPack({
+          ...value,
+          category: value.category as
+            | 'hiking'
+            | 'backpacking'
+            | 'camping'
+            | 'climbing'
+            | 'winter'
+            | 'desert'
+            | 'custom'
+            | 'water sports'
+            | 'skiing',
+        });
 
-              // We are inside a modal, so we need to pop the current screen and then push the new one
-              router.back();
-              router.push(`/pack/${pack.id}`);
-            },
-            onError: (error) => {
-              console.error('Error Creating Pack:', error);
-            },
-          }
-        );
+      // We are inside a modal, so we need to pop the current screen and then push the new one
+      router.back();
+      router.push(`/pack/${pack.id}`);
     },
   });
 

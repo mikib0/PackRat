@@ -4,6 +4,7 @@ import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-si
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
 import { tokenAtom, refreshTokenAtom, userAtom, isLoadingAtom } from '../atoms/authAtoms';
+import { isAuthed } from '../store';
 
 export function useAuthActions() {
   const setToken = useSetAtom(tokenAtom);
@@ -37,6 +38,7 @@ export function useAuthActions() {
       await setToken(data.accessToken);
       await setRefreshToken(data.refreshToken);
       setUser(data.user);
+      isAuthed.set(true)
       router.replace('/(app)');
     } catch (error) {
       console.error('Sign in error:', error);
@@ -85,6 +87,7 @@ export function useAuthActions() {
       await setToken(data.accessToken);
       await setRefreshToken(data.refreshToken);
       setUser(data.user);
+      isAuthed.set(true)
       router.replace('/(app)');
     } catch (error: any) {
       setIsLoading(false);
@@ -138,6 +141,7 @@ export function useAuthActions() {
       await setToken(data.accessToken);
       await setRefreshToken(data.refreshToken);
       setUser(data.user);
+      isAuthed.set(true)
       router.replace('/(app)');
     } catch (error) {
       console.error('Apple sign in error:', error);
@@ -202,6 +206,7 @@ export function useAuthActions() {
       await setToken(null);
       await setRefreshToken(null);
       setUser(null);
+      isAuthed.set(false);
       router.replace('/auth');
     } catch (error) {
       console.error('Sign out error:', error);
@@ -280,6 +285,7 @@ export function useAuthActions() {
         await setToken(data.accessToken);
         await setRefreshToken(data.refreshToken);
         setUser(data.user);
+        isAuthed.set(true)
         router.replace('/(app)');
       }
 

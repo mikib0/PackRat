@@ -56,6 +56,7 @@ export interface Pack {
   items: PackItem[];
   baseWeight?: number;
   totalWeight?: number;
+  deleted: boolean;
   createdAt: string;
   updatedAt: string;
 }

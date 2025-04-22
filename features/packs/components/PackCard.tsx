@@ -76,7 +76,7 @@ export function PackCard({ pack, onPress }: PackCardProps) {
               {
                 text: 'OK',
                 onPress: () => {
-                  deletePack.mutate(pack.id);
+                  deletePack(pack.id);
                 },
               },
             ]}>
