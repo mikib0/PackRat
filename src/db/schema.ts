@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   serial,
@@ -9,97 +9,97 @@ import {
   jsonb,
   varchar,
   real,
-} from 'drizzle-orm/pg-core';
+} from "drizzle-orm/pg-core";
 
 // User table
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  email: text('email').unique().notNull(),
-  emailVerified: boolean('email_verified').default(false),
-  passwordHash: text('password_hash'),
-  firstName: text('first_name'),
-  lastName: text('last_name'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: text("email").unique().notNull(),
+  emailVerified: boolean("email_verified").default(false),
+  passwordHash: text("password_hash"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Authentication providers table
-export const authProviders = pgTable('auth_providers', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
+export const authProviders = pgTable("auth_providers", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
     .references(() => users.id)
     .notNull(),
-  provider: text('provider').notNull(), // 'email', 'google', 'apple'
-  providerId: text('provider_id'), // ID from the provider
-  createdAt: timestamp('created_at').defaultNow(),
+  provider: text("provider").notNull(), // 'email', 'google', 'apple'
+  providerId: text("provider_id"), // ID from the provider
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Refresh tokens table
-export const refreshTokens = pgTable('refresh_tokens', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
+export const refreshTokens = pgTable("refresh_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
     .references(() => users.id)
     .notNull(),
-  token: text('token').notNull().unique(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  revokedAt: timestamp('revoked_at'),
-  replacedByToken: text('replaced_by_token'),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  revokedAt: timestamp("revoked_at"),
+  replacedByToken: text("replaced_by_token"),
 });
 
 // One-time password table
-export const oneTimePasswords = pgTable('one_time_passwords', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
+export const oneTimePasswords = pgTable("one_time_passwords", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  code: varchar('code', { length: 6 }).notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+    .references(() => users.id, { onDelete: "cascade" }),
+  code: varchar("code", { length: 6 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Packs table
-export const packs = pgTable('packs', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  description: text('description'),
-  category: text('category').notNull(),
-  userId: integer('user_id')
-    .references(() => users.id, { onDelete: 'cascade' })
+export const packs = pgTable("packs", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  category: text("category").notNull(),
+  userId: integer("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  isPublic: boolean('is_public').default(false),
-  image: text('image'),
-  tags: jsonb('tags').$type<string[]>(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  isPublic: boolean("is_public").default(false),
+  image: text("image"),
+  tags: jsonb("tags").$type<string[]>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Catalog items table
-export const catalogItems = pgTable('catalog_items', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  description: text('description'),
-  defaultWeight: real('default_weight'),
-  defaultWeightUnit: text('default_weight_unit'),
-  category: text('category'),
-  image: text('image'),
-  brand: text('brand'),
-  model: text('model'),
-  url: text('url'),
-  ratingValue: real('rating_value'),
-  productUrl: text('product_url'),
-  color: text('color'),
-  size: text('size'),
-  sku: text('sku'),
-  price: real('price'),
-  availability: text('availability'),
-  seller: text('seller'),
-  productSku: text('product_sku'),
-  material: text('material'),
-  currency: text('currency'),
-  condition: text('condition'),
-  techs: jsonb('techs').$type<Record<string, string>>(),
-  links: jsonb('links').$type<
+export const catalogItems = pgTable("catalog_items", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  defaultWeight: real("default_weight"),
+  defaultWeightUnit: text("default_weight_unit"),
+  category: text("category"),
+  image: text("image"),
+  brand: text("brand"),
+  model: text("model"),
+  url: text("url"),
+  ratingValue: real("rating_value"),
+  productUrl: text("product_url"),
+  color: text("color"),
+  size: text("size"),
+  sku: text("sku"),
+  price: real("price"),
+  availability: text("availability"),
+  seller: text("seller"),
+  productSku: text("product_sku"),
+  material: text("material"),
+  currency: text("currency"),
+  condition: text("condition"),
+  techs: jsonb("techs").$type<Record<string, string>>(),
+  links: jsonb("links").$type<
     Array<{
       id: string;
       title: string;
@@ -107,7 +107,7 @@ export const catalogItems = pgTable('catalog_items', {
       type: string;
     }>
   >(),
-  reviews: jsonb('reviews').$type<
+  reviews: jsonb("reviews").$type<
     Array<{
       id: string;
       userId: string;
@@ -121,32 +121,41 @@ export const catalogItems = pgTable('catalog_items', {
     }>
   >(),
 
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Pack items table
-export const packItems = pgTable('pack_items', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  description: text('description'),
-  weight: real('weight').notNull(),
-  weightUnit: text('weight_unit').notNull(),
-  quantity: integer('quantity').default(1).notNull(),
-  category: text('category'),
-  consumable: boolean('consumable').default(false),
-  worn: boolean('worn').default(false),
-  image: text('image'),
-  notes: text('notes'),
-  packId: integer('pack_id')
-    .references(() => packs.id, { onDelete: 'cascade' })
+export const packItems = pgTable("pack_items", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  weight: real("weight").notNull(),
+  weightUnit: text("weight_unit").notNull(),
+  quantity: integer("quantity").default(1).notNull(),
+  category: text("category"),
+  consumable: boolean("consumable").default(false),
+  worn: boolean("worn").default(false),
+  image: text("image"),
+  notes: text("notes"),
+  packId: integer("pack_id")
+    .references(() => packs.id, { onDelete: "cascade" })
     .notNull(),
-  catalogItemId: integer('catalog_item_id').references(() => catalogItems.id),
-  userId: integer('user_id')
+  catalogItemId: integer("catalog_item_id").references(() => catalogItems.id),
+  userId: integer("user_id")
     .references(() => users.id)
     .notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const packWeightHistory = pgTable("weight_history", {
+  id: serial("id").primaryKey(),
+  packId: integer("pack_id")
+    .references(() => packs.id, { onDelete: "cascade" })
+    .notNull(),
+  weight: real("weight").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Define relations
@@ -177,3 +186,13 @@ export const packItemsRelations = relations(packItems, ({ one }) => ({
 export const catalogItemsRelations = relations(catalogItems, ({ many }) => ({
   packItems: many(packItems),
 }));
+
+export const packWeightHistoryRelations = relations(
+  packWeightHistory,
+  ({ one }) => ({
+    pack: one(packs, {
+      fields: [packWeightHistory.packId],
+      references: [packs.id],
+    }),
+  }),
+);

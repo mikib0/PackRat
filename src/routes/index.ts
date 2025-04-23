@@ -8,6 +8,8 @@ import { packsRoutes } from "./packs";
 import { weatherRoutes } from "./weather";
 import { dashboardRoutes } from "./dashboard";
 import { uploadRoutes } from "./upload";
+import { weightAnalysisRoutes } from "./pack-weight-analysis";
+import { packWeightHistoryRoutes } from "./pack-weight-history";
 
 const publicRoutes = new Hono();
 
@@ -25,6 +27,9 @@ protectedRoutes.route("/chat", chatRoutes);
 protectedRoutes.route("/pack-item-suggestions", packItemSuggestionsRoutes);
 publicRoutes.route("/weather", weatherRoutes);
 protectedRoutes.route("/dashboard", dashboardRoutes);
+protectedRoutes.route("", weightAnalysisRoutes);
+protectedRoutes.route("", packWeightHistoryRoutes);
+
 protectedRoutes.route("/upload", uploadRoutes);
 
 const routes = new Hono();

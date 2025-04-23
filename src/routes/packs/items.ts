@@ -1,5 +1,5 @@
 import { createDb } from "@/db";
-import { packItems, packs } from "@/db/schema";
+import { packItems, packs, packWeightHistory } from "@/db/schema";
 import {
   authenticateRequest,
   unauthorizedResponse,
@@ -8,6 +8,28 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 
 const packItemsRoutes = new Hono();
+
+// Helper to recalculate and record pack weight
+async function recordPackWeight(
+  db: ReturnType<typeof createDb>,
+  packId: number,
+) {
+  const items = await db.query.packItems.findMany({
+    where: eq(packItems.packId, packId),
+  });
+
+  const totalWeight = items.reduce((sum, item) => {
+    return sum + (item.weight ?? 0) * item.quantity;
+  }, 0);
+
+  const timestamp = new Date();
+
+  await db.insert(packWeightHistory).values({
+    packId,
+    weight: totalWeight,
+    createdAt: timestamp,
+  });
+}
 
 // Get all items for a pack
 packItemsRoutes.get("/:packId/items", async (c) => {
@@ -84,7 +106,7 @@ packItemsRoutes.post("/:packId/items", async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param("packId");
+    const packId = Number(c.req.param("packId"));
     const data = await c.req.json();
 
     if (!packId) {
@@ -94,7 +116,7 @@ packItemsRoutes.post("/:packId/items", async (c) => {
     const [newItem] = await db
       .insert(packItems)
       .values({
-        packId: Number(packId),
+        packId,
         catalogItemId: data.catalogItemId ? Number(data.catalogItemId) : null,
         name: data.name,
         description: data.description,
@@ -110,11 +132,12 @@ packItemsRoutes.post("/:packId/items", async (c) => {
       })
       .returning();
 
-    // Update the pack's updatedAt timestamp
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, Number(packId)));
+      .where(eq(packs.id, packId));
+
+    await recordPackWeight(db, packId);
 
     return c.json(newItem);
   } catch (error) {
@@ -132,8 +155,8 @@ packItemsRoutes.put("/:packId/items/:itemId", async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param("packId");
-    const itemId = c.req.param("itemId");
+    const packId = Number(c.req.param("packId"));
+    const itemId = Number(c.req.param("itemId"));
     const data = await c.req.json();
 
     const [updatedItem] = await db
@@ -152,7 +175,7 @@ packItemsRoutes.put("/:packId/items/:itemId", async (c) => {
         catalogItemId: data.catalogItemId ? Number(data.catalogItemId) : null,
         updatedAt: new Date(),
       })
-      .where(eq(packItems.id, Number(itemId)))
+      .where(eq(packItems.id, itemId))
       .returning();
 
     if (!updatedItem) {
@@ -163,7 +186,9 @@ packItemsRoutes.put("/:packId/items/:itemId", async (c) => {
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, Number(packId)));
+      .where(eq(packs.id, packId));
+
+    await recordPackWeight(db, packId);
 
     return c.json(updatedItem);
   } catch (error) {
@@ -181,15 +206,16 @@ packItemsRoutes.delete("/:packId/items/:itemId", async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param("packId");
-    const itemId = c.req.param("itemId");
-    await db.delete(packItems).where(eq(packItems.id, Number(itemId)));
+    const packId = Number(c.req.param("packId"));
+    const itemId = Number(c.req.param("itemId"));
 
-    // Update the pack's updatedAt timestamp
+    await db.delete(packItems).where(eq(packItems.id, itemId));
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, Number(packId)));
+      .where(eq(packs.id, packId));
+
+    await recordPackWeight(db, packId);
 
     return c.json({ success: true });
   } catch (error) {
