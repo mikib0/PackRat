@@ -1,7 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
 import {
-  ActivityIndicator,
   FlatList,
   Platform,
   Pressable,
@@ -17,7 +16,6 @@ import { activeFilterAtom, searchValueAtom } from '~/features/packs/packListAtom
 import { PackCard } from '~/features/packs/components/PackCard';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 import { usePacks } from '~/features/packs/hooks/usePacks';
-// import { useSync } from '~/common/hooks/useSync';
 import { useAuth } from '~/features/auth/hooks/useAuth';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -49,23 +47,6 @@ function CreatePackIconButton() {
         <Icon name="plus" color={colors.foreground} />
       </Pressable>
     </Link>
-  );
-}
-
-function SyncButton({ onPress, isSyncing }) {
-  const { colors } = useColorScheme();
-  const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) return null;
-
-  return (
-    <Pressable onPress={onPress} className="mr-4">
-      {isSyncing ? (
-        <ActivityIndicator size="small" color={colors.foreground} />
-      ) : (
-        <Icon name="repeat" color={colors.foreground} />
-      )}
-    </Pressable>
   );
 }
 
@@ -144,7 +125,7 @@ export function PackListScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View className="px-4 pt-4">
-            <PackCard pack={item} onPress={handlePackPress} />
+            <PackCard packId={item.id} onPress={handlePackPress} />
           </View>
         )}
         ListHeaderComponent={

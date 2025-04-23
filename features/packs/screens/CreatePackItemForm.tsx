@@ -63,8 +63,8 @@ export const CreatePackItemForm = ({
   const router = useRouter();
   const { colorScheme, colors } = useColorScheme();
   const { showActionSheetWithOptions } = useActionSheet();
-  const { mutateAsync: createPackItem } = useCreatePackItem();
-  const { mutateAsync: updatePackItem } = useUpdatePackItem();
+  const createPackItem = useCreatePackItem();
+  const updatePackItem = useUpdatePackItem();
   const {
     selectedImage,
     pickImage,
@@ -132,33 +132,11 @@ export const CreatePackItemForm = ({
 
       // Submit the form with the image URL
       if (isEditing) {
-        await updatePackItem(
-          { packId, itemId: existingItem.id, itemData: formData },
-          {
-            onSuccess: (item) => {
-              console.log('Item Updated:', item);
-              router.back();
-            },
-            onError: (error) => {
-              console.error('Error Updating Item:', error);
-              Alert.alert('Error', 'Failed to update item. Please try again.');
-            },
-          }
-        );
+        updatePackItem({ id: existingItem.id, ...formData });
+        router.back();
       } else {
-        await createPackItem(
-          { packId, itemData: formData },
-          {
-            onSuccess: (item) => {
-              console.log('Item Created:', item);
-              router.back();
-            },
-            onError: (error) => {
-              console.error('Error Creating Item:', error);
-              Alert.alert('Error', 'Failed to create item. Please try again.');
-            },
-          }
-        );
+        createPackItem({ packId, itemData: formData });
+        router.back();
       }
 
       // Check if we need to delete the old image
@@ -228,13 +206,12 @@ export const CreatePackItemForm = ({
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     // Show error alert if there's an error
-      if (error) {
-        Alert.alert('Image Error', error);
-      }
-  }, [error])
-
+    if (error) {
+      Alert.alert('Image Error', error);
+    }
+  }, [error]);
 
   // Determine what image to show in the UI
   const displayImage = selectedImage

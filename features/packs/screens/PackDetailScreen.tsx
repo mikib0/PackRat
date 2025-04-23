@@ -200,7 +200,7 @@ export function PackDetailScreen() {
               packId={pack.id}
               userId={pack.userId}
               packItems={pack.items || []}
-              onItemAdded={refetch}
+              // onItemAdded={refetch}
             />
           )}
 

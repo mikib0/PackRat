@@ -8,7 +8,7 @@ export function useCreatePack() {
   const createPack = useCallback((packData: PackInput) => {
     const id = nanoid();
 
-    const newPack: Pack = {
+    const newPack: Omit<Pack, 'items'> = {
       id,
       ...packData,
       deleted: false,
@@ -16,7 +16,6 @@ export function useCreatePack() {
 
     packsStore[id].set(newPack);
 
-    return newPack;
   }, []);
 
   return createPack;

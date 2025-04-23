@@ -14,9 +14,10 @@ export interface PackItem {
   image?: string | null;
   packId: string;
   catalogItemId?: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
+  userId?: string;
+  deleted: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PackItemInput {
@@ -49,7 +50,7 @@ export interface Pack {
   name: string;
   description?: string;
   category: PackCategory;
-  userId: string;
+  userId?: string;
   isPublic: boolean;
   image?: string;
   tags?: string[];
@@ -57,15 +58,15 @@ export interface Pack {
   baseWeight?: number;
   totalWeight?: number;
   deleted: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PackInput {
   name: string;
   description?: string;
   category: PackCategory;
-  isPublic?: boolean;
+  isPublic: boolean;
   image?: string;
   tags?: string[];
 }

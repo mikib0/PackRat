@@ -20,27 +20,9 @@ import { Button } from '~/components/nativewindui/Button';
 import { usePackItem } from '../hooks';
 
 export function ItemDetailScreen() {
-  const { id, packId } = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
 
-  const {
-    data: item,
-    isLoading: isPackItemsLoading,
-    isError: isPackItemsError,
-  } = usePackItem(id as string, packId as string);
-
-  if (isPackItemsError) {
-    return (
-      <NotFoundScreen
-        title="Item Not Found"
-        message="The item you're looking for doesn't exist or has been moved."
-        backButtonLabel="Go Back"
-      />
-    );
-  }
-
-  if (isPackItemsLoading) {
-    return <LoadingSpinnerScreen />;
-  }
+  const item = usePackItem(id as string);
 
   if (!item) {
     return (

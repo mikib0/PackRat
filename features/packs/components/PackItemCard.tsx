@@ -7,7 +7,7 @@ import { Button } from '../../../components/nativewindui/Button';
 import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useDeleteItem } from '../hooks';
+import { useDeletePackItem } from '../hooks';
 
 type PackItemCardProps = {
   item: PackItem;
@@ -16,7 +16,7 @@ type PackItemCardProps = {
 
 export function PackItemCard({ item, onPress }: PackItemCardProps) {
   const router = useRouter();
-  const deleteItem = useDeleteItem();
+  const deleteItem = useDeletePackItem();
   const { colors } = useColorScheme();
 
   return (
@@ -24,9 +24,9 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
       className="mb-3 flex-row overflow-hidden rounded-lg bg-card shadow-sm"
       onPress={() => onPress(item)}>
       {item.image ? (
-          <Image source={{ uri: item.image }} className="w-28" resizeMode="cover" />
+        <Image source={{ uri: item.image }} className="w-28" resizeMode="cover" />
       ) : (
-        <View className="h-20 w-20 items-center justify-center bg-muted px-2">
+        <View className="w-28 items-center justify-center bg-muted px-2">
           <Text className="text-muted-foreground">No image</Text>
         </View>
       )}
@@ -81,8 +81,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
                 {
                   text: 'OK',
                   onPress: () => {
-                    console.log('itemitemid', item.id);
-                    deleteItem.mutate({ itemId: item.id, packId: item.packId });
+                    deleteItem(item.id);
                   },
                 },
               ]}>
