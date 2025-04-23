@@ -53,6 +53,7 @@ export interface PackItemCategory {
   items: number;
   name: string;
   weight: Weight;
+  percentage: number;
 }
 
 export interface Pack {

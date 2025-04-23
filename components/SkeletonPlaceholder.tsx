@@ -224,3 +224,93 @@ export function PackCategoriesSkeleton() {
     </>
   );
 }
+
+export function PackStatsSkeleton() {
+  return (
+    <View className="flex-1">
+      <LargeTitleHeader title="Pack Stats" />
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 32 }}>
+        {/* Weight History Section */}
+        <View className="my-4 rounded-lg bg-card p-4">
+          <Text variant="heading" className="mb-12 font-semibold">
+            Weight History
+          </Text>
+
+          <View className="mb-2 h-40 flex-row items-end justify-between">
+            {[...Array(6)].map((_, index) => (
+              <View key={index} className="flex-1 items-center">
+                <View
+                  className="w-6 rounded-t-md bg-gray-300/40 dark:bg-gray-700/30"
+                  style={{ height: '20%' }}
+                />
+                <Text
+                  variant="caption2"
+                  className="mt-1 h-3 w-10 rounded bg-gray-300/40 dark:bg-gray-700/30"
+                />
+                <Text
+                  variant="caption2"
+                  className="mt-1 h-3 w-12 rounded bg-gray-300/40 text-muted-foreground dark:bg-gray-700/30"
+                />
+              </View>
+            ))}
+          </View>
+
+          <Text variant="footnote" className="mt-2 text-center text-muted-foreground">
+            Pack weight over the last 6 months (g)
+          </Text>
+        </View>
+
+        {/* Category Distribution Section */}
+        <View className="my-4 rounded-lg bg-card p-4">
+          <Text variant="heading" className="mb-4 font-semibold">
+            Category Distribution
+          </Text>
+
+          <View className="mb-4">
+            {[...Array(5)].map((_, index) => (
+              <View key={index} className="mb-2">
+                <View className="mb-1 flex-row justify-between">
+                  <Text
+                    variant="subhead"
+                    className="h-4 w-1/3 rounded bg-gray-300/40 dark:bg-gray-700/30"
+                  />
+                  <Text
+                    variant="subhead"
+                    className="h-4 w-1/3 rounded bg-gray-300/40 dark:bg-gray-700/30"
+                  />
+                </View>
+                <View className="h-2 overflow-hidden rounded-full bg-muted">
+                  <View className="h-full rounded-full bg-gray-300/40 dark:bg-gray-700/30" />
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <Text variant="footnote" className="mt-2 text-center text-muted-foreground">
+            Weight distribution by category
+          </Text>
+        </View>
+
+        {/* Pack Insights Section */}
+        <View className="my-4 mb-8 rounded-lg bg-card p-4">
+          <Text variant="heading" className="mb-4 font-semibold">
+            Pack Insights
+          </Text>
+
+          {[...Array(3)].map((_, index) => (
+            <View key={index} className="mb-3 rounded-md bg-muted p-3 dark:bg-gray-100/5">
+              <Text
+                variant="subhead"
+                className="h-4 w-2/3 rounded bg-gray-300/40 font-medium dark:bg-gray-700/30"
+              />
+              <Text
+                variant="footnote"
+                className="mt-1 h-3 w-1/2 rounded bg-gray-300/40 text-muted-foreground dark:bg-gray-700/30"
+              />
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
