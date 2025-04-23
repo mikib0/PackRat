@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { Platform, View } from 'react-native';
 
 import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
@@ -15,6 +15,9 @@ import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 import { cn } from '~/lib/cn';
 import { userAtom } from '~/features/auth/atoms/authAtoms';
 import { useAtomValue } from 'jotai';
+import { useAuth } from '~/features/auth/hooks/useAuth';
+import { useUser } from '~/features/profile/hooks/useUser';
+import { Icon } from '@roninoss/icons';
 
 const SCREEN_OPTIONS = {
   title: 'Profile',
@@ -25,7 +28,7 @@ const ESTIMATED_ITEM_SIZE =
   ESTIMATED_ITEM_HEIGHT[Platform.OS === 'ios' ? 'titleOnly' : 'withSubTitle'];
 
 export default function Profile() {
-  const user = useAtomValue(userAtom);
+  const user = useUser();
 
   // Generate display data based on user information
   const displayName =
@@ -53,15 +56,20 @@ export default function Profile() {
   return (
     <>
       <Stack.Screen options={SCREEN_OPTIONS} />
-      <List
-        variant="insets"
-        data={DATA}
-        sectionHeaderAsGap={Platform.OS === 'ios'}
-        estimatedItemSize={ESTIMATED_ITEM_SIZE}
-        renderItem={renderItem}
-        ListHeaderComponent={<ListHeaderComponent />}
-        ListFooterComponent={<ListFooterComponent />}
-      />
+
+      {user ? (
+        <List
+          variant="insets"
+          data={DATA}
+          sectionHeaderAsGap={Platform.OS === 'ios'}
+          estimatedItemSize={ESTIMATED_ITEM_SIZE}
+          renderItem={renderItem}
+          ListHeaderComponent={<ListHeaderComponent />}
+          ListFooterComponent={<ListFooterComponent />}
+        />
+      ) : (
+        <SignupCTA />
+      )}
     </>
   );
 }
@@ -88,7 +96,7 @@ function Item({ info }: { info: ListRenderItemInfo<DataItem> }) {
 }
 
 function ListHeaderComponent() {
-  const user = useAtomValue(userAtom);
+  const user = useUser();
   const initials =
     user?.firstName && user?.lastName
       ? `${user.firstName[0]}${user.lastName[0]}`
@@ -123,16 +131,104 @@ function ListHeaderComponent() {
 }
 
 function ListFooterComponent() {
+  const { isAuthenticated } = useAuth();
   const { signOut } = useAuthActions();
+  const router = useRouter();
+
   return (
     <View className="ios:px-0 px-4 pt-8">
+      {isAuthenticated ? (
+        <Button
+          onPress={signOut}
+          size="lg"
+          variant={Platform.select({ ios: 'primary', default: 'secondary' })}
+          className="border-border bg-card">
+          <Text className="text-destructive">Log Out</Text>
+        </Button>
+      ) : (
+        <Button
+          onPress={() => router.push('/auth')}
+          size="lg"
+          variant="secondary"
+          className="border-border bg-card">
+          <Text>Sign in</Text>
+        </Button>
+      )}
+    </View>
+  );
+}
+
+function SignupCTA() {
+  const router = useRouter();
+
+  return (
+    <View className="flex-1 px-6 py-8">
+      <View className="mb-8 items-center">
+        <View className="bg-primary/10 mb-4 h-24 w-24 items-center justify-center rounded-full">
+          <Icon name="account-circle-outline" size={48} color="primary" />
+        </View>
+        <Text variant="title1" className="mb-2 text-center">
+          Create Your Account
+        </Text>
+        <Text className="mb-6 text-center text-muted-foreground">
+          Join PackRat to unlock all features
+        </Text>
+      </View>
+
+      <View className="mb-10 flex-col gap-6">
+        <FeatureItem
+          icon="cloud-outline"
+          title="Sync Across Devices"
+          description="Keep your packs in sync everywhere"
+        />
+        <FeatureItem
+          icon="weather-sunny"
+          title="Weather Integration"
+          description="Get weather-based recommendations"
+        />
+        <FeatureItem
+          icon="message-outline"
+          title="AI Chat & Suggestions"
+          description="Smart packing assistance"
+        />
+        <FeatureItem
+          icon="archive-outline"
+          title="Share Your Packs"
+          description="Share and browse public packs"
+        />
+      </View>
+
       <Button
-        onPress={signOut}
+        onPress={() => router.push('/auth')}
         size="lg"
-        variant={Platform.select({ ios: 'primary', default: 'secondary' })}
-        className="border-border bg-card">
-        <Text className="text-destructive">Log Out</Text>
+        variant="primary"
+        className="mb-4 w-full">
+        <Text className="font-medium">Sign In</Text>
       </Button>
+    </View>
+  );
+}
+
+function FeatureItem({
+  icon,
+  title,
+  description,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <View className="flex-row items-center">
+      <View className="bg-primary/10 mr-4 h-10 w-10 items-center justify-center rounded-full">
+        <Icon name={icon} size={20} color="primary" />
+      </View>
+      <View className="flex-1">
+        <Text variant="title3" className="mb-0.5">
+          {title}
+        </Text>
+        <Text className="text-muted-foreground">{description}</Text>
+      </View>
     </View>
   );
 }
