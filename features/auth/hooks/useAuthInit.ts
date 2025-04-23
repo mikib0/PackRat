@@ -41,7 +41,10 @@ export function useAuthInit() {
           return;
         } else {
           // No tokens and hasn't skipped login. It's first time - show auth screen
-          router.replace('/auth');
+          router.replace({
+            pathname: '/auth',
+            params: { showSkipLoginBtn: 'true', returnTo: '/' },
+          });
         }
       } catch (error) {
         console.error('Failed to load user session:', error);

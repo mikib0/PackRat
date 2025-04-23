@@ -1,6 +1,6 @@
 'use client';
 
-import { Link, Stack, router } from 'expo-router';
+import { Link, Stack, router, useLocalSearchParams } from 'expo-router';
 import * as React from 'react';
 import { Image, Platform, View, Alert } from 'react-native';
 import {
@@ -17,6 +17,7 @@ import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
 import { useAuth } from '~/features/auth/hooks/useAuth';
+import { Route } from 'expo-router';
 
 const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
@@ -34,6 +35,7 @@ export default function LoginScreen() {
   const { signIn, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
   const [focusedTextField, setFocusedTextField] = React.useState<'email' | 'password' | null>(null);
+  const { returnTo } = useLocalSearchParams<{ returnTo: Route }>();
 
   const form = useForm({
     defaultValues: {
@@ -46,7 +48,7 @@ export default function LoginScreen() {
     onSubmit: async ({ value }) => {
       try {
         setIsLoading(true);
-        await signIn(value.email, value.password);
+        await signIn(value.email, value.password, returnTo);
         // Navigation is handled in function after successful login
       } catch (error) {
         setIsLoading(false);
@@ -212,7 +214,7 @@ export default function LoginScreen() {
         <Button
           variant="plain"
           onPress={() => {
-            router.replace('/auth/(create-account)');
+            router.replace({ pathname: '/auth/(create-account)', params: { returnTo } });
           }}>
           <Text className="text-sm text-primary">Create Account</Text>
         </Button>

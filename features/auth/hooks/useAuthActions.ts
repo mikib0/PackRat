@@ -1,10 +1,13 @@
 import { useSetAtom } from 'jotai';
-import { router } from 'expo-router';
+import { Route, router } from 'expo-router';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
 import { tokenAtom, refreshTokenAtom, userAtom, isLoadingAtom } from '../atoms/authAtoms';
 import { isAuthed } from '../store';
+import { packItemsStore, packsStore } from '~/features/packs/store';
+import { userStore } from '~/features/profile/store';
+import { RelativePathString } from 'expo-router';
 
 export function useAuthActions() {
   const setToken = useSetAtom(tokenAtom);
@@ -12,7 +15,7 @@ export function useAuthActions() {
   const setUser = useSetAtom(userAtom);
   const setIsLoading = useSetAtom(isLoadingAtom);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, returnTo: Route) => {
     setIsLoading(true);
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/login`, {
@@ -34,12 +37,11 @@ export function useAuthActions() {
       await SecureStore.setItemAsync('access_token', data.accessToken);
       await SecureStore.setItemAsync('refresh_token', data.refreshToken);
 
-
       await setToken(data.accessToken);
       await setRefreshToken(data.refreshToken);
       setUser(data.user);
-      isAuthed.set(true)
-      router.replace('/(app)');
+      isAuthed.set(true);
+      router.replace(returnTo);
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;
@@ -48,7 +50,7 @@ export function useAuthActions() {
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (returnTo: Route) => {
     try {
       setIsLoading(true);
 
@@ -87,8 +89,8 @@ export function useAuthActions() {
       await setToken(data.accessToken);
       await setRefreshToken(data.refreshToken);
       setUser(data.user);
-      isAuthed.set(true)
-      router.replace('/(app)');
+      isAuthed.set(true);
+      router.replace(returnTo);
     } catch (error: any) {
       setIsLoading(false);
 
@@ -106,7 +108,7 @@ export function useAuthActions() {
     }
   };
 
-  const signInWithApple = async () => {
+  const signInWithApple = async (returnTo: Route) => {
     try {
       setIsLoading(true);
       const credential = await AppleAuthentication.signInAsync({
@@ -141,8 +143,8 @@ export function useAuthActions() {
       await setToken(data.accessToken);
       await setRefreshToken(data.refreshToken);
       setUser(data.user);
-      isAuthed.set(true)
-      router.replace('/(app)');
+      isAuthed.set(true);
+      router.replace(returnTo);
     } catch (error) {
       console.error('Apple sign in error:', error);
       throw error;
@@ -176,6 +178,7 @@ export function useAuthActions() {
   };
 
   const signOut = async () => {
+    // TODO(localfirst): only logout when sync is done
     setIsLoading(true);
     try {
       // Sign out from Google if signed in
@@ -207,6 +210,10 @@ export function useAuthActions() {
       await setRefreshToken(null);
       setUser(null);
       isAuthed.set(false);
+      // TODO(localfirst): clear local data
+      packsStore.set({});
+      packItemsStore.set({});
+      userStore.delete();
       router.replace('/auth');
     } catch (error) {
       console.error('Sign out error:', error);
@@ -261,7 +268,7 @@ export function useAuthActions() {
     }
   };
 
-  const verifyEmail = async (email: string, code: string) => {
+  const verifyEmail = async (email: string, code: string, returnTo: Route) => {
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/verify-email`, {
         method: 'POST',
@@ -285,8 +292,8 @@ export function useAuthActions() {
         await setToken(data.accessToken);
         await setRefreshToken(data.refreshToken);
         setUser(data.user);
-        isAuthed.set(true)
-        router.replace('/(app)');
+        isAuthed.set(true);
+        router.replace(returnTo);
       }
 
       return data;

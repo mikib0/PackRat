@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, Route } from 'expo-router';
 import * as React from 'react';
 import { Image, Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 import { Icon } from '@roninoss/icons';
+import { useLocalSearchParams } from 'expo-router';
 
 const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
@@ -19,24 +20,16 @@ const GOOGLE_SOURCE = {
   uri: 'https://www.pngall.com/wp-content/uploads/13/Google-Logo.png',
 };
 
+type RouteParams = { returnTo: Route; signInCopy: string; showSkipLoginBtn?: string };
+
 export default function AuthIndexScreen() {
   const { signInWithGoogle, signInWithApple } = useAuthActions();
   const alertRef = React.useRef<AlertRef>(null);
-  const [isFirstVisit, setIsFirstVisit] = React.useState(true);
-
-  // Check if this is the first visit
-  React.useEffect(() => {
-    const checkSkippedLogin = async () => {
-      const hasSkippedLogin = await AsyncStorage.getItem('skipped_login');
-      setIsFirstVisit(hasSkippedLogin !== 'true');
-    };
-
-    checkSkippedLogin();
-  }, []);
+  const { returnTo, signInCopy, showSkipLoginBtn } = useLocalSearchParams<RouteParams>();
 
   const handleSkipLogin = async () => {
     await AsyncStorage.setItem('skipped_login', 'true');
-    router.replace('/(app)');
+    router.replace('/');
   };
 
   return (
@@ -57,11 +50,11 @@ export default function AuthIndexScreen() {
             <Text className="ios:font-extrabold text-center text-3xl font-medium">
               for What's Next
             </Text>
-            <Text className="pt-4 text-center text-muted-foreground">
-              Sign in to unlock cloud sync and access all features
-            </Text>
+            {signInCopy && (
+              <Text className="pt-4 text-center text-muted-foreground">{signInCopy}</Text>
+            )}
           </View>
-          <Link href="/auth/(create-account)" asChild>
+          <Link href={{ pathname: '/auth/(create-account)', params: { returnTo } }} asChild>
             <Button size={Platform.select({ ios: 'lg', default: 'md' })}>
               <Text>Sign up free</Text>
             </Button>
@@ -70,7 +63,7 @@ export default function AuthIndexScreen() {
             variant="secondary"
             className="ios:border-foreground/60"
             size={Platform.select({ ios: 'lg', default: 'md' })}
-            onPress={() => signInWithGoogle()}>
+            onPress={() => signInWithGoogle(returnTo)}>
             <Image
               source={GOOGLE_SOURCE}
               className="absolute left-4 h-4 w-4"
@@ -83,34 +76,27 @@ export default function AuthIndexScreen() {
               variant="secondary"
               className="ios:border-foreground/60"
               size={Platform.select({ ios: 'lg', default: 'md' })}
-              onPress={() => signInWithApple()}>
+              onPress={() => signInWithApple(returnTo)}>
               <Text className="ios:text-foreground absolute left-4 text-[22px]"></Text>
               <Text className="ios:text-foreground">Continue with Apple</Text>
             </Button>
           )}
-          <Link href="/auth/(login)" asChild>
-            <Button variant="plain" size={Platform.select({ ios: 'lg', default: 'md' })}>
+          <Link href={{ pathname: '/auth/(login)', params: { returnTo } }} asChild>
+            <Button variant="tonal" size={Platform.select({ ios: 'lg', default: 'md' })}>
               <Text className="text-primary">Log in</Text>
             </Button>
           </Link>
 
-          {isFirstVisit && (
+          {showSkipLoginBtn === 'true' && (
             <Button
-              variant="outline"
+              variant="plain"
               size={Platform.select({ ios: 'lg', default: 'md' })}
               onPress={handleSkipLogin}
               className="mt-2">
               <Icon name="arrow-right" className="mr-2" />
-              <Text>Skip login for now</Text>
+              <Text>Skip login</Text>
             </Button>
           )}
-
-          <View className="mt-4">
-            <Text className="text-center text-sm text-muted-foreground">
-              You can use the app without an account, but cloud sync and some advanced features
-              require login.
-            </Text>
-          </View>
         </View>
       </SafeAreaView>
       <AlertAnchor ref={alertRef} />
