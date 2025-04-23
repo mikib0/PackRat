@@ -1,5 +1,3 @@
-'use client';
-
 import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
@@ -9,7 +7,6 @@ import {
   FlatList,
   SafeAreaView,
   ScrollView,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -19,6 +16,9 @@ import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 import { useCatalogItems } from '../hooks';
 import type { CatalogItem } from '../types';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
+import { useAuth } from '~/features/auth/hooks/useAuth';
+import { Text } from '~/components/nativewindui/Text';
+import { Button } from '~/components/nativewindui/Button';
 
 type FilterOption = {
   label: string;
@@ -39,9 +39,11 @@ const filterOptions: FilterOption[] = [
 
 export function CatalogItemsScreen() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const { data: catalogItems, isLoading, isError, refetch } = useCatalogItems();
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
   const [activeFilter, setActiveFilter] = useState<string | 'all'>('all');
+  const [showAsGuest, setShowAsGuest] = useState(false); // Add this state
 
   useHeaderSearchBar({
     hideWhenScrolling: false,
@@ -79,15 +81,33 @@ export function CatalogItemsScreen() {
     </TouchableOpacity>
   );
 
-  if (isError) {
+  if (!isAuthenticated) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <Text className="text-red-500">Failed to load catalog items</Text>
-        <TouchableOpacity
-          className="mt-4 rounded-lg bg-primary px-4 py-2"
-          onPress={() => refetch()}>
-          <Text className="font-medium text-primary-foreground">Retry</Text>
-        </TouchableOpacity>
+      <SafeAreaView className="flex-1 bg-background">
+        <LargeTitleHeader title="Catalog" backVisible={false} />
+
+        <View className="flex-1 px-6 py-8">
+          <View className="mb-8 items-center justify-center">
+            <View className="bg-primary/10 mb-4 rounded-full p-6">
+              <Icon name="clipboard-outline" size={64} color="text-primary" />
+            </View>
+            <Text variant="title1" className="text-center">
+              Create Your Perfect Pack
+            </Text>
+            <Text variant="body" className="mb-6 text-center text-muted-foreground">
+              Sign in to browse our complete items catalog and create personalized packs for all
+              your adventures.
+            </Text>
+          </View>
+
+          <Button
+            onPress={() => router.push('/auth')}
+            size="lg"
+            variant="primary"
+            className="mb-4 w-full">
+            <Text className="font-medium">Sign In</Text>
+          </Button>
+        </View>
       </SafeAreaView>
     );
   }
@@ -99,6 +119,7 @@ export function CatalogItemsScreen() {
         backVisible={false}
         searchBar={{ iosHideWhenScrolling: true }}
       />
+
       <View className="bg-background px-4 py-2">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-1">
           {filterOptions.map(renderFilterChip)}
