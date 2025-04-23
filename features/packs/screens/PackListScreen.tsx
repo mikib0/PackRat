@@ -22,6 +22,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import type { Pack, PackCategory } from '~/types';
 import { Button } from '~/components/nativewindui/Button';
 import { isAuthed } from '~/features/auth/store';
+import SyncBanner from '~/features/packs/components/SyncBanner';
 
 type FilterOption = {
   label: string;
@@ -53,10 +54,8 @@ function CreatePackIconButton() {
 export function PackListScreen() {
   const router = useRouter();
   const packs = usePacks();
-  // const { data: packs, isLoading, isError, refetch } = {};
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
   const [activeFilter, setActiveFilter] = useAtom(activeFilterAtom);
-  // const { sync, isSyncing } = useSync();
   const { isAuthenticated } = useAuth();
 
   useHeaderSearchBar({
@@ -74,11 +73,6 @@ export function PackListScreen() {
     // Navigate to create pack screen
     router.push({ pathname: '/pack/new' });
   };
-
-  // const handleSync = async () => {
-  //   if (!isAuthenticated) return;
-  //   await sync();
-  // };
 
   const filteredPacks =
     activeFilter === 'all'
@@ -109,11 +103,11 @@ export function PackListScreen() {
         searchBar={{ iosHideWhenScrolling: true }}
         rightView={() => (
           <View className="flex-row items-center">
-            {/* <SyncButton onPress={handleSync} isSyncing={isSyncing} /> */}
             <CreatePackIconButton />
           </View>
         )}
       />
+      {!isAuthenticated && <SyncBanner />}
       <View className="bg-background px-4 py-2">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-1">
           {filterOptions.map(renderFilterChip)}
@@ -133,27 +127,6 @@ export function PackListScreen() {
             <Text className="text-muted-foreground">
               {filteredPacks?.length} {filteredPacks?.length === 1 ? 'pack' : 'packs'}
             </Text>
-          </View>
-        }
-        ListFooterComponent={
-          <View className="ios:px-0 px-4 pt-8">
-            {isAuthenticated ? (
-              <Button
-                onPress={() => isAuthed.set(false)}
-                size="lg"
-                variant={Platform.select({ ios: 'primary', default: 'secondary' })}
-                className="border-border bg-card">
-                <Text className="text-destructive">Log Out</Text>
-              </Button>
-            ) : (
-              <Button
-                onPress={() => isAuthed.set(true)}
-                size="lg"
-                variant="secondary"
-                className="border-border bg-card">
-                <Text>Sign in</Text>
-              </Button>
-            )}
           </View>
         }
         ListEmptyComponent={
