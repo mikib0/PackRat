@@ -18,6 +18,7 @@ import { LoadingSpinnerScreen } from '../../../screens/LoadingSpinnerScreen';
 import { NotFoundScreen } from '../../../screens/NotFoundScreen';
 import { Button } from '~/components/nativewindui/Button';
 import { usePackItem } from '../hooks';
+import { isAuthed } from '~/features/auth/store';
 
 export function ItemDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -47,6 +48,22 @@ export function ItemDetailScreen() {
   const itemNotes = getNotes(item);
 
   const navigateToChat = () => {
+    if (!isAuthed.peek()) {
+      return router.push({
+        pathname: '/auth',
+        params: {
+          redirectTo: JSON.stringify({
+            pathname: '/ai-chat-better-ui',
+            params: {
+              itemId: item.id,
+              itemName: item.name,
+              contextType: 'item',
+            },
+          }),
+          showSignInCopy: 'true',
+        },
+      });
+    }
     router.push({
       pathname: '/ai-chat-better-ui',
       params: {

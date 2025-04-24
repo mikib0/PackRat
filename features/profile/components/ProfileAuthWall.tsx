@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, usePathname, useRouter } from 'expo-router';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { Icon } from '@roninoss/icons';
@@ -11,6 +11,7 @@ const SCREEN_OPTIONS = {
 
 export function ProfileAuthWall() {
   const router = useRouter();
+  const currentRoute = usePathname();
 
   return (
     <>
@@ -53,7 +54,7 @@ export function ProfileAuthWall() {
         </View>
 
         <Button
-          onPress={() => router.push('/auth')}
+          onPress={() => router.push({ pathname: '/auth', params: { redirectTo: currentRoute } })}
           size="lg"
           variant="primary"
           className="mb-4 w-full">

@@ -1,5 +1,5 @@
 import { Icon } from '@roninoss/icons';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { SafeAreaView, View } from 'react-native';
 import { Button } from '~/components/nativewindui/Button';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
@@ -7,6 +7,7 @@ import { Text } from '~/components/nativewindui/Text';
 
 export function CatalogItemsAuthWall() {
   const router = useRouter();
+  const currentRoute = usePathname();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -27,7 +28,7 @@ export function CatalogItemsAuthWall() {
         </View>
 
         <Button
-          onPress={() => router.push('/auth')}
+          onPress={() => router.push({ pathname: '/auth', params: { redirectTo: currentRoute } })}
           size="lg"
           variant="primary"
           className="mb-4 w-full">

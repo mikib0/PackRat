@@ -11,6 +11,8 @@ import { Button } from '~/components/nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Text } from '../../../components/nativewindui/Text';
 import type { PackItemInput } from '../types';
+import { isAuthed } from '~/features/auth/store';
+import { useRouter } from 'expo-router';
 
 interface AISuggestionsProps {
   packId: string;
@@ -26,6 +28,7 @@ export function PackItemSuggestions({
   onItemAdded,
 }: AISuggestionsProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const router = useRouter();
 
   const {
     data: suggestions,
@@ -67,6 +70,15 @@ export function PackItemSuggestions({
   };
 
   const handleGenerateSuggestions = () => {
+    if (!isAuthed.peek()) {
+      return router.push({
+        pathname: '/auth',
+        params: {
+          redirectTo: `/pack/${packId}`,
+          showSignInCopy: 'true',
+        },
+      });
+    }
     setShowSuggestions(true);
     refetch();
   };

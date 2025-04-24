@@ -7,6 +7,7 @@ import { cn } from "~/lib/cn"
 import { useColorScheme } from "~/lib/useColorScheme"
 import { useActiveLocation } from "../hooks"
 import { WeatherIcon } from './WeatherIcon';
+import { isAuthed } from '~/features/auth/store';
 
 export function WeatherWidget() {
   const { activeLocation } = useActiveLocation();
@@ -21,7 +22,20 @@ export function WeatherWidget() {
           </Text>
         </View>
 
-        <Pressable onPress={() => router.push('/locations')} className="active:opacity-80">
+        <Pressable
+          onPress={() => {
+            if (!isAuthed.peek()) {
+              return router.push({
+                pathname: '/auth',
+                params: {
+                  redirectTo: '/locations',
+                  showSignInCopy: 'true',
+                },
+              });
+            }
+            router.push('/locations');
+          }}
+          className="active:opacity-80">
           {({ pressed }) => (
             <View
               className={cn(

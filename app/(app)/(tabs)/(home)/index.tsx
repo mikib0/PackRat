@@ -1,7 +1,6 @@
 import { Icon, type MaterialIconName } from '@roninoss/icons';
-import { Link, RelativePathString, router } from 'expo-router';
+import { Href, Link, Route, router } from 'expo-router';
 import type React from 'react';
-import { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
@@ -20,6 +19,7 @@ import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Pack } from '~/types';
 import { WeatherWidget } from '~/features/locations/components';
+import { isAuthed } from '~/features/auth/store';
 
 function SettingsIcon() {
   const { colors } = useColorScheme();
@@ -116,18 +116,18 @@ function renderItem<T extends ReturnType<typeof transformDashboardData>[number]>
   const item = info.item as DashboardDataItem;
 
   const handlePress = () => {
-    if (item.id === '13') {
-      router.push({
-        pathname: '/ai-chat-better-ui',
+    if (!isAuthed.peek() && item.protected) {
+      // If the user is not authenticated and the feature is protected, redirect to the auth page
+      return router.push({
+        pathname: '/auth',
         params: {
-          contextType: 'general',
+          redirectTo: JSON.stringify(item.route), // stringifying to preserve and pass along parameters e.g when route = { pathname: 'ai-chat', params: { contexType: 'general' } }
+          showSignInCopy: 'true',
         },
       });
-    } else if (item.route) {
-      router.push(item.route as RelativePathString);
-    } else {
-      console.log('onPress');
     }
+
+    router.push(item.route);
   };
 
   return (
@@ -182,7 +182,7 @@ function IconView({ className, name }: { className?: string; name: MaterialIconN
 }
 
 function keyExtractor(
-  item: (Omit<ListDataItem, string> & { id: string; route?: string }) | string
+  item: (Omit<ListDataItem, string> & { id: string; route: Href }) | string
 ) {
   return typeof item === 'string' ? item : item.id;
 }
@@ -194,7 +194,8 @@ type DashboardDataItem = {
   leftView?: React.ReactNode;
   rightText?: string;
   badge?: number;
-  route?: string;
+  route: Href;
+  protected?: boolean;
 };
 
 type DashboardData = DashboardDataItem | string;
@@ -272,6 +273,13 @@ function transformDashboardData(data: any): DashboardData[] {
     title: 'Ask PackRat AI',
     leftView: <IconView name="message" className="bg-purple-500" />,
     rightText: 'Anything outdoors...',
+    route: {
+      pathname: '/ai-chat-better-ui',
+      params: {
+        contextType: 'general',
+      },
+    },
+    protected: true,
   });
 
   output.push('gap 1.5');
@@ -322,6 +330,7 @@ function transformDashboardData(data: any): DashboardData[] {
       leftView: <IconView name="weather-rainy" className="bg-amber-500" />,
       rightText: `${weatherAlertCount} active`,
       route: '/weather-alerts',
+      protected: true,
     });
   }
 

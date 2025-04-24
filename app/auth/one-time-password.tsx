@@ -41,7 +41,7 @@ export default function OneTimePasswordScreen() {
   const [isLoading, setIsLoading] = React.useState(false);
   const alertRef = React.useRef<AlertRef>(null);
   const headerHeight = useHeaderHeight();
-  const params = useLocalSearchParams<{ email: string; mode: string; returnTo: Route }>();
+  const params = useLocalSearchParams<{ email: string; mode: string; redirectTo: string }>();
   const email = params.email || '';
   const mode = params.mode || 'verification';
   const { verifyEmail, forgotPassword, resendVerificationEmail } = useAuthActions();
@@ -131,7 +131,7 @@ export default function OneTimePasswordScreen() {
           params: { email, code },
         });
       } else {
-        await verifyEmail(email, code, params.returnTo); // Navigation is handled in the function
+        await verifyEmail(email, code, params.redirectTo); // Navigation is handled in the function
       }
     } catch (error) {
       Alert.alert('Error', error instanceof Error ? error.message : 'Invalid verification code');

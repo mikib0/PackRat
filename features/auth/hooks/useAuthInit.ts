@@ -43,7 +43,7 @@ export function useAuthInit() {
           // No tokens and hasn't skipped login. It's first time - show auth screen
           router.replace({
             pathname: '/auth',
-            params: { showSkipLoginBtn: 'true', returnTo: '/' },
+            params: { showSkipLoginBtn: 'true', redirectTo: '/' },
           });
         }
       } catch (error) {

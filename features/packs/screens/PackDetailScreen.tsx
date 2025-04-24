@@ -17,6 +17,7 @@ import { Alert } from '~/components/nativewindui/Alert';
 import { PackItemSuggestions } from '~/features/packs/components/PackItemSuggestions';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Text } from '~/components/nativewindui/Text';
+import { isAuthed } from '~/features/auth/store';
 
 export function PackDetailScreen() {
   const router = useRouter();
@@ -147,12 +148,25 @@ export function PackDetailScreen() {
           <View className="p-4">
             <Button
               variant="secondary"
-              onPress={() =>
+              onPress={() => {
+                if (!isAuthed.peek()) {
+                  return router.push({
+                    pathname: '/auth',
+                    params: {
+                      redirectTo: JSON.stringify({
+                        pathname: '/ai-chat-better-ui',
+                        params: { packId: id, packName: pack.name, contextType: 'pack' },
+                      }),
+                      showSignInCopy: 'true',
+                    },
+                  });
+                }
+
                 router.push({
                   pathname: '/ai-chat-better-ui',
                   params: { packId: id, packName: pack.name, contextType: 'pack' },
-                })
-              }>
+                });
+              }}>
               <Icon name="message-outline" color={colors.foreground} />
               <Text>Ask AI</Text>
             </Button>
