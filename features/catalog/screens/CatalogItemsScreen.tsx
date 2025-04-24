@@ -16,9 +16,9 @@ import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 import { useCatalogItems } from '../hooks';
 import type { CatalogItem } from '../types';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { useAuth } from '~/features/auth/hooks/useAuth';
 import { Text } from '~/components/nativewindui/Text';
-import { Button } from '~/components/nativewindui/Button';
+import { withAuthWall } from '~/features/auth/hocs';
+import { CatalogItemsAuthWall } from '../components';
 
 type FilterOption = {
   label: string;
@@ -37,13 +37,11 @@ const filterOptions: FilterOption[] = [
   { label: 'Miscellaneous', value: 'miscellaneous' },
 ];
 
-export function CatalogItemsScreen() {
+function CatalogItemsScreen() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
   const { data: catalogItems, isLoading, isError, refetch } = useCatalogItems();
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
   const [activeFilter, setActiveFilter] = useState<string | 'all'>('all');
-  const [showAsGuest, setShowAsGuest] = useState(false); // Add this state
 
   useHeaderSearchBar({
     hideWhenScrolling: false,
@@ -80,37 +78,6 @@ export function CatalogItemsScreen() {
       </Text>
     </TouchableOpacity>
   );
-
-  if (!isAuthenticated) {
-    return (
-      <SafeAreaView className="flex-1 bg-background">
-        <LargeTitleHeader title="Catalog" backVisible={false} />
-
-        <View className="flex-1 px-6 py-8">
-          <View className="mb-8 items-center justify-center">
-            <View className="bg-primary/10 mb-4 rounded-full p-6">
-              <Icon name="clipboard-outline" size={64} color="text-primary" />
-            </View>
-            <Text variant="title1" className="text-center">
-              Create Your Perfect Pack
-            </Text>
-            <Text variant="body" className="mb-6 text-center text-muted-foreground">
-              Sign in to browse our complete items catalog and create personalized packs for all
-              your adventures.
-            </Text>
-          </View>
-
-          <Button
-            onPress={() => router.push('/auth')}
-            size="lg"
-            variant="primary"
-            className="mb-4 w-full">
-            <Text className="font-medium">Sign In</Text>
-          </Button>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView className="flex-1">
@@ -165,3 +132,5 @@ export function CatalogItemsScreen() {
     </SafeAreaView>
   );
 }
+
+export default withAuthWall(CatalogItemsScreen, CatalogItemsAuthWall);
