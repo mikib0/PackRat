@@ -140,12 +140,12 @@ function renderItem<T extends ReturnType<typeof transformDashboardData>[number]>
       leftView={item.leftView}
       rightView={
         <View className="flex-1 flex-row items-center justify-center gap-2 px-4">
-          {item.rightText && (
+          {!!item.rightText && (
             <Text variant="callout" className="ios:px-0 px-2 text-muted-foreground">
               {item.rightText}
             </Text>
           )}
-          {item.badge && (
+          {!!item.badge && (
             <View className="h-5 w-5 items-center justify-center rounded-full bg-primary">
               <Text variant="footnote" className="font-bold leading-4 text-primary-foreground">
                 {item.badge}

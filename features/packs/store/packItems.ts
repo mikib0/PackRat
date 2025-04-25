@@ -61,6 +61,15 @@ syncObservable(
     create: createPackItem,
     update: updatePackItem,
     changesSince: 'last-sync',
+    subscribe: ({ refresh }) => {
+      const intervalId = setInterval(() => {
+        refresh();
+      }, 30000); // 30 seconds interval
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    },
   })
 );
 
