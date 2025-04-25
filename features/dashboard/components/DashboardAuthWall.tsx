@@ -1,5 +1,5 @@
 import { Icon } from '@roninoss/icons';
-import { usePathname, useRouter } from 'expo-router';
+import { Stack, usePathname, useRouter } from 'expo-router';
 import { Image, SafeAreaView, View } from 'react-native';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
@@ -12,6 +12,7 @@ export function DashboardAuthWall() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
+      <Stack.Screen options={{ headerShown: false }} />
       <View className="flex-1 px-6 py-8">
         <View className="mb-8 items-center justify-center">
           <View className="bg-primary/10 mb-4 rounded-full p-6">

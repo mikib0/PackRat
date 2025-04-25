@@ -141,6 +141,7 @@ function ListFooterComponent() {
   return (
     <View className="ios:px-0 px-4 pt-8">
       <Button
+        disabled={isLoading}
         onPress={() => {
           if (
             !isEmpty(packItemsSyncState.getPendingChanges() || {}) ||

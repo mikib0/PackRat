@@ -66,6 +66,7 @@ export function DashboardScreen() {
       <LargeTitleHeader
         title="Dashboard"
         searchBar={{ iosHideWhenScrolling: true }}
+        backVisible={false}
         rightView={() => (
           <View className="flex-row items-center gap-2 pr-2">
             <DemoIcon />

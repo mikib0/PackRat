@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Image, Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AlertAnchor } from '~/components/nativewindui/Alert';
@@ -11,7 +10,6 @@ import type { AlertRef } from '~/components/nativewindui/Alert/types';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
-import { Icon } from '@roninoss/icons';
 import { useLocalSearchParams } from 'expo-router';
 
 const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
@@ -25,7 +23,11 @@ type RouteParams = { redirectTo: string; showSignInCopy?: string; showSkipLoginB
 export default function AuthIndexScreen() {
   const { signInWithGoogle, signInWithApple } = useAuthActions();
   const alertRef = React.useRef<AlertRef>(null);
-  const { redirectTo, showSignInCopy, showSkipLoginBtn } = useLocalSearchParams<RouteParams>();
+  const {
+    redirectTo = '/',
+    showSignInCopy,
+    showSkipLoginBtn,
+  } = useLocalSearchParams<RouteParams>();
   const handleSkipLogin = async () => {
     await AsyncStorage.setItem('skipped_login', 'true');
     router.replace('/packs');
@@ -104,7 +106,6 @@ export default function AuthIndexScreen() {
               size={Platform.select({ ios: 'lg', default: 'md' })}
               onPress={handleSkipLogin}
               className="mt-2">
-              <Icon name="arrow-right" className="mr-2" />
               <Text>Skip login</Text>
             </Button>
           )}
