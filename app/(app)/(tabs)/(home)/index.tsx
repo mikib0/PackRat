@@ -121,7 +121,7 @@ function renderItem<T extends ReturnType<typeof transformDashboardData>[number]>
       return router.push({
         pathname: '/auth',
         params: {
-          redirectTo: JSON.stringify(item.route), // stringifying to preserve and pass along parameters e.g when route = { pathname: 'ai-chat', params: { contexType: 'general' } }
+          redirectTo: typeof item.route === 'string' ? item.route : JSON.stringify(item.route), // stringifying to pass along parameters e.g when route = { pathname: 'ai-chat', params: { contexType: 'general' } }
           showSignInCopy: 'true',
         },
       });

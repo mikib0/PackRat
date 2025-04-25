@@ -7,7 +7,7 @@ export default function SyncBanner() {
   const router = useRouter();
   const { colors } = useColorScheme();
 
-  const handlePress = () => router.push('/auth');
+  const handlePress = () => router.push({ pathname: '/auth', params: { redirectTo: '/packs' } });
 
   return (
     <Pressable

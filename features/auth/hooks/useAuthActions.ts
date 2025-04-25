@@ -1,5 +1,5 @@
 import { useSetAtom } from 'jotai';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
@@ -7,6 +7,15 @@ import { tokenAtom, refreshTokenAtom, userAtom, isLoadingAtom } from '../atoms/a
 import { isAuthed } from '../store';
 import { packItemsStore, packsStore } from '~/features/packs/store';
 import { userStore } from '~/features/profile/store';
+
+function redirect(route: string) {
+  try {
+    const parsedRoute: Href = JSON.parse(route);
+    return router.replace(parsedRoute);
+  } catch {
+    router.replace(route as Href);
+  }
+}
 
 export function useAuthActions() {
   const setToken = useSetAtom(tokenAtom);
@@ -40,7 +49,7 @@ export function useAuthActions() {
       await setRefreshToken(data.refreshToken);
       setUser(data.user);
       isAuthed.set(true);
-      router.replace(JSON.parse(redirectTo));
+      redirect(redirectTo);
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;
@@ -89,7 +98,7 @@ export function useAuthActions() {
       await setRefreshToken(data.refreshToken);
       setUser(data.user);
       isAuthed.set(true);
-      router.replace(JSON.parse(redirectTo));
+      redirect(redirectTo);
     } catch (error: any) {
       setIsLoading(false);
 
@@ -143,7 +152,7 @@ export function useAuthActions() {
       await setRefreshToken(data.refreshToken);
       setUser(data.user);
       isAuthed.set(true);
-      router.replace(JSON.parse(redirectTo));
+      redirect(redirectTo);
     } catch (error) {
       console.error('Apple sign in error:', error);
       throw error;
@@ -177,7 +186,6 @@ export function useAuthActions() {
   };
 
   const signOut = async () => {
-    // TODO(localfirst): only logout when sync is done
     setIsLoading(true);
     try {
       // Sign out from Google if signed in
@@ -209,11 +217,10 @@ export function useAuthActions() {
       await setRefreshToken(null);
       setUser(null);
       isAuthed.set(false);
-      // TODO(localfirst): clear local data
       packsStore.set({});
       packItemsStore.set({});
       userStore.delete();
-      router.replace('/auth');
+      router.replace('/');
     } catch (error) {
       console.error('Sign out error:', error);
     } finally {
@@ -292,7 +299,7 @@ export function useAuthActions() {
         await setRefreshToken(data.refreshToken);
         setUser(data.user);
         isAuthed.set(true);
-        router.replace(JSON.parse(redirectTo));
+        redirect(redirectTo);
       }
 
       return data;
