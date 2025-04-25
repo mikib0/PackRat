@@ -91,6 +91,10 @@ packItemsRoutes.post("/:packId/items", async (c) => {
       return c.json({ error: "Pack ID is required" }, 400);
     }
 
+    if (!data.id) {
+      return c.json({ error: 'Item ID is required' }, 400);
+    }
+
     const [newItem] = await db
       .insert(packItems)
       .values({
