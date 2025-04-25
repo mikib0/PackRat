@@ -56,17 +56,10 @@ export function PackItemSuggestions({
       catalogItemId: item.id,
     };
 
-    createItem.mutate(
-      {
-        packId,
-        itemData: newItem,
-      },
-      {
-        onSuccess: () => {
-          if (onItemAdded) onItemAdded();
-        },
-      }
-    );
+    createItem({
+      packId,
+      itemData: newItem,
+    });
   };
 
   const handleGenerateSuggestions = () => {
