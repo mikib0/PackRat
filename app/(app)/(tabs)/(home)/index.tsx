@@ -20,6 +20,8 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { Pack } from '~/types';
 import { WeatherWidget } from '~/features/locations/components';
 import { isAuthed } from '~/features/auth/store';
+import { withAuthWall } from '~/features/auth/hocs';
+import { DashboardAuthWall } from '~/features/dashboard/components';
 
 function SettingsIcon() {
   const { colors } = useColorScheme();
@@ -56,7 +58,7 @@ function DemoIcon() {
   );
 }
 
-export default function DashboardScreen() {
+export function DashboardScreen() {
   const { data, isLoading } = useDashboardData();
 
   return (
@@ -105,6 +107,8 @@ export default function DashboardScreen() {
     </>
   );
 }
+
+export default withAuthWall(DashboardScreen, DashboardAuthWall);
 
 function renderItem<T extends ReturnType<typeof transformDashboardData>[number]>(
   info: ListRenderItemInfo<T>

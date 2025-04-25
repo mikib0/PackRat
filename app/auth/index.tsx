@@ -28,7 +28,7 @@ export default function AuthIndexScreen() {
   const { redirectTo, showSignInCopy, showSkipLoginBtn } = useLocalSearchParams<RouteParams>();
   const handleSkipLogin = async () => {
     await AsyncStorage.setItem('skipped_login', 'true');
-    router.replace('/');
+    router.replace('/packs');
   };
 
   return (
