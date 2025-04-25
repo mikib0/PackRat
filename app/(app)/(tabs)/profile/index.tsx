@@ -11,12 +11,16 @@ import {
   ListSectionHeader,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
-import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 import { cn } from '~/lib/cn';
 import { useAuth } from '~/features/auth/hooks/useAuth';
 import { useUser } from '~/features/profile/hooks/useUser';
 import { withAuthWall } from '~/features/auth/hocs';
 import { ProfileAuthWall } from '~/features/profile/components';
+import { Alert } from '~/components/nativewindui/Alert';
+import { useRef } from 'react';
+import { AlertRef } from '~/components/nativewindui/Alert/types';
+import { packItemsSyncState, packsSyncState } from '~/features/packs/store';
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 
 const SCREEN_OPTIONS = {
   title: 'Profile',
@@ -128,29 +132,54 @@ function ListHeaderComponent() {
 }
 
 function ListFooterComponent() {
-  const { isAuthenticated } = useAuth();
-  const { signOut } = useAuthActions();
-  const router = useRouter();
+  const { signOut, isLoading } = useAuth();
+
+  const alertRef = useRef<AlertRef>(null);
+
+  const isEmpty = (obj: Record<string, unknown>): boolean => Object.keys(obj).length === 0;
 
   return (
     <View className="ios:px-0 px-4 pt-8">
-      {isAuthenticated ? (
-        <Button
-          onPress={signOut}
-          size="lg"
-          variant={Platform.select({ ios: 'primary', default: 'secondary' })}
-          className="border-border bg-card">
+      <Button
+        onPress={() => {
+          if (
+            !isEmpty(packItemsSyncState.getPendingChanges() || {}) ||
+            !isEmpty(packsSyncState.getPendingChanges() || {})
+          ) {
+            alertRef.current?.show();
+            return;
+          }
+          signOut();
+        }}
+        size="lg"
+        variant={Platform.select({ ios: 'primary', default: 'secondary' })}
+        className="border-border bg-card">
+        {isLoading ? (
+          <ActivityIndicator className="text-destructive" />
+        ) : (
           <Text className="text-destructive">Log Out</Text>
-        </Button>
-      ) : (
-        <Button
-          onPress={() => router.push('/auth')}
-          size="lg"
-          variant="secondary"
-          className="border-border bg-card">
-          <Text>Sign in</Text>
-        </Button>
-      )}
+        )}
+      </Button>
+      <Alert
+        title="Sync in progress"
+        message="Some data is still syncing. You may lose them if you proceed to log out."
+        materialIcon={{ name: 'repeat' }}
+        materialWidth={370}
+        buttons={[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Log out',
+            style: 'destructive',
+            onPress: () => {
+              signOut();
+            },
+          },
+        ]}
+        ref={alertRef}
+      />
     </View>
   );
 }

@@ -1,4 +1,4 @@
-import { observable } from '@legendapp/state';
+import { observable, syncState } from '@legendapp/state';
 import { syncedCrud } from '@legendapp/state/sync-plugins/crud';
 import axiosInstance, { handleApiError } from '~/lib/api/client';
 import { syncObservable } from '@legendapp/state/sync';
@@ -10,6 +10,7 @@ import { isAuthed } from '~/features/auth/store';
 const listPacks = async () => {
   try {
     const res = await axiosInstance.get('/api/packs');
+    console.log('listingpacks', res.data);
     return res.data;
   } catch (error) {
     const { message } = handleApiError(error);
@@ -17,6 +18,7 @@ const listPacks = async () => {
   }
 };
 const createPack = async (packData: Omit<Pack, 'items'>) => {
+  console.log('createPack', packData);
   try {
     const response = await axiosInstance.post('/api/packs', packData);
     return response.data;
@@ -72,5 +74,6 @@ syncObservable(
   })
 );
 
-// Type for the packs store
+export const packsSyncState = syncState(packsStore);
+
 export type PacksStore = typeof packsStore;

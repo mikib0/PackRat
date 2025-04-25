@@ -1,4 +1,4 @@
-import { observable } from '@legendapp/state';
+import { observable, syncState } from '@legendapp/state';
 import { syncedCrud } from '@legendapp/state/sync-plugins/crud';
 import axiosInstance, { handleApiError } from '~/lib/api/client';
 import { syncObservable } from '@legendapp/state/sync';
@@ -72,5 +72,7 @@ syncObservable(
     },
   })
 );
+
+export const packItemsSyncState = syncState(packItemsStore);
 
 export type PackItemsStore = typeof packItemsStore;
