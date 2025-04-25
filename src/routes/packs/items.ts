@@ -21,7 +21,7 @@ packItemsRoutes.get("/:packId/items", async (c) => {
   try {
     const packId = c.req.param("packId");
     const items = await db.query.packItems.findMany({
-      where: eq(packItems.packId, Number(packId)),
+      where: eq(packItems.packId, packId),
       with: {
         catalogItem: true,
       },
@@ -94,7 +94,8 @@ packItemsRoutes.post("/:packId/items", async (c) => {
     const [newItem] = await db
       .insert(packItems)
       .values({
-        packId: Number(packId),
+        id: data.id,
+        packId: packId,
         catalogItemId: data.catalogItemId ? Number(data.catalogItemId) : null,
         name: data.name,
         description: data.description,
@@ -114,7 +115,7 @@ packItemsRoutes.post("/:packId/items", async (c) => {
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, Number(packId)));
+      .where(eq(packs.id, packId));
 
     return c.json(newItem);
   } catch (error) {
@@ -152,18 +153,18 @@ packItemsRoutes.put("/:packId/items/:itemId", async (c) => {
         catalogItemId: data.catalogItemId ? Number(data.catalogItemId) : null,
         updatedAt: new Date(),
       })
-      .where(eq(packItems.id, Number(itemId)))
+      .where(eq(packItems.id, itemId))
       .returning();
 
     if (!updatedItem) {
-      return c.json({ error: "Pack item not found" }, 404);
+      return c.json({ error: 'Pack item not found' }, 404);
     }
 
     // Update the pack's updatedAt timestamp
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, Number(packId)));
+      .where(eq(packs.id, packId));
 
     return c.json(updatedItem);
   } catch (error) {
@@ -183,13 +184,13 @@ packItemsRoutes.delete("/:packId/items/:itemId", async (c) => {
   try {
     const packId = c.req.param("packId");
     const itemId = c.req.param("itemId");
-    await db.delete(packItems).where(eq(packItems.id, Number(itemId)));
+    await db.delete(packItems).where(eq(packItems.id, itemId));
 
     // Update the pack's updatedAt timestamp
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, Number(packId)));
+      .where(eq(packs.id, packId));
 
     return c.json({ success: true });
   } catch (error) {

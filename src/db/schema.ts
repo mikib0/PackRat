@@ -128,7 +128,7 @@ export const catalogItems = pgTable('catalog_items', {
 
 // Pack items table
 export const packItems = pgTable('pack_items', {
-  id: serial('id').primaryKey(),
+  id: text('id').primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
   weight: real('weight').notNull(),
@@ -146,6 +146,7 @@ export const packItems = pgTable('pack_items', {
   userId: integer('user_id')
     .references(() => users.id)
     .notNull(),
+  deleted: boolean('deleted').default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
