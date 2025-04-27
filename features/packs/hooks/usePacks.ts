@@ -5,7 +5,7 @@ export function usePacks() {
   const packs = use$(() => {
     const packsArray = Object.values(packsStore.get());
 
-    const filteredPacks = packsArray.filter((pack) => !pack.deleted);
+    const filteredPacks = packsArray.filter((pack) => pack.deleted === false);
 
     return filteredPacks;
   });

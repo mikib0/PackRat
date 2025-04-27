@@ -10,7 +10,6 @@ import { isAuthed } from '~/features/auth/store';
 const listPacks = async () => {
   try {
     const res = await axiosInstance.get('/api/packs');
-    console.log('listingpacks', res.data);
     return res.data;
   } catch (error) {
     const { message } = handleApiError(error);
@@ -18,7 +17,6 @@ const listPacks = async () => {
   }
 };
 const createPack = async (packData: Omit<Pack, 'items'>) => {
-  console.log('createPack', packData);
   try {
     const response = await axiosInstance.post('/api/packs', packData);
     return response.data;

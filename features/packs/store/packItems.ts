@@ -6,11 +6,65 @@ import Storage from 'expo-sqlite/kv-store';
 import { observablePersistSqlite } from '@legendapp/state/persist-plugins/expo-sqlite';
 import { Pack, PackItem } from '../types';
 import { isAuthed } from '~/features/auth/store';
+import * as FileSystem from 'expo-file-system';
+import ImageCacheManager from '~/lib/utils/ImageCacheManager';
+
+// Function to get a presigned URL for uploading
+const getPresignedUrl = async (
+  fileName: string,
+  contentType: string
+): Promise<{ url: string; publicUrl: string; objectKey: string }> => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/upload/presigned?fileName=${encodeURIComponent(fileName)}&contentType=${encodeURIComponent(contentType)}`
+    );
+    return {
+      url: response.data.url,
+      publicUrl: response.data.publicUrl,
+      objectKey: response.data.objectKey,
+    };
+  } catch (err) {
+    console.error('Error getting presigned URL:', err);
+    throw new Error('Failed to get upload URL');
+  }
+};
+
+// Upload the image to R2
+const uploadImage = async (fileName: string): Promise<void> => {
+  try {
+    const fileExtension = fileName.split('.').pop()?.toLowerCase() || 'jpg';
+    const type = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
+    // Get presigned URL
+    const { url: presignedUrl } = await getPresignedUrl(fileName, type);
+
+    // Upload the image
+    const uploadResult = await FileSystem.uploadAsync(
+      presignedUrl,
+      `${ImageCacheManager.cacheDirectory}${fileName}`,
+      {
+        httpMethod: 'PUT',
+        uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+        headers: {
+          'Content-Type': type,
+        },
+      }
+    );
+
+    if (uploadResult.status >= 300) {
+      throw new Error(`Upload failed with status: ${uploadResult.status}`);
+    }
+  } catch (err) {
+    console.error('Error uploading image:', err);
+    throw err;
+  }
+};
 
 const listAllPackItems = async () => {
   try {
     const res = await axiosInstance.get<Pack[]>('/api/packs');
-    return res.data.flatMap((pack: Pack) => pack.items);
+    const items = res.data.flatMap((pack: Pack) => pack.items);
+    console.log('listing pack items', items);
+    return items;
   } catch (error) {
     const { message } = handleApiError(error);
     throw new Error(`Failed to list packitems: ${message}`);
@@ -19,6 +73,10 @@ const listAllPackItems = async () => {
 
 const createPackItem = async ({ packId, ...data }: PackItem) => {
   try {
+    if (data.image) {
+      await uploadImage(data.image);
+    }
+
     const response = await axiosInstance.post(`/api/packs/${packId}/items`, data);
     return response.data;
   } catch (error) {
@@ -27,9 +85,12 @@ const createPackItem = async ({ packId, ...data }: PackItem) => {
   }
 };
 
-const updatePackItem = async ({ id, packId, ...data }: PackItem) => {
+const updatePackItem = async ({ id, ...data }: PackItem) => {
   try {
-    const response = await axiosInstance.put(`/api/packs/${packId}/items/${id}`, data);
+    if (data.image){
+      await uploadImage(data.image);
+    } 
+    const response = await axiosInstance.patch(`/api/packs/items/${id}`, data);
     return response.data;
   } catch (error) {
     const { message } = handleApiError(error);
@@ -45,6 +106,7 @@ syncObservable(
     fieldUpdatedAt: 'updatedAt',
     fieldCreatedAt: 'createdAt',
     fieldDeleted: 'deleted',
+    updatePartial: true,
     persist: {
       plugin: observablePersistSqlite(Storage),
       retrySync: true,
