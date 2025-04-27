@@ -34,7 +34,7 @@ packItemsRoutes.get("/:packId/items", async (c) => {
 });
 
 // Get pack item by ID
-packItemsRoutes.get("/:packId/items/:itemId", async (c) => {
+packItemsRoutes.get('/items/:itemId', async (c) => {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(c);
@@ -44,21 +44,14 @@ packItemsRoutes.get("/:packId/items/:itemId", async (c) => {
 
     const db = createDb(c);
     const userId = auth.userId;
-    const packId = Number(c.req.param("packId"));
-    const itemId = Number(c.req.param("itemId"));
-
-    // Check if the pack exists and belongs to the user
-    const pack = await db.query.packs.findFirst({
-      where: and(eq(packs.id, packId), eq(packs.userId, userId)),
-    });
-
-    if (!pack) {
-      return c.json({ error: "Pack not found" }, { status: 404 });
-    }
+    const itemId = c.req.param("itemId");
 
     // Get the item
     const item = await db.query.packItems.findFirst({
-      where: and(eq(packItems.id, itemId), eq(packItems.packId, packId)),
+      where: and(
+        eq(packItems.id, itemId),
+        eq(packItems.userId, Number(userId))
+      ),
       with: {
         catalogItem: true,
       },
@@ -163,32 +156,6 @@ packItemsRoutes.patch("/items/:itemId", async (c) => {
   } catch (error) {
     console.error("Error updating pack item:", error);
     return c.json({ error: "Failed to update pack item" }, 500);
-  }
-});
-
-// Delete a pack item
-packItemsRoutes.delete("/:packId/items/:itemId", async (c) => {
-  const auth = await authenticateRequest(c);
-  if (!auth) {
-    return unauthorizedResponse();
-  }
-
-  const db = createDb(c);
-  try {
-    const packId = c.req.param("packId");
-    const itemId = c.req.param("itemId");
-    await db.delete(packItems).where(eq(packItems.id, itemId));
-
-    // Update the pack's updatedAt timestamp
-    await db
-      .update(packs)
-      .set({ updatedAt: new Date() })
-      .where(eq(packs.id, packId));
-
-    return c.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting pack item:", error);
-    return c.json({ error: "Failed to delete pack item" }, 500);
   }
 });
 
