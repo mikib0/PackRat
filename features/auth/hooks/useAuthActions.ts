@@ -5,8 +5,9 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
 import { tokenAtom, refreshTokenAtom, userAtom, isLoadingAtom } from '../atoms/authAtoms';
 import { isAuthed } from '../store';
-import { packItemsStore, packsStore } from '~/features/packs/store';
-import { userStore } from '~/features/profile/store';
+import { packItemsSyncState, packsSyncState } from '~/features/packs/store';
+import { userSyncState } from '~/features/profile/store';
+import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 
 function redirect(route: string) {
   try {
@@ -217,9 +218,10 @@ export function useAuthActions() {
       await setRefreshToken(null);
       setUser(null);
       isAuthed.set(false);
-      packsStore.set({});
-      packItemsStore.set({});
-      userStore.delete();
+      packsSyncState.clearPersist();
+      packItemsSyncState.clearPersist();
+      userSyncState.clearPersist();
+      ImageCacheManager.clearCache();
       router.replace('/');
     } catch (error) {
       console.error('Sign out error:', error);

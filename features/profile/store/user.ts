@@ -1,4 +1,4 @@
-import { observable } from '@legendapp/state';
+import { observable, syncState } from '@legendapp/state';
 import { syncedCrud } from '@legendapp/state/sync-plugins/crud';
 import axiosInstance, { handleApiError } from '~/lib/api/client';
 import { syncObservable } from '@legendapp/state/sync';
@@ -38,5 +38,7 @@ syncObservable(
     // TODO localfirst subscribe
   })
 );
+
+export const userSyncState = syncState(userStore);
 
 export type UserStore = typeof userStore;
