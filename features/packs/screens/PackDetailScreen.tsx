@@ -10,8 +10,6 @@ import { useDeletePack, usePackDetails } from '../hooks';
 import { cn } from '~/lib/cn';
 import { NotFoundScreen } from '~/screens/NotFoundScreen';
 import type { PackItem } from '~/types';
-import { ErrorScreen } from '../../../screens/ErrorScreen';
-import { LoadingSpinnerScreen } from '../../../screens/LoadingSpinnerScreen';
 import { Icon } from '@roninoss/icons';
 import { Alert } from '~/components/nativewindui/Alert';
 import { PackItemSuggestions } from '~/features/packs/components/PackItemSuggestions';
@@ -126,14 +124,10 @@ export function PackDetailScreen() {
                 {
                   text: 'OK',
                   onPress: () => {
-                    deletePack.mutate(pack.id, {
-                      onSuccess: () => {
-                        // If we're on the pack detail screen, navigate back
-                        if (router.canGoBack()) {
-                          router.back();
-                        }
-                      },
-                    });
+                    deletePack(pack.id);
+                    if (router.canGoBack()) {
+                      router.back();
+                    }
                   },
                 },
               ]}>
