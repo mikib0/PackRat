@@ -129,7 +129,7 @@ packItemsRoutes.post("/:packId/items", async (c) => {
 });
 
 // Update a pack item
-packItemsRoutes.put("/:packId/items/:itemId", async (c) => {
+packItemsRoutes.patch("/items/:itemId", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -137,24 +137,13 @@ packItemsRoutes.put("/:packId/items/:itemId", async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param("packId");
     const itemId = c.req.param("itemId");
     const data = await c.req.json();
 
     const [updatedItem] = await db
       .update(packItems)
       .set({
-        name: data.name,
-        description: data.description,
-        weight: data.weight,
-        weightUnit: data.weightUnit,
-        quantity: data.quantity,
-        category: data.category,
-        consumable: data.consumable,
-        worn: data.worn,
-        image: data.image,
-        notes: data.notes,
-        catalogItemId: data.catalogItemId ? Number(data.catalogItemId) : null,
+        ...data,
         updatedAt: new Date(),
       })
       .where(eq(packItems.id, itemId))
@@ -168,7 +157,7 @@ packItemsRoutes.put("/:packId/items/:itemId", async (c) => {
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
-      .where(eq(packs.id, packId));
+      .where(eq(packs.id, updatedItem.packId));
 
     return c.json(updatedItem);
   } catch (error) {
