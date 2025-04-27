@@ -21,7 +21,7 @@ packRoutes.get('/:packId', async (c) => {
   try {
     const packId = c.req.param('packId');
     const pack = await db.query.packs.findFirst({
-      where: eq(packs.id, packId), // No need to convert to Number anymore
+      where: eq(packs.id, packId),
       with: {
         items: true,
       },
