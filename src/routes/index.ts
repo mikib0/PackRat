@@ -10,6 +10,7 @@ import { dashboardRoutes } from "./dashboard";
 import { uploadRoutes } from "./upload";
 import { weightAnalysisRoutes } from "./pack-weight-analysis";
 import { packWeightHistoryRoutes } from "./pack-weight-history";
+import { userRoutes } from "./user";
 
 const publicRoutes = new Hono();
 
@@ -29,6 +30,7 @@ publicRoutes.route("/weather", weatherRoutes);
 protectedRoutes.route("/dashboard", dashboardRoutes);
 protectedRoutes.route("", weightAnalysisRoutes);
 protectedRoutes.route("", packWeightHistoryRoutes);
+protectedRoutes.route("/user", userRoutes);
 
 protectedRoutes.route("/upload", uploadRoutes);
 

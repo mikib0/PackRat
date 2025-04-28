@@ -87,10 +87,7 @@ packWeightHistoryRoutes.get("/weight-history/:packId", async (c) => {
     // Compute monthly average weights
     const monthlyAverages = getMonthlyWeightAverages(filteredHistory);
 
-    console.log(
-      "Filtered and Categorized Weight History:",
-      JSON.stringify(monthlyAverages),
-    );
+    console.log("Filtered and Categorized Weight History:");
 
     return c.json(monthlyAverages);
   } catch (error) {
