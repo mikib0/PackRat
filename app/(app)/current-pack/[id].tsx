@@ -3,9 +3,8 @@
 import { useLocalSearchParams } from 'expo-router';
 import type React from 'react';
 import { useState, useEffect } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 
-import { CurrentPackSkeleton } from '~/components/SkeletonPlaceholder';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
@@ -128,7 +127,11 @@ export default function CurrentPackScreen() {
   }, []);
 
   if (isLoading) {
-    return <CurrentPackSkeleton />;
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   if (isError || !pack) {

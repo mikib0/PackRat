@@ -2,9 +2,8 @@
 
 import { Icon } from '@roninoss/icons';
 import { useLocalSearchParams } from 'expo-router';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 
-import { PackCategoriesSkeleton } from '~/components/SkeletonPlaceholder';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
 import { usePackDetails } from '~/features/packs/hooks/usePackDetails';
@@ -60,7 +59,11 @@ export default function PackCategoriesScreen() {
   const { data: pack, isLoading, isError } = usePackDetails(params.id as string);
 
   if (isLoading) {
-    return <PackCategoriesSkeleton />;
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   if (isError || !pack?.categories) {

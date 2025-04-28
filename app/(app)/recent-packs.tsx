@@ -1,8 +1,8 @@
 import { Icon } from '@roninoss/icons';
 import { View, ScrollView, Image, ActivityIndicator } from 'react-native';
+
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
-import { RecentPacksSkeleton } from '~/components/SkeletonPlaceholder';
 import { usePacks } from '~/features/packs/hooks/usePacks';
 import { useColorScheme } from '~/lib/useColorScheme';
 
@@ -71,7 +71,11 @@ export default function RecentPacksScreen() {
   const { data: packs, isLoading, error } = usePacks();
 
   if (isLoading) {
-    return <RecentPacksSkeleton />;
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   if (error) {

@@ -4,7 +4,6 @@ import { useLocalSearchParams } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { View, ScrollView, ActivityIndicator } from 'react-native';
 
-import { PackStatsSkeleton } from '~/components/SkeletonPlaceholder';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
 import { usePackDetails } from '~/features/packs/hooks/usePackDetails';
@@ -26,7 +25,11 @@ export default function PackStatsScreen() {
   const { data: weightHistory, isLoading: isWeightLoading } = usePackWeightHistory(packId);
 
   if (isLoading) {
-    return <PackStatsSkeleton />;
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   if (isError || !pack?.categories) {

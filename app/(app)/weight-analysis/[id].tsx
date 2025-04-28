@@ -1,9 +1,8 @@
 'use client';
 import { useLocalSearchParams } from 'expo-router';
 import { useState, useEffect } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 
-import { WeightAnalysisSkeleton } from '~/components/SkeletonPlaceholder';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
 import { usePackWeightAnalysis } from '~/features/packs/hooks/usePackWeightAnalysis';
@@ -52,7 +51,12 @@ export default function WeightAnalysisScreen() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) return <WeightAnalysisSkeleton />;
+  if (isLoading)
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   if (error) return <Text className="p-4 text-red-500">Error loading weight analysis</Text>;
   if (!data) return null;
 

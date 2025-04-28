@@ -2,7 +2,7 @@ import { Icon, type MaterialIconName } from '@roninoss/icons';
 import { Link, RelativePathString, router } from 'expo-router';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
@@ -87,22 +87,9 @@ export default function DashboardScreen() {
       />
 
       {isLoading ? (
-        [...Array(6)].map((_, index) => (
-          <View
-            key={index}
-            className={cn(
-              'flex-row items-center gap-4 px-4 py-3',
-              index !== 5 && 'mb-8',
-              index === 0 && 'ios:border-t-0 border-t',
-              'border-border/25 dark:border-border/80'
-            )}>
-            <View className="h-10 w-10 rounded-md bg-gray-300/40 dark:bg-gray-700/30" />
-            <View className="flex-1">
-              <View className="mb-2 h-4 w-1/2 rounded bg-gray-300/40 dark:bg-gray-700/30" />
-              <View className="h-3 w-1/3 rounded bg-gray-200/40 dark:bg-gray-700/20" />
-            </View>
-          </View>
-        ))
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
+        </View>
       ) : data ? (
         <List
           contentContainerClassName="pt-4"
