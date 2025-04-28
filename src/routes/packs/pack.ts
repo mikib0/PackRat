@@ -1,10 +1,10 @@
 import { createDb } from "@/db";
-import { packs } from "@/db/schema";
+import { packs, type PackWithItems } from '@/db/schema';
 import {
   authenticateRequest,
   unauthorizedResponse,
 } from "@/utils/api-middleware";
-import { computePacksWeights } from "@/utils/compute-pack";
+import { computePacksWeights, computePackWeights } from '@/utils/compute-pack';
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 
@@ -51,26 +51,36 @@ packRoutes.put('/:packId', async (c) => {
     const packId = c.req.param('packId');
     const data = await c.req.json();
 
-    const [updatedPack] = await db
-      .update(packs)
-      .set({
-        name: data.name,
-        description: data.description,
-        category: data.category,
-        isPublic: data.isPublic,
-        image: data.image,
-        tags: data.tags,
-        deleted: data.deleted,
-        updatedAt: new Date(),
-      })
-      .where(eq(packs.id, packId))
-      .returning();
+    const updatedPack: PackWithItems = await db.transaction(async (tx) => {
+      await tx
+        .update(packs)
+        .set({
+          name: data.name,
+          description: data.description,
+          category: data.category,
+          isPublic: data.isPublic,
+          image: data.image,
+          tags: data.tags,
+          deleted: data.deleted,
+          updatedAt: new Date(),
+        })
+        .where(eq(packs.id, packId));
+
+      const updatedPackWithItems = await tx.query.packs.findFirst({
+        where: eq(packs.id, packId),
+        with: {
+          items: true,
+        },
+      });
+
+      return updatedPackWithItems!;
+    });
 
     if (!updatedPack) {
       return c.json({ error: 'Pack not found' }, 404);
     }
 
-    const packWithWeights = computePacksWeights([{...updatedPack, items: []}])[0];
+    const packWithWeights = computePackWeights(updatedPack);
     return c.json(packWithWeights);
   } catch (error) {
     console.error('Error updating pack:', error);

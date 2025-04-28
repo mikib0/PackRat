@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm';
 import {
   pgTable,
   serial,
@@ -60,7 +60,7 @@ export const oneTimePasswords = pgTable('one_time_passwords', {
 
 // Packs table
 export const packs = pgTable('packs', {
-  id: text("id").primaryKey(),
+  id: text('id').primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
   category: text('category').notNull(),
@@ -139,7 +139,7 @@ export const packItems = pgTable('pack_items', {
   worn: boolean('worn').default(false),
   image: text('image'),
   notes: text('notes'),
-  packId: text("pack_id")
+  packId: text('pack_id')
     .references(() => packs.id, { onDelete: 'cascade' })
     .notNull(),
   catalogItemId: integer('catalog_item_id').references(() => catalogItems.id),
@@ -179,3 +179,28 @@ export const packItemsRelations = relations(packItems, ({ one }) => ({
 export const catalogItemsRelations = relations(catalogItems, ({ many }) => ({
   packItems: many(packItems),
 }));
+
+// Infer models from tables
+export type User = InferSelectModel<typeof users>;
+export type NewUser = InferInsertModel<typeof users>;
+
+export type AuthProvider = InferSelectModel<typeof authProviders>;
+export type NewAuthProvider = InferInsertModel<typeof authProviders>;
+
+export type RefreshToken = InferSelectModel<typeof refreshTokens>;
+export type NewRefreshToken = InferInsertModel<typeof refreshTokens>;
+
+export type OneTimePassword = InferSelectModel<typeof oneTimePasswords>;
+export type NewOneTimePassword = InferInsertModel<typeof oneTimePasswords>;
+
+export type Pack = InferSelectModel<typeof packs>;
+export type PackWithItems = Pack & {
+  items: PackItem[];
+};
+export type NewPack = InferInsertModel<typeof packs>;
+
+export type CatalogItem = InferSelectModel<typeof catalogItems>;
+export type NewCatalogItem = InferInsertModel<typeof catalogItems>;
+
+export type PackItem = InferSelectModel<typeof packItems>;
+export type NewPackItem = InferInsertModel<typeof packItems>;

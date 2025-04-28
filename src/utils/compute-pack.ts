@@ -1,4 +1,5 @@
-import type { Pack, WeightUnit } from "@/types";
+import { type PackWithItems } from '@/db/schema';
+import type { WeightUnit } from '@/types';
 
 // Convert weights to a standard unit (grams) for calculations
 const convertToGrams = (weight: number, unit: WeightUnit): number => {
@@ -33,9 +34,12 @@ const convertFromGrams = (grams: number, unit: WeightUnit): number => {
 };
 
 export const computePackWeights = (
-  pack: Pack,
+  pack: PackWithItems,
   preferredUnit: WeightUnit = "g"
-): Pack => {
+): PackWithItems & {
+  baseWeight: number;
+  totalWeight: number;
+} => {
   if (!pack.items) {
     throw new Error(`Pack with ID ${pack.id} has no items`);
   }
@@ -48,7 +52,7 @@ export const computePackWeights = (
   pack.items.forEach((item) => {
     // Convert item weight to grams for calculation
     const itemWeightInGrams =
-      convertToGrams(item.weight, item.weightUnit) * item.quantity;
+      convertToGrams(item.weight, item.weightUnit as WeightUnit) * item.quantity;
 
     // Add to total weight
     totalWeightGrams += itemWeightInGrams;
@@ -73,8 +77,8 @@ export const computePackWeights = (
 
 // Helper function to compute weights for a list of packs
 export const computePacksWeights = (
-  packs: Pack[],
+  packs: PackWithItems[],
   preferredUnit: WeightUnit = "g"
-): Pack[] => {
+): PackWithItems[] => {
   return packs.map((pack) => computePackWeights(pack, preferredUnit));
 };
