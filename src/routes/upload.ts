@@ -70,3 +70,5 @@ uploadRoutes.get("/presigned", async (c) => {
     return c.json({ error: "Failed to generate upload URL" }, 500);
   }
 });
+
+export { uploadRoutes };
