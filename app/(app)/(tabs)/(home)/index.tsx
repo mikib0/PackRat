@@ -208,7 +208,7 @@ function transformDashboardData(data: any): DashboardData[] {
     packCategoryCount,
     upcomingTripCount,
     weatherAlertCount,
-    gearInventryCount,
+    gearInventoryCount,
     shoppingList,
     packTemplateCount,
   } = data;
@@ -337,12 +337,12 @@ function transformDashboardData(data: any): DashboardData[] {
 
   output.push('gap 3');
 
-  if (gearInventryCount) {
+  if (gearInventoryCount) {
     output.push({
       id: '9',
       title: 'Gear Inventory',
       leftView: <IconView name="backpack" className="bg-gray-500" />,
-      rightText: `${gearInventryCount} items`,
+      rightText: `${gearInventoryCount} items`,
       route: '/gear-inventory',
     });
   }
