@@ -1,6 +1,6 @@
 {
-  "id": "1ff35758-f05e-4c53-a5fc-0f9b357fa873",
-  "prevId": "150e4954-ebbe-4120-a55a-8a3905790450",
+  "id": "7447dd00-1e5f-4402-8205-7f70f9903919",
+  "prevId": "5ca124a0-4ec0-4d67-9f91-a939e61aafed",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -303,7 +303,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "text",
           "primaryKey": true,
           "notNull": true
         },
@@ -388,6 +388,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "deleted": {
+          "name": "deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -451,6 +458,58 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.weight_history": {
+      "name": "weight_history",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pack_id": {
+          "name": "pack_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "weight": {
+          "name": "weight",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "weight_history_pack_id_packs_id_fk": {
+          "name": "weight_history_pack_id_packs_id_fk",
+          "tableFrom": "weight_history",
+          "tableTo": "packs",
+          "columnsFrom": [
+            "pack_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.packs": {
       "name": "packs",
       "schema": "",
@@ -503,6 +562,13 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
+        },
+        "deleted": {
+          "name": "deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "created_at": {
           "name": "created_at",

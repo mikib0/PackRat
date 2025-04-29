@@ -1,6 +1,6 @@
 {
-  "id": "1ff35758-f05e-4c53-a5fc-0f9b357fa873",
-  "prevId": "150e4954-ebbe-4120-a55a-8a3905790450",
+  "id": "5ca124a0-4ec0-4d67-9f91-a939e61aafed",
+  "prevId": "9e977355-806c-439b-a469-9d4dbae3bacf",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -303,7 +303,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "text",
           "primaryKey": true,
           "notNull": true
         },
@@ -387,6 +387,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "deleted": {
+          "name": "deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "created_at": {
           "name": "created_at",
@@ -503,6 +510,13 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
+        },
+        "deleted": {
+          "name": "deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "created_at": {
           "name": "created_at",

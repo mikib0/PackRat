@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm';
 import {
   pgTable,
   serial,
@@ -59,19 +59,20 @@ export const oneTimePasswords = pgTable("one_time_passwords", {
 });
 
 // Packs table
-export const packs = pgTable("packs", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description"),
-  category: text("category").notNull(),
-  userId: integer("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
+export const packs = pgTable('packs', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description'),
+  category: text('category').notNull(),
+  userId: integer('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
-  isPublic: boolean("is_public").default(false),
-  image: text("image"),
-  tags: jsonb("tags").$type<string[]>(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  isPublic: boolean('is_public').default(false),
+  image: text('image'),
+  tags: jsonb('tags').$type<string[]>(),
+  deleted: boolean('deleted').default(false),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 // Catalog items table
@@ -126,32 +127,33 @@ export const catalogItems = pgTable("catalog_items", {
 });
 
 // Pack items table
-export const packItems = pgTable("pack_items", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description"),
-  weight: real("weight").notNull(),
-  weightUnit: text("weight_unit").notNull(),
-  quantity: integer("quantity").default(1).notNull(),
-  category: text("category"),
-  consumable: boolean("consumable").default(false),
-  worn: boolean("worn").default(false),
-  image: text("image"),
-  notes: text("notes"),
-  packId: integer("pack_id")
-    .references(() => packs.id, { onDelete: "cascade" })
+export const packItems = pgTable('pack_items', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description'),
+  weight: real('weight').notNull(),
+  weightUnit: text('weight_unit').notNull(),
+  quantity: integer('quantity').default(1).notNull(),
+  category: text('category'),
+  consumable: boolean('consumable').default(false),
+  worn: boolean('worn').default(false),
+  image: text('image'),
+  notes: text('notes'),
+  packId: text('pack_id')
+    .references(() => packs.id, { onDelete: 'cascade' })
     .notNull(),
   catalogItemId: integer("catalog_item_id").references(() => catalogItems.id),
   userId: integer("user_id")
     .references(() => users.id)
     .notNull(),
+  deleted: boolean('deleted').default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const packWeightHistory = pgTable("weight_history", {
   id: serial("id").primaryKey(),
-  packId: integer("pack_id")
+  packId: text("pack_id")
     .references(() => packs.id, { onDelete: "cascade" })
     .notNull(),
   weight: real("weight").notNull(),
@@ -196,3 +198,29 @@ export const packWeightHistoryRelations = relations(
     }),
   }),
 );
+
+// Infer models from tables
+export type User = InferSelectModel<typeof users>;
+export type NewUser = InferInsertModel<typeof users>;
+
+export type AuthProvider = InferSelectModel<typeof authProviders>;
+export type NewAuthProvider = InferInsertModel<typeof authProviders>;
+
+export type RefreshToken = InferSelectModel<typeof refreshTokens>;
+export type NewRefreshToken = InferInsertModel<typeof refreshTokens>;
+
+export type OneTimePassword = InferSelectModel<typeof oneTimePasswords>;
+export type NewOneTimePassword = InferInsertModel<typeof oneTimePasswords>;
+
+export type Pack = InferSelectModel<typeof packs>;
+export type PackWithItems = Pack & {
+  items: PackItem[];
+};
+export type NewPack = InferInsertModel<typeof packs>;
+
+export type CatalogItem = InferSelectModel<typeof catalogItems>;
+export type NewCatalogItem = InferInsertModel<typeof catalogItems>;
+
+export type PackItem = InferSelectModel<typeof packItems>;
+export type NewPackItem = InferInsertModel<typeof packItems>;
+
