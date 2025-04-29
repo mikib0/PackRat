@@ -1,5 +1,3 @@
-'use client';
-
 import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
@@ -9,7 +7,6 @@ import {
   FlatList,
   SafeAreaView,
   ScrollView,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -19,6 +16,9 @@ import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 import { useCatalogItems } from '../hooks';
 import type { CatalogItem } from '../types';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
+import { Text } from '~/components/nativewindui/Text';
+import { withAuthWall } from '~/features/auth/hocs';
+import { CatalogItemsAuthWall } from '../components';
 
 type FilterOption = {
   label: string;
@@ -37,7 +37,7 @@ const filterOptions: FilterOption[] = [
   { label: 'Miscellaneous', value: 'miscellaneous' },
 ];
 
-export function CatalogItemsScreen() {
+function CatalogItemsScreen() {
   const router = useRouter();
   const { data: catalogItems, isLoading, isError, refetch } = useCatalogItems();
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
@@ -79,19 +79,6 @@ export function CatalogItemsScreen() {
     </TouchableOpacity>
   );
 
-  if (isError) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <Text className="text-red-500">Failed to load catalog items</Text>
-        <TouchableOpacity
-          className="mt-4 rounded-lg bg-primary px-4 py-2"
-          onPress={() => refetch()}>
-          <Text className="font-medium text-primary-foreground">Retry</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView className="flex-1">
       <LargeTitleHeader
@@ -99,6 +86,7 @@ export function CatalogItemsScreen() {
         backVisible={false}
         searchBar={{ iosHideWhenScrolling: true }}
       />
+
       <View className="bg-background px-4 py-2">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-1">
           {filterOptions.map(renderFilterChip)}
@@ -144,3 +132,5 @@ export function CatalogItemsScreen() {
     </SafeAreaView>
   );
 }
+
+export default withAuthWall(CatalogItemsScreen, CatalogItemsAuthWall);

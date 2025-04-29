@@ -1,4 +1,4 @@
-import { Image, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { cn } from '~/lib/cn';
 import type { PackItem } from '~/types';
@@ -7,7 +7,8 @@ import { Button } from '../../../components/nativewindui/Button';
 import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useDeleteItem } from '../hooks';
+import { useDeletePackItem } from '../hooks';
+import { CachedImage } from '~/features/packs/components/CachedImage';
 
 type PackItemCardProps = {
   item: PackItem;
@@ -16,20 +17,14 @@ type PackItemCardProps = {
 
 export function PackItemCard({ item, onPress }: PackItemCardProps) {
   const router = useRouter();
-  const deleteItem = useDeleteItem();
+  const deleteItem = useDeletePackItem();
   const { colors } = useColorScheme();
 
   return (
     <Pressable
       className="mb-3 flex-row overflow-hidden rounded-lg bg-card shadow-sm"
       onPress={() => onPress(item)}>
-      {item.image ? (
-          <Image source={{ uri: item.image }} className="w-28" resizeMode="cover" />
-      ) : (
-        <View className="h-20 w-20 items-center justify-center bg-muted px-2">
-          <Text className="text-muted-foreground">No image</Text>
-        </View>
-      )}
+      <CachedImage fileName={item.image} className="w-28" resizeMode="cover" />
 
       <View className="flex-1 p-3">
         <View className="flex-row items-start justify-between">
@@ -81,8 +76,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
                 {
                   text: 'OK',
                   onPress: () => {
-                    console.log('itemitemid', item.id);
-                    deleteItem.mutate({ itemId: item.id, packId: item.packId });
+                    deleteItem(item.id);
                   },
                 },
               ]}>

@@ -1,6 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
 import { PackForm } from '~/features/packs/components/PackForm';
-import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { NotFoundScreen } from '../../../screens/NotFoundScreen';
 import { usePackDetails } from '~/features/packs';
 
@@ -8,11 +7,7 @@ export function EditPackScreen() {
   const { id } = useLocalSearchParams();
   const effectiveId = Array.isArray(id) ? id[0] : id;
 
-  const { data: pack, isLoading } = usePackDetails(effectiveId);
-
-  if (isLoading) {
-    return <ActivityIndicator />;
-  }
+  const pack = usePackDetails(effectiveId);
 
   if (!pack) {
     return (

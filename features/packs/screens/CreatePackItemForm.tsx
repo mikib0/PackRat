@@ -1,5 +1,3 @@
-'use client';
-
 import { Icon } from '@roninoss/icons';
 import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'expo-router';
@@ -14,7 +12,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
   Alert,
 } from 'react-native';
 import { z } from 'zod';
@@ -26,6 +23,7 @@ import { useImageUpload } from '../hooks/useImageUpload';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { WeightUnit } from '~/types';
 import { useState, useRef, useEffect } from 'react';
+import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 
 // Define Zod schema
 const itemFormSchema = z.object({
@@ -63,17 +61,15 @@ export const CreatePackItemForm = ({
   const router = useRouter();
   const { colorScheme, colors } = useColorScheme();
   const { showActionSheetWithOptions } = useActionSheet();
-  const { mutateAsync: createPackItem } = useCreatePackItem();
-  const { mutateAsync: updatePackItem } = useUpdatePackItem();
+  const createPackItem = useCreatePackItem();
+  const updatePackItem = useUpdatePackItem();
   const {
     selectedImage,
     pickImage,
     takePhoto,
-    uploadSelectedImage,
+    permanentlyPersistImageLocally,
     deleteImage,
     clearSelectedImage,
-    isUploading,
-    error,
   } = useImageUpload();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -100,27 +96,19 @@ export const CreatePackItemForm = ({
     validators: {
       onChange: itemFormSchema,
     },
-    onSubmit: async ({ value }) => {
-      // Don't handle submission here - we'll use our custom submit handler
-    },
   });
 
-  // Custom submit handler to handle image upload
   const handleSubmit = async () => {
-    if (!form.state.canSubmit || isSubmitting) return;
-
-    setIsSubmitting(true);
-
     try {
       // First upload the image if one is selected
       let imageUrl = form.getFieldValue('image');
       const oldImageUrl = initialImageUrl.current;
 
-      // Upload the new image if one is selected
+      // Permanently save the new image on users' device if one is selected - because selectedImage is currrently in temporary cache
       if (selectedImage) {
-        imageUrl = await uploadSelectedImage();
+        imageUrl = await permanentlyPersistImageLocally();
         if (!imageUrl) {
-          Alert.alert('Error', 'Failed to upload image. Please try again.');
+          Alert.alert('Error', 'Failed to save item image. Please try again.');
           setIsSubmitting(false);
           return;
         }
@@ -132,48 +120,20 @@ export const CreatePackItemForm = ({
 
       // Submit the form with the image URL
       if (isEditing) {
-        await updatePackItem(
-          { packId, itemId: existingItem.id, itemData: formData },
-          {
-            onSuccess: (item) => {
-              console.log('Item Updated:', item);
-              router.back();
-            },
-            onError: (error) => {
-              console.error('Error Updating Item:', error);
-              Alert.alert('Error', 'Failed to update item. Please try again.');
-            },
-          }
-        );
+        updatePackItem({ id: existingItem.id, ...formData });
+        router.back();
       } else {
-        await createPackItem(
-          { packId, itemData: formData },
-          {
-            onSuccess: (item) => {
-              console.log('Item Created:', item);
-              router.back();
-            },
-            onError: (error) => {
-              console.error('Error Creating Item:', error);
-              Alert.alert('Error', 'Failed to create item. Please try again.');
-            },
-          }
-        );
+        createPackItem({ packId, itemData: formData });
+        router.back();
       }
 
       // Check if we need to delete the old image
       if (isEditing && oldImageUrl && imageChanged) {
-        // Delete the old image in the background
-        deleteImage(oldImageUrl).catch((err) => {
-          console.error('Failed to delete old image:', err);
-          // Non-blocking error - the user doesn't need to know about this
-        });
+        deleteImage(oldImageUrl); // delete old image from local storage
       }
     } catch (err) {
       console.error('Error submitting form:', err);
       Alert.alert('Error', 'Failed to save item. Please try again.');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -228,19 +188,18 @@ export const CreatePackItemForm = ({
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     // Show error alert if there's an error
-      if (error) {
-        Alert.alert('Image Error', error);
-      }
-  }, [error])
-
+    if (error) {
+      Alert.alert('Image Error', error);
+    }
+  }, [error]);
 
   // Determine what image to show in the UI
   const displayImage = selectedImage
     ? { uri: selectedImage.uri }
     : form.getFieldValue('image')
-      ? { uri: form.getFieldValue('image') }
+      ? { uri: ImageCacheManager.cacheDirectory + form.getFieldValue('image') }
       : null;
 
   return (
@@ -420,12 +379,7 @@ export const CreatePackItemForm = ({
             <form.Field name="image">
               {(field) => (
                 <FormItem>
-                  {isUploading ? (
-                    <View className="h-48 items-center justify-center rounded-lg border border-dashed border-input bg-background p-4">
-                      <ActivityIndicator size="large" color={colors.primary} />
-                      <Text className="mt-2 text-muted-foreground">Uploading image...</Text>
-                    </View>
-                  ) : displayImage ? (
+                  { displayImage ? (
                     <View className="relative">
                       <Image
                         source={displayImage}
@@ -479,9 +433,9 @@ export const CreatePackItemForm = ({
           {([canSubmit]) => (
             <Pressable
               onPress={handleSubmit}
-              disabled={!canSubmit || isSubmitting || isUploading}
+              disabled={!canSubmit || isSubmitting}
               className={`mt-6 rounded-lg px-4 py-3.5 ${
-                !canSubmit || isSubmitting || isUploading ? 'bg-primary/70' : 'bg-primary'
+                !canSubmit || isSubmitting ? 'bg-primary/70' : 'bg-primary'
               }`}>
               <Text className="text-center text-base font-semibold text-primary-foreground">
                 {isSubmitting ? 'Saving...' : isEditing ? 'Update Item' : 'Add Item'}

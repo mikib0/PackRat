@@ -1,33 +1,24 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { packItemsStore } from '~/features/packs/store';
+import { useCallback } from 'react';
 import type { PackItem, PackItemInput } from '../types';
-import axiosInstance, { handleApiError } from '~/lib/api/client';
+import { nanoid } from 'nanoid/non-secure';
 
-// API function
-export const createPackItem = async (
-  packId: string,
-  itemData: PackItemInput
-): Promise<PackItem> => {
-  try {
-    console.log(`/api/packs/${packId}/items`);
-    const response = await axiosInstance.post(`/api/packs/${packId}/items`, itemData);
-    return response.data;
-  } catch (error) {
-    const { message } = handleApiError(error);
-    throw new Error(`Failed to create pack item: ${message}`);
-  }
-};
-
-// Hook
 export function useCreatePackItem() {
-  const queryClient = useQueryClient();
+  const createPackItem = useCallback(
+    ({ packId, itemData }: { packId: string; itemData: PackItemInput }) => {
+      const id = nanoid();
 
-  return useMutation({
-    mutationFn: ({ packId, itemData }: { packId: string; itemData: PackItemInput }) =>
-      createPackItem(packId, itemData),
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['packItems', variables.packId] });
-      queryClient.invalidateQueries({ queryKey: ['pack', variables.packId] });
-      queryClient.invalidateQueries({ queryKey: ['packs'] });
+      const newItem: PackItem = {
+        id,
+        ...itemData,
+        packId,
+        deleted: false,
+      };
+
+      packItemsStore[id].set(newItem);
     },
-  });
+    []
+  );
+
+  return createPackItem;
 }

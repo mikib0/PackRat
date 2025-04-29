@@ -25,6 +25,7 @@ import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
+import { Route } from 'expo-router';
 
 const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
@@ -40,7 +41,7 @@ export default function OneTimePasswordScreen() {
   const [isLoading, setIsLoading] = React.useState(false);
   const alertRef = React.useRef<AlertRef>(null);
   const headerHeight = useHeaderHeight();
-  const params = useLocalSearchParams<{ email: string; mode: string }>();
+  const params = useLocalSearchParams<{ email: string; mode: string; redirectTo: string }>();
   const email = params.email || '';
   const mode = params.mode || 'verification';
   const { verifyEmail, forgotPassword, resendVerificationEmail } = useAuthActions();
@@ -130,9 +131,7 @@ export default function OneTimePasswordScreen() {
           params: { email, code },
         });
       } else {
-        await verifyEmail(email, code);
-
-        router.replace('/');
+        await verifyEmail(email, code, params.redirectTo); // Navigation is handled in the function
       }
     } catch (error) {
       Alert.alert('Error', error instanceof Error ? error.message : 'Invalid verification code');

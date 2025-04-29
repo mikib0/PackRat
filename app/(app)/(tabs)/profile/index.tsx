@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { Platform, View } from 'react-native';
 
 import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
@@ -11,10 +11,16 @@ import {
   ListSectionHeader,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
-import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 import { cn } from '~/lib/cn';
-import { userAtom } from '~/features/auth/atoms/authAtoms';
-import { useAtomValue } from 'jotai';
+import { useAuth } from '~/features/auth/hooks/useAuth';
+import { useUser } from '~/features/profile/hooks/useUser';
+import { withAuthWall } from '~/features/auth/hocs';
+import { ProfileAuthWall } from '~/features/profile/components';
+import { Alert } from '~/components/nativewindui/Alert';
+import { useRef } from 'react';
+import { AlertRef } from '~/components/nativewindui/Alert/types';
+import { packItemsSyncState, packsSyncState } from '~/features/packs/store';
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 
 const SCREEN_OPTIONS = {
   title: 'Profile',
@@ -24,8 +30,8 @@ const SCREEN_OPTIONS = {
 const ESTIMATED_ITEM_SIZE =
   ESTIMATED_ITEM_HEIGHT[Platform.OS === 'ios' ? 'titleOnly' : 'withSubTitle'];
 
-export default function Profile() {
-  const user = useAtomValue(userAtom);
+function Profile() {
+  const user = useUser();
 
   // Generate display data based on user information
   const displayName =
@@ -53,6 +59,7 @@ export default function Profile() {
   return (
     <>
       <Stack.Screen options={SCREEN_OPTIONS} />
+
       <List
         variant="insets"
         data={DATA}
@@ -65,6 +72,8 @@ export default function Profile() {
     </>
   );
 }
+
+export default withAuthWall(Profile, ProfileAuthWall);
 
 function renderItem(info: ListRenderItemInfo<DataItem>) {
   return <Item info={info} />;
@@ -88,7 +97,7 @@ function Item({ info }: { info: ListRenderItemInfo<DataItem> }) {
 }
 
 function ListHeaderComponent() {
-  const user = useAtomValue(userAtom);
+  const user = useUser();
   const initials =
     user?.firstName && user?.lastName
       ? `${user.firstName[0]}${user.lastName[0]}`
@@ -123,16 +132,55 @@ function ListHeaderComponent() {
 }
 
 function ListFooterComponent() {
-  const { signOut } = useAuthActions();
+  const { signOut, isLoading } = useAuth();
+
+  const alertRef = useRef<AlertRef>(null);
+
+  const isEmpty = (obj: Record<string, unknown>): boolean => Object.keys(obj).length === 0;
+
   return (
     <View className="ios:px-0 px-4 pt-8">
       <Button
-        onPress={signOut}
+        disabled={isLoading}
+        onPress={() => {
+          if (
+            !isEmpty(packItemsSyncState.getPendingChanges() || {}) ||
+            !isEmpty(packsSyncState.getPendingChanges() || {})
+          ) {
+            alertRef.current?.show();
+            return;
+          }
+          signOut();
+        }}
         size="lg"
         variant={Platform.select({ ios: 'primary', default: 'secondary' })}
         className="border-border bg-card">
-        <Text className="text-destructive">Log Out</Text>
+        {isLoading ? (
+          <ActivityIndicator className="text-destructive" />
+        ) : (
+          <Text className="text-destructive">Log Out</Text>
+        )}
       </Button>
+      <Alert
+        title="Sync in progress"
+        message="Some data is still syncing. You may lose them if you proceed to log out."
+        materialIcon={{ name: 'repeat' }}
+        materialWidth={370}
+        buttons={[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Log out',
+            style: 'destructive',
+            onPress: () => {
+              signOut();
+            },
+          },
+        ]}
+        ref={alertRef}
+      />
     </View>
   );
 }

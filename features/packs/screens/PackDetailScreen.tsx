@@ -10,13 +10,12 @@ import { useDeletePack, usePackDetails } from '../hooks';
 import { cn } from '~/lib/cn';
 import { NotFoundScreen } from '~/screens/NotFoundScreen';
 import type { PackItem } from '~/types';
-import { ErrorScreen } from '../../../screens/ErrorScreen';
-import { LoadingSpinnerScreen } from '../../../screens/LoadingSpinnerScreen';
 import { Icon } from '@roninoss/icons';
 import { Alert } from '~/components/nativewindui/Alert';
 import { PackItemSuggestions } from '~/features/packs/components/PackItemSuggestions';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Text } from '~/components/nativewindui/Text';
+import { isAuthed } from '~/features/auth/store';
 
 export function PackDetailScreen() {
   const router = useRouter();
@@ -24,7 +23,7 @@ export function PackDetailScreen() {
 
   const [activeTab, setActiveTab] = useState('all');
 
-  const { data: pack, isLoading, isError, refetch } = usePackDetails(id as string);
+  const pack = usePackDetails(id as string);
   const deletePack = useDeletePack();
   const { colors } = useColorScheme();
 
@@ -55,21 +54,6 @@ export function PackDetailScreen() {
       activeTab === tab ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground'
     );
   };
-
-  if (isLoading) {
-    return <LoadingSpinnerScreen />;
-  }
-
-  if (isError) {
-    return (
-      <ErrorScreen
-        title="Error loading pack"
-        message="Please try again later."
-        onRetry={refetch}
-        variant="destructive"
-      />
-    );
-  }
 
   if (!pack) {
     return (
@@ -140,14 +124,10 @@ export function PackDetailScreen() {
                 {
                   text: 'OK',
                   onPress: () => {
-                    deletePack.mutate(pack.id, {
-                      onSuccess: () => {
-                        // If we're on the pack detail screen, navigate back
-                        if (router.canGoBack()) {
-                          router.back();
-                        }
-                      },
-                    });
+                    deletePack(pack.id);
+                    if (router.canGoBack()) {
+                      router.back();
+                    }
                   },
                 },
               ]}>
@@ -162,12 +142,25 @@ export function PackDetailScreen() {
           <View className="p-4">
             <Button
               variant="secondary"
-              onPress={() =>
+              onPress={() => {
+                if (!isAuthed.peek()) {
+                  return router.push({
+                    pathname: '/auth',
+                    params: {
+                      redirectTo: JSON.stringify({
+                        pathname: '/ai-chat-better-ui',
+                        params: { packId: id, packName: pack.name, contextType: 'pack' },
+                      }),
+                      showSignInCopy: 'true',
+                    },
+                  });
+                }
+
                 router.push({
                   pathname: '/ai-chat-better-ui',
                   params: { packId: id, packName: pack.name, contextType: 'pack' },
-                })
-              }>
+                });
+              }}>
               <Icon name="message-outline" color={colors.foreground} />
               <Text>Ask AI</Text>
             </Button>
@@ -215,7 +208,7 @@ export function PackDetailScreen() {
               packId={pack.id}
               userId={pack.userId}
               packItems={pack.items || []}
-              onItemAdded={refetch}
+              // onItemAdded={refetch}
             />
           )}
 

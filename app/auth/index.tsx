@@ -1,13 +1,16 @@
-import { Link } from 'expo-router';
+import { Link, Route } from 'expo-router';
 import * as React from 'react';
 import { Image, Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AlertAnchor } from '~/components/nativewindui/Alert';
-import { AlertRef } from '~/components/nativewindui/Alert/types';
+import type { AlertRef } from '~/components/nativewindui/Alert/types';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
+import { useLocalSearchParams } from 'expo-router';
 
 const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
@@ -15,9 +18,20 @@ const GOOGLE_SOURCE = {
   uri: 'https://www.pngall.com/wp-content/uploads/13/Google-Logo.png',
 };
 
+type RouteParams = { redirectTo: string; showSignInCopy?: string; showSkipLoginBtn?: string };
+
 export default function AuthIndexScreen() {
   const { signInWithGoogle, signInWithApple } = useAuthActions();
   const alertRef = React.useRef<AlertRef>(null);
+  const {
+    redirectTo = '/',
+    showSignInCopy,
+    showSkipLoginBtn,
+  } = useLocalSearchParams<RouteParams>();
+  const handleSkipLogin = async () => {
+    await AsyncStorage.setItem('skipped_login', 'true');
+    router.replace('/packs');
+  };
 
   return (
     <>
@@ -31,14 +45,27 @@ export default function AuthIndexScreen() {
             />
           </View>
           <View className="ios:pb-5 ios:pt-2 pb-2">
-            <Text className="ios:font-extrabold text-center text-3xl font-medium">
-              Brace Yourself
-            </Text>
-            <Text className="ios:font-extrabold text-center text-3xl font-medium">
-              for What's Next
-            </Text>
+            {showSignInCopy === 'true' ? (
+              <Text className="ios:font-extrabold text-center text-3xl font-medium">
+                Login Required
+              </Text>
+            ) : (
+              <>
+                <Text className="ios:font-extrabold text-center text-3xl font-medium">
+                  Brace Yourself
+                </Text>
+                <Text className="ios:font-extrabold text-center text-3xl font-medium">
+                  for What's Next
+                </Text>
+              </>
+            )}
+            {showSignInCopy && (
+              <Text className="pt-4 text-center text-muted-foreground">
+                Sign in to unlock cloud sync and access all features
+              </Text>
+            )}
           </View>
-          <Link href="/auth/(create-account)" asChild>
+          <Link href={{ pathname: '/auth/(create-account)', params: { redirectTo } }} asChild>
             <Button size={Platform.select({ ios: 'lg', default: 'md' })}>
               <Text>Sign up free</Text>
             </Button>
@@ -47,7 +74,7 @@ export default function AuthIndexScreen() {
             variant="secondary"
             className="ios:border-foreground/60"
             size={Platform.select({ ios: 'lg', default: 'md' })}
-            onPress={() => signInWithGoogle()}>
+            onPress={() => signInWithGoogle(redirectTo)}>
             <Image
               source={GOOGLE_SOURCE}
               className="absolute left-4 h-4 w-4"
@@ -60,16 +87,28 @@ export default function AuthIndexScreen() {
               variant="secondary"
               className="ios:border-foreground/60"
               size={Platform.select({ ios: 'lg', default: 'md' })}
-              onPress={() => signInWithApple()}>
-              <Text className="ios:text-foreground absolute left-4 text-[22px]"></Text>
+              onPress={() => signInWithApple(redirectTo)}>
+              <Text className="ios:text-foreground absolute left-4 text-[22px]"></Text>
               <Text className="ios:text-foreground">Continue with Apple</Text>
             </Button>
           )}
-          <Link href="/auth/(login)" asChild>
-            <Button variant="plain" size={Platform.select({ ios: 'lg', default: 'md' })}>
+          <Link href={{ pathname: '/auth/(login)', params: { redirectTo } }} asChild>
+            <Button
+              variant={showSkipLoginBtn === 'true' ? 'tonal' : 'plain'}
+              size={Platform.select({ ios: 'lg', default: 'md' })}>
               <Text className="text-primary">Log in</Text>
             </Button>
           </Link>
+
+          {showSkipLoginBtn === 'true' && (
+            <Button
+              variant="plain"
+              size={Platform.select({ ios: 'lg', default: 'md' })}
+              onPress={handleSkipLogin}
+              className="mt-2">
+              <Text>Skip login</Text>
+            </Button>
+          )}
         </View>
       </SafeAreaView>
       <AlertAnchor ref={alertRef} />

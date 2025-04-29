@@ -1,5 +1,5 @@
 import { useLocalSearchParams, router } from 'expo-router';
-import { Image, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Chip } from '~/components/initial/Chip';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { Icon } from '@roninoss/icons';
@@ -14,33 +14,16 @@ import {
   isWorn,
   shouldShowQuantity,
 } from '~/lib/utils/itemCalculations';
-import { LoadingSpinnerScreen } from '../../../screens/LoadingSpinnerScreen';
 import { NotFoundScreen } from '../../../screens/NotFoundScreen';
 import { Button } from '~/components/nativewindui/Button';
 import { usePackItem } from '../hooks';
+import { isAuthed } from '~/features/auth/store';
+import { CachedImage } from '~/features/packs/components/CachedImage';
 
 export function ItemDetailScreen() {
-  const { id, packId } = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
 
-  const {
-    data: item,
-    isLoading: isPackItemsLoading,
-    isError: isPackItemsError,
-  } = usePackItem(id as string, packId as string);
-
-  if (isPackItemsError) {
-    return (
-      <NotFoundScreen
-        title="Item Not Found"
-        message="The item you're looking for doesn't exist or has been moved."
-        backButtonLabel="Go Back"
-      />
-    );
-  }
-
-  if (isPackItemsLoading) {
-    return <LoadingSpinnerScreen />;
-  }
+  const item = usePackItem(id as string);
 
   if (!item) {
     return (
@@ -65,6 +48,22 @@ export function ItemDetailScreen() {
   const itemNotes = getNotes(item);
 
   const navigateToChat = () => {
+    if (!isAuthed.peek()) {
+      return router.push({
+        pathname: '/auth',
+        params: {
+          redirectTo: JSON.stringify({
+            pathname: '/ai-chat-better-ui',
+            params: {
+              itemId: item.id,
+              itemName: item.name,
+              contextType: 'item',
+            },
+          }),
+          showSignInCopy: 'true',
+        },
+      });
+    }
     router.push({
       pathname: '/ai-chat-better-ui',
       params: {
@@ -78,9 +77,7 @@ export function ItemDetailScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView>
-        {item.image && (
-          <Image source={{ uri: item.image }} className="h-64 w-full" resizeMode="cover" />
-        )}
+        <CachedImage fileName={item.image} className="h-64 w-full" resizeMode="cover" />
 
         <View className="mb-4 bg-card p-4">
           <Text className="mb-1 text-2xl font-bold text-foreground">{item.name}</Text>
