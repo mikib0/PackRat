@@ -44,9 +44,16 @@ packsListRoutes.post("/", async (c) => {
   const db = createDb(c);
   try {
     const data = await c.req.json();
+
+    // Ensure the client provides an ID
+    if (!data.id) {
+      return c.json({ error: 'Pack ID is required' }, 400);
+    }
+
     const [newPack] = await db
       .insert(packs)
       .values({
+        id: data.id,
         userId: auth.userId,
         name: data.name,
         description: data.description,
