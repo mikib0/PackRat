@@ -38,7 +38,7 @@ export const refreshTokenAtom = atomWithStorage<string | null>('refresh_token', 
 export const userAtom = atom<User | null>(null);
 
 // Loading state atom
-export const isLoadingAtom = atom(true);
+export const isLoadingAtom = atom(false);
 
 // Derived atom for authentication status
 export const isAuthenticatedAtom = atom((get) => !!get(userAtom));

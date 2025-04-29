@@ -7,14 +7,15 @@ import { Icon } from '@roninoss/icons';
 import { Alert } from '~/components/nativewindui/Alert';
 import { Button } from '../../../components/nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useDeletePack } from '../hooks';
+import { useDeletePack, usePackDetails } from '../hooks';
 
 type PackCardProps = {
-  pack: Pack;
+  packId: string;
   onPress: (pack: Pack) => void;
 };
 
-export function PackCard({ pack, onPress }: PackCardProps) {
+export function PackCard({ packId, onPress }: PackCardProps) {
+  const pack = usePackDetails(packId)
   const deletePack = useDeletePack();
   const { colors } = useColorScheme();
 
@@ -76,7 +77,7 @@ export function PackCard({ pack, onPress }: PackCardProps) {
               {
                 text: 'OK',
                 onPress: () => {
-                  deletePack.mutate(pack.id);
+                  deletePack(pack.id);
                 },
               },
             ]}>
