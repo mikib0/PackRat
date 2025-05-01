@@ -8,6 +8,7 @@ import { Pack, PackItem } from '../types';
 import { isAuthed } from '~/features/auth/store';
 import * as FileSystem from 'expo-file-system';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
+import { userStore } from '~/features/profile/store';
 
 // Function to get a presigned URL for uploading
 const getPresignedUrl = async (
@@ -34,8 +35,9 @@ const uploadImage = async (fileName: string): Promise<void> => {
   try {
     const fileExtension = fileName.split('.').pop()?.toLowerCase() || 'jpg';
     const type = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
+    const remoteFileName = `${userStore.id.peek()}-${fileName}`;
     // Get presigned URL
-    const { url: presignedUrl } = await getPresignedUrl(fileName, type);
+    const { url: presignedUrl } = await getPresignedUrl(remoteFileName, type);
 
     // Upload the image
     const uploadResult = await FileSystem.uploadAsync(

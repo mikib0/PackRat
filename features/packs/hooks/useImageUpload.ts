@@ -112,7 +112,7 @@ export function useImageUpload() {
 
     // Get file extension from the original uri or default to jpg
     const extension = selectedImage.fileName.split('.').pop()?.toLowerCase() || 'jpg';
-    const fileName = `${user!.id}-${nanoid()}.${extension}`;
+    const fileName = `${nanoid()}.${extension}`;
 
     try {
       ImageCacheManager.cacheLocalTempImage(imageUri, fileName);

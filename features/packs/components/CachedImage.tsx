@@ -1,36 +1,40 @@
+import { use$ } from '@legendapp/state/react';
 import type React from 'react';
 import { useState, useEffect } from 'react';
 import { Image, type ImageProps, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
+import { userStore } from '~/features/profile/store';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 
 interface CachedImageProps extends Omit<ImageProps, 'source'> {
-  fileName?: string;
+  localFileName?: string;
   placeholderColor?: string;
 }
 
 export const CachedImage: React.FC<CachedImageProps> = ({
-  fileName,
+  localFileName,
   className,
   placeholderColor = '#e1e1e1',
   ...props
 }) => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const user = use$(userStore);
 
-  const remoteUrl = `${process.env.EXPO_PUBLIC_R2_PUBLIC_URL}/${fileName}`;
+  const remoteFileName = `${user?.id}-${localFileName}`;
+  const remoteUrl = `${process.env.EXPO_PUBLIC_R2_PUBLIC_URL}/${remoteFileName}`;
 
   useEffect(() => {
-    if (!fileName) return;
+    if (!localFileName) return;
     const loadImage = async () => {
       try {
         setLoading(true);
 
-        const localUri = await ImageCacheManager.getCachedImageUri(fileName);
+        const localUri = await ImageCacheManager.getCachedImageUri(localFileName);
         if (localUri) {
           setImageUri(localUri);
         } else {
-          const localUri = await ImageCacheManager.cacheRemoteImage(fileName, remoteUrl);
+          const localUri = await ImageCacheManager.cacheRemoteImage(localFileName, remoteUrl);
           setImageUri(localUri);
         }
       } catch (error) {
@@ -43,9 +47,9 @@ export const CachedImage: React.FC<CachedImageProps> = ({
     };
 
     loadImage();
-  }, [fileName, remoteUrl]);
+  }, [localFileName, remoteUrl]);
 
-  if (!fileName)
+  if (!localFileName)
     return (
       <View className={`items-center justify-center bg-muted px-2 ${className}`}>
         <Text className="text-muted-foreground">No image</Text>
