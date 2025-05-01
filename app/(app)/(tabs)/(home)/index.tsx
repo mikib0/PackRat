@@ -18,10 +18,10 @@ import { useDashboardData } from '~/features/packs/hooks/useDashboardData';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Pack } from '~/types';
-import { WeatherWidget } from '~/features/locations/components';
 import { isAuthed } from '~/features/auth/store';
 import { withAuthWall } from '~/features/auth/hocs';
 import { DashboardAuthWall } from '~/features/dashboard/components';
+import { WeatherTile } from '~/features/weather/components/WeatherTile';
 
 function SettingsIcon() {
   const { colors } = useColorScheme();
@@ -97,7 +97,6 @@ export function DashboardScreen() {
           contentContainerClassName="pt-4"
           contentInsetAdjustmentBehavior="automatic"
           variant="insets"
-          ListHeaderComponent={<WeatherWidget />}
           data={transformDashboardData(data)}
           estimatedItemSize={ESTIMATED_ITEM_HEIGHT.titleOnly}
           renderItem={renderItem}
@@ -116,6 +115,10 @@ function renderItem<T extends ReturnType<typeof transformDashboardData>[number]>
 ) {
   if (typeof info.item === 'string') {
     return <ListSectionHeader {...info} />;
+  }
+
+  if (info.item.route === '/weather') {
+    return <WeatherTile />;
   }
 
   const item = info.item as DashboardDataItem;
@@ -186,9 +189,7 @@ function IconView({ className, name }: { className?: string; name: MaterialIconN
   );
 }
 
-function keyExtractor(
-  item: (Omit<ListDataItem, string> & { id: string; route: Href }) | string
-) {
+function keyExtractor(item: (Omit<ListDataItem, string> & { id: string; route: Href }) | string) {
   return typeof item === 'string' ? item : item.id;
 }
 
@@ -279,7 +280,7 @@ function transformDashboardData(data: any): DashboardData[] {
     leftView: <IconView name="message" className="bg-purple-500" />,
     rightText: 'Anything outdoors...',
     route: {
-      pathname: '/ai-chat-better-ui',
+      pathname: '/ai-chat',
       params: {
         contextType: 'general',
       },
@@ -328,6 +329,21 @@ function transformDashboardData(data: any): DashboardData[] {
     });
   }
 
+  output.push({
+    id: '8',
+    title: 'Trail Conditions',
+    leftView: <IconView name="soccer-field" className="bg-violet-500" />,
+    route: '/trail-conditions',
+  });
+
+  output.push('gap 2.5');
+
+  output.push({
+    id: '6.5',
+    title: 'Weather',
+    route: '/weather',
+  });
+
   if (weatherAlertCount) {
     output.push({
       id: '7',
@@ -338,13 +354,6 @@ function transformDashboardData(data: any): DashboardData[] {
       protected: true,
     });
   }
-
-  output.push({
-    id: '8',
-    title: 'Trail Conditions',
-    leftView: <IconView name="soccer-field" className="bg-violet-500" />,
-    route: '/trail-conditions',
-  });
 
   output.push('gap 3');
 

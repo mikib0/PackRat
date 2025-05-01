@@ -1,4 +1,4 @@
-import type { LocationSearchResult } from '~/features/locations/types';
+import type { LocationSearchResult } from '~/features/weather/types';
 import { getWeatherIconName as getIconNameFromCode } from './weatherIcons';
 import axiosInstance, { handleApiError } from '~/lib/api/client';
 

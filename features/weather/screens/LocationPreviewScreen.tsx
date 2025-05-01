@@ -20,7 +20,7 @@ import {
   getWeatherData,
   formatWeatherData,
   getWeatherBackgroundColors,
-} from '~/features/locations/lib/weatherService';
+} from '~/features/weather/lib/weatherService';
 import type { WeatherLocation } from '../types';
 import { WeatherIcon } from '../components';
 
@@ -85,7 +85,7 @@ export default function LocationPreviewScreen() {
       Alert.alert('Location Saved', `${weatherData.name} has been added to your saved locations.`, [
         {
           text: 'View All Locations',
-          onPress: () => router.replace('/locations'),
+          onPress: () => router.replace('/weather'),
         },
         {
           text: 'OK',

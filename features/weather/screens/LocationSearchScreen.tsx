@@ -149,7 +149,7 @@ export default function LocationSearchScreen() {
 
     // Navigate to preview screen with location coordinates
     router.push({
-      pathname: '/locations/preview',
+      pathname: '/weather/preview',
       params: {
         lat: location.lat.toString(),
         lon: location.lon.toString(),

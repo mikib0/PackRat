@@ -34,14 +34,14 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
-import { LocationSelector } from '~/features/locations/components/LocationSelector';
+import { LocationSelector } from '~/features/weather/components/LocationSelector';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { formatAIResponse } from '~/utils/format-ai-response';
 import { getContextualGreeting, getContextualSuggestions } from '~/utils/chatContextHelpers';
 import { useAtomValue } from 'jotai';
 import { tokenAtom } from '~/features/auth/atoms/authAtoms';
-import { useActiveLocation } from '~/features/locations/hooks';
+import { useActiveLocation } from '~/features/weather/hooks';
 
 const USER = 'User';
 const AI = 'PackRat AI';

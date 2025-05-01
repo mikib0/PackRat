@@ -73,7 +73,7 @@ export default function LocationsScreen() {
   }, []);
 
   const handleLocationPress = (locationId: string) => {
-    router.push(`/locations/${locationId}`);
+    router.push(`/weather/${locationId}`);
   };
 
   const handleSetActive = (locationId: string) => {
@@ -98,13 +98,13 @@ export default function LocationsScreen() {
   };
 
   const handleAddLocation = () => {
-    router.push('/locations/search');
+    router.push('/weather/search');
   };
 
   return (
     <>
       <LargeTitleHeader
-        title="Locations & Weather"
+        title="Weather"
         rightView={() => (
           <View className="flex-row items-center pr-2">
             <Pressable className="opacity-80" onPress={handleAddLocation}>
