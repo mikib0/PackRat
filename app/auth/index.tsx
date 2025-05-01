@@ -11,6 +11,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 import { useLocalSearchParams } from 'expo-router';
+import { featureFlags } from '~/config';
 
 const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
@@ -70,27 +71,31 @@ export default function AuthIndexScreen() {
               <Text>Sign up free</Text>
             </Button>
           </Link>
-          <Button
-            variant="secondary"
-            className="ios:border-foreground/60"
-            size={Platform.select({ ios: 'lg', default: 'md' })}
-            onPress={() => signInWithGoogle(redirectTo)}>
-            <Image
-              source={GOOGLE_SOURCE}
-              className="absolute left-4 h-4 w-4"
-              resizeMode="contain"
-            />
-            <Text className="ios:text-foreground">Continue with Google</Text>
-          </Button>
-          {Platform.OS === 'ios' && (
-            <Button
-              variant="secondary"
-              className="ios:border-foreground/60"
-              size={Platform.select({ ios: 'lg', default: 'md' })}
-              onPress={() => signInWithApple(redirectTo)}>
-              <Text className="ios:text-foreground absolute left-4 text-[22px]"></Text>
-              <Text className="ios:text-foreground">Continue with Apple</Text>
-            </Button>
+          {featureFlags.enableOAuth && (
+            <>
+              <Button
+                variant="secondary"
+                className="ios:border-foreground/60"
+                size={Platform.select({ ios: 'lg', default: 'md' })}
+                onPress={() => signInWithGoogle(redirectTo)}>
+                <Image
+                  source={GOOGLE_SOURCE}
+                  className="absolute left-4 h-4 w-4"
+                  resizeMode="contain"
+                />
+                <Text className="ios:text-foreground">Continue with Google</Text>
+              </Button>
+              {Platform.OS === 'ios' && (
+                <Button
+                  variant="secondary"
+                  className="ios:border-foreground/60"
+                  size={Platform.select({ ios: 'lg', default: 'md' })}
+                  onPress={() => signInWithApple(redirectTo)}>
+                  <Text className="ios:text-foreground absolute left-4 text-[22px]"></Text>
+                  <Text className="ios:text-foreground">Continue with Apple</Text>
+                </Button>
+              )}
+            </>
           )}
           <Link href={{ pathname: '/auth/(login)', params: { redirectTo } }} asChild>
             <Button
