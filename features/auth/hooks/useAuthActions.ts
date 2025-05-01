@@ -1,9 +1,9 @@
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Href, router } from 'expo-router';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
-import { tokenAtom, refreshTokenAtom, userAtom, isLoadingAtom } from '../atoms/authAtoms';
+import { tokenAtom, refreshTokenAtom, userAtom, isLoadingAtom, redirectToAtom } from '../atoms/authAtoms';
 import { isAuthed } from '../store';
 import { packItemsSyncState, packsSyncState } from '~/features/packs/store';
 import { userSyncState } from '~/features/profile/store';
@@ -23,8 +23,9 @@ export function useAuthActions() {
   const setRefreshToken = useSetAtom(refreshTokenAtom);
   const setUser = useSetAtom(userAtom);
   const setIsLoading = useSetAtom(isLoadingAtom);
+  const redirectTo = useAtomValue(redirectToAtom);
 
-  const signIn = async (email: string, password: string, redirectTo: string) => {
+  const signIn = async (email: string, password: string) => {
     setIsLoading(true);
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/login`, {
@@ -59,7 +60,7 @@ export function useAuthActions() {
     }
   };
 
-  const signInWithGoogle = async (redirectTo: string) => {
+  const signInWithGoogle = async () => {
     try {
       setIsLoading(true);
 
@@ -117,7 +118,7 @@ export function useAuthActions() {
     }
   };
 
-  const signInWithApple = async (redirectTo: string) => {
+  const signInWithApple = async () => {
     try {
       setIsLoading(true);
       const credential = await AppleAuthentication.signInAsync({
@@ -276,7 +277,7 @@ export function useAuthActions() {
     }
   };
 
-  const verifyEmail = async (email: string, code: string, redirectTo: string) => {
+  const verifyEmail = async (email: string, code: string) => {
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/verify-email`, {
         method: 'POST',
