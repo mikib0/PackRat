@@ -42,3 +42,5 @@ export const isLoadingAtom = atom(false);
 
 // Derived atom for authentication status
 export const isAuthenticatedAtom = atom((get) => !!get(userAtom));
+
+export const redirectToAtom = atom<string>('/');

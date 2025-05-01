@@ -12,6 +12,8 @@ import { Text } from '~/components/nativewindui/Text';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 import { useLocalSearchParams } from 'expo-router';
 import { featureFlags } from '~/config';
+import { useSetAtom } from 'jotai';
+import { redirectToAtom } from '~/features/auth/atoms/authAtoms';
 
 const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
@@ -33,6 +35,12 @@ export default function AuthIndexScreen() {
     await AsyncStorage.setItem('skipped_login', 'true');
     router.replace('/packs');
   };
+
+  const setRedirectTo = useSetAtom(redirectToAtom);
+
+  React.useEffect(() => {
+    setRedirectTo(redirectTo as string);
+  }, [redirectTo]);
 
   return (
     <>
@@ -66,7 +74,7 @@ export default function AuthIndexScreen() {
               </Text>
             )}
           </View>
-          <Link href={{ pathname: '/auth/(create-account)', params: { redirectTo } }} asChild>
+          <Link href='/auth/(create-account)' asChild>
             <Button size={Platform.select({ ios: 'lg', default: 'md' })}>
               <Text>Sign up free</Text>
             </Button>
@@ -77,7 +85,7 @@ export default function AuthIndexScreen() {
                 variant="secondary"
                 className="ios:border-foreground/60"
                 size={Platform.select({ ios: 'lg', default: 'md' })}
-                onPress={() => signInWithGoogle(redirectTo)}>
+                onPress={signInWithGoogle}>
                 <Image
                   source={GOOGLE_SOURCE}
                   className="absolute left-4 h-4 w-4"
@@ -90,14 +98,14 @@ export default function AuthIndexScreen() {
                   variant="secondary"
                   className="ios:border-foreground/60"
                   size={Platform.select({ ios: 'lg', default: 'md' })}
-                  onPress={() => signInWithApple(redirectTo)}>
+                  onPress={signInWithApple}>
                   <Text className="ios:text-foreground absolute left-4 text-[22px]"></Text>
                   <Text className="ios:text-foreground">Continue with Apple</Text>
                 </Button>
               )}
             </>
           )}
-          <Link href={{ pathname: '/auth/(login)', params: { redirectTo } }} asChild>
+          <Link href={'/auth/(login)'} asChild>
             <Button
               variant={showSkipLoginBtn === 'true' ? 'tonal' : 'plain'}
               size={Platform.select({ ios: 'lg', default: 'md' })}>
