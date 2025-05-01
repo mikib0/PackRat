@@ -176,7 +176,7 @@ authRoutes.post("/verify-email", async (c) => {
     const db = createDb(c);
 
     if (!email || !code) {
-      return c.json({ error: "Email and verification code are required" }, 400);
+      return c.json({ error: 'Email and verification code are required' }, 400);
     }
 
     // Find the user by email
@@ -187,7 +187,7 @@ authRoutes.post("/verify-email", async (c) => {
       .limit(1);
 
     if (user.length === 0) {
-      return c.json({ error: "User not found" }, 404);
+      return c.json({ error: 'User not found' }, 404);
     }
 
     const userId = user[0].id;
@@ -206,7 +206,7 @@ authRoutes.post("/verify-email", async (c) => {
       .limit(1);
 
     if (verificationCode.length === 0) {
-      return c.json({ error: "Invalid or expired verification code" }, 400);
+      return c.json({ error: 'Invalid or expired verification code' }, 400);
     }
 
     // Update user as verified
@@ -220,13 +220,24 @@ authRoutes.post("/verify-email", async (c) => {
       .delete(oneTimePasswords)
       .where(eq(oneTimePasswords.userId, userId));
 
+    // Generate refresh token
+    const refreshToken = generateRefreshToken();
+
+    // Store refresh token
+    await db.insert(refreshTokens).values({
+      userId: user[0].id,
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    });
+
     // Generate JWT token
-    const token = await generateJWT({ payload: { userId }, c });
+    const accessToken = await generateJWT({ payload: { userId }, c });
 
     return c.json({
       success: true,
-      message: "Email verified successfully",
-      token,
+      message: 'Email verified successfully',
+      accessToken,
+      refreshToken,
       user: {
         id: user[0].id,
         email: user[0].email,
