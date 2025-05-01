@@ -280,7 +280,7 @@ function transformDashboardData(data: any): DashboardData[] {
     leftView: <IconView name="message" className="bg-purple-500" />,
     rightText: 'Anything outdoors...',
     route: {
-      pathname: '/ai-chat-better-ui',
+      pathname: '/ai-chat',
       params: {
         contextType: 'general',
       },
