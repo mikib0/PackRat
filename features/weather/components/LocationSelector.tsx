@@ -25,7 +25,7 @@ export function LocationSelector() {
     return (
       <View className="px-4 py-2">
         <TouchableOpacity
-          onPress={() => router.push('/locations')}
+          onPress={() => router.push('/weather')}
           className="bg-muted/30 flex-row items-center gap-2 rounded-full px-3 py-2">
           <Icon name="map-marker-radius-outline" size={16} color={colors.primary} />
           <Text className="flex-1 text-sm font-medium">Add a location</Text>
@@ -61,7 +61,7 @@ export function LocationSelector() {
     bottomSheetRef.current?.close();
     // Add a small delay to avoid UI conflicts
     setTimeout(() => {
-      router.push('/locations');
+      router.push('/weather');
     }, 300);
   };
 

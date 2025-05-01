@@ -4,7 +4,7 @@ import {
   getWeatherData,
   formatWeatherData,
   searchLocationsByCoordinates,
-} from '~/features/locations/lib/weatherService';
+} from '~/features/weather/lib/weatherService';
 import type { LocationSearchResult, WeatherLocation } from '../types';
 import { useLocations } from './useLocations';
 

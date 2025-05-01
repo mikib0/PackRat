@@ -17,7 +17,7 @@ import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useLocations, useActiveLocation, useLocationRefresh } from '../hooks';
-import { getWeatherBackgroundColors } from '~/features/locations/lib/weatherService';
+import { getWeatherBackgroundColors } from '~/features/weather/lib/weatherService';
 import { WeatherIcon } from '../components';
 
 export default function LocationDetailScreen() {
