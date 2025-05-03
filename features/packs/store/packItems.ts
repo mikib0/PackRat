@@ -8,7 +8,7 @@ import { Pack, PackItem } from '../types';
 import { isAuthed } from '~/features/auth/store';
 import * as FileSystem from 'expo-file-system';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
-import { userStore } from '~/features/profile/store';
+import { userStore } from '~/features/auth/store';
 
 // Function to get a presigned URL for uploading
 const getPresignedUrl = async (
@@ -89,9 +89,9 @@ const createPackItem = async ({ packId, ...data }: PackItem) => {
 
 const updatePackItem = async ({ id, ...data }: PackItem) => {
   try {
-    if (data.image){
+    if (data.image) {
       await uploadImage(data.image);
-    } 
+    }
     const response = await axiosInstance.patch(`/api/packs/items/${id}`, data);
     return response.data;
   } catch (error) {
