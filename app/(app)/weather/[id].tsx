@@ -1,4 +1,4 @@
-import { LocationDetailScreen } from "~/features/locations/screens"
+import { LocationDetailScreen } from "~/features/weather/screens"
 
 export default function LocationDetailIndexScreen() {
   return <LocationDetailScreen />
