@@ -13,7 +13,7 @@ export const getPackItemSuggestions = async (
     // Extract categories from existing items to help with suggestions
     const categories = Array.from(new Set(packItems.map((item) => item.category).filter(Boolean)));
 
-    const response = await axiosInstance.post('/api/packitemsuggestions', {
+    const response = await axiosInstance.post(`/api/packs/${packId}/item-suggestions`, {
       packId,
       categories,
       location,

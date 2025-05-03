@@ -2,7 +2,7 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Icon, IconProps } from '@roninoss/icons';
 import { Tabs } from 'expo-router';
 import * as React from 'react';
-import { Platform, Pressable, PressableProps, View } from 'react-native';
+import { Platform, Pressable, PressableProps, StyleProp, View, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -22,6 +22,10 @@ export default function TabLayout() {
         <Tabs.Screen name="packs" options={PACK_LIST_OPTIONS} />
         <Tabs.Screen name="catalog" options={ITEMS_CATALOG_OPTIONS} />
         <Tabs.Screen name="profile" options={PROFILE_OPTIONS} />
+        <Tabs.Screen
+          name="sqlite-debug"
+          options={process.env.NODE_ENV === 'development' ? {} : { href: null }}
+        />
       </Tabs>
     </>
   );
@@ -128,6 +132,7 @@ function MaterialTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                   })
                 : label
             }
+            tabBarItemStyle={options.tabBarItemStyle}
           />
         );
       })}
@@ -141,11 +146,13 @@ function MaterialTabItem({
   badge,
   className,
   label,
+  tabBarItemStyle,
   ...pressableProps
 }: {
   isFocused: boolean;
   name: IconProps<'material'>['name'];
   label: string | React.ReactNode;
+  tabBarItemStyle?: StyleProp<ViewStyle>;
   badge?: number | string;
 } & Omit<PressableProps, 'children'>) {
   const { colors } = useColorScheme();
@@ -163,7 +170,10 @@ function MaterialTabItem({
     };
   });
   return (
-    <Pressable className={cn('flex-1 items-center', className)} {...pressableProps}>
+    <Pressable
+      className={cn('flex-1 items-center', className)}
+      {...pressableProps}
+      style={tabBarItemStyle}>
       <View className="h-8 w-16 items-center justify-center overflow-hidden rounded-full ">
         <Animated.View style={animatedStyle} className="bg-secondary/70 dark:bg-secondary" />
         <View>

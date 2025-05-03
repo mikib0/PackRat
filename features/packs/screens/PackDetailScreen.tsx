@@ -148,7 +148,7 @@ export function PackDetailScreen() {
                     pathname: '/auth',
                     params: {
                       redirectTo: JSON.stringify({
-                        pathname: '/ai-chat-better-ui',
+                        pathname: '/ai-chat',
                         params: { packId: id, packName: pack.name, contextType: 'pack' },
                       }),
                       showSignInCopy: 'true',
@@ -157,7 +157,7 @@ export function PackDetailScreen() {
                 }
 
                 router.push({
-                  pathname: '/ai-chat-better-ui',
+                  pathname: '/ai-chat',
                   params: { packId: id, packName: pack.name, contextType: 'pack' },
                 });
               }}>

@@ -65,7 +65,6 @@ const listAllPackItems = async () => {
   try {
     const res = await axiosInstance.get<Pack[]>('/api/packs');
     const items = res.data.flatMap((pack: Pack) => pack.items);
-    console.log('listing pack items', items);
     return items;
   } catch (error) {
     const { message } = handleApiError(error);

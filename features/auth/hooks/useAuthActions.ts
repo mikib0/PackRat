@@ -5,7 +5,7 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
 import { tokenAtom, refreshTokenAtom, isLoadingAtom, redirectToAtom } from '../atoms/authAtoms';
 import { packItemsSyncState, packsSyncState } from '~/features/packs/store';
-import { userStore, userSyncState } from '~/features/auth/store';
+import { isAuthed, userStore, userSyncState } from '~/features/auth/store';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 
 function redirect(route: string) {
@@ -215,6 +215,7 @@ export function useAuthActions() {
       packsSyncState.clearPersist();
       packItemsSyncState.clearPersist();
       userSyncState.clearPersist();
+      isAuthed.set(false);
       ImageCacheManager.clearCache();
       router.replace('/');
     } catch (error) {
