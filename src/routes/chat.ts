@@ -29,7 +29,7 @@ chatRoutes.post("/", async (c) => {
     let systemPrompt = "";
 
     if (contextType === "item" && itemId) {
-      const item = await getItemDetails(itemId);
+      const item = await getItemDetails({ itemId, c });
       if (item) {
         // Determine if it's a pack item or catalog item
         const isPackItem = "packId" in item;
@@ -60,7 +60,7 @@ chatRoutes.post("/", async (c) => {
         `;
       }
     } else if (contextType === "pack" && packId) {
-      const pack = await getPackDetails(packId);
+      const pack = await getPackDetails({ packId, c });
       if (pack) {
         // Calculate total weight
         const totalWeight = pack.items.reduce((sum, item) => {
