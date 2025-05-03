@@ -23,7 +23,7 @@ chatRoutes.post("/", async (c) => {
       await c.req.json();
 
     // Only get weather data if location is defined
-    const weatherData = location ? await getWeatherData(location) : null;
+    const weatherData = location ? await getWeatherData(location, c) : null;
 
     // Build context based on what was passed
     let systemPrompt = "";
