@@ -3,10 +3,9 @@ import { Href, router } from 'expo-router';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as SecureStore from 'expo-secure-store';
-import { tokenAtom, refreshTokenAtom, userAtom, isLoadingAtom, redirectToAtom } from '../atoms/authAtoms';
-import { isAuthed } from '../store';
+import { tokenAtom, refreshTokenAtom, isLoadingAtom, redirectToAtom } from '../atoms/authAtoms';
 import { packItemsSyncState, packsSyncState } from '~/features/packs/store';
-import { userSyncState } from '~/features/profile/store';
+import { userStore, userSyncState } from '~/features/auth/store';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 
 function redirect(route: string) {
@@ -21,7 +20,6 @@ function redirect(route: string) {
 export function useAuthActions() {
   const setToken = useSetAtom(tokenAtom);
   const setRefreshToken = useSetAtom(refreshTokenAtom);
-  const setUser = useSetAtom(userAtom);
   const setIsLoading = useSetAtom(isLoadingAtom);
   const redirectTo = useAtomValue(redirectToAtom);
 
@@ -49,8 +47,7 @@ export function useAuthActions() {
 
       await setToken(data.accessToken);
       await setRefreshToken(data.refreshToken);
-      setUser(data.user);
-      isAuthed.set(true);
+      userStore.set(data.user);
       redirect(redirectTo);
     } catch (error) {
       console.error('Sign in error:', error);
@@ -98,8 +95,7 @@ export function useAuthActions() {
 
       await setToken(data.accessToken);
       await setRefreshToken(data.refreshToken);
-      setUser(data.user);
-      isAuthed.set(true);
+      userStore.set(data.user);
       redirect(redirectTo);
     } catch (error: any) {
       setIsLoading(false);
@@ -152,8 +148,7 @@ export function useAuthActions() {
 
       await setToken(data.accessToken);
       await setRefreshToken(data.refreshToken);
-      setUser(data.user);
-      isAuthed.set(true);
+      userStore.set(data.user);
       redirect(redirectTo);
     } catch (error) {
       console.error('Apple sign in error:', error);
@@ -217,8 +212,6 @@ export function useAuthActions() {
       // Clear state
       await setToken(null);
       await setRefreshToken(null);
-      setUser(null);
-      isAuthed.set(false);
       packsSyncState.clearPersist();
       packItemsSyncState.clearPersist();
       userSyncState.clearPersist();
@@ -300,8 +293,7 @@ export function useAuthActions() {
 
         await setToken(data.accessToken);
         await setRefreshToken(data.refreshToken);
-        setUser(data.user);
-        isAuthed.set(true);
+        userStore.set(data.user);
         redirect(redirectTo);
       }
 

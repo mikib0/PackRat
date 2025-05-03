@@ -3,7 +3,7 @@ import type React from 'react';
 import { useState, useEffect } from 'react';
 import { Image, type ImageProps, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
-import { userStore } from '~/features/profile/store';
+import { useUser } from '~/features/auth/hooks/useUser';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 
 interface CachedImageProps extends Omit<ImageProps, 'source'> {
@@ -19,7 +19,7 @@ export const CachedImage: React.FC<CachedImageProps> = ({
 }) => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const user = use$(userStore);
+  const user = useUser();
 
   const remoteFileName = `${user?.id}-${localFileName}`;
   const remoteUrl = `${process.env.EXPO_PUBLIC_R2_PUBLIC_URL}/${remoteFileName}`;
