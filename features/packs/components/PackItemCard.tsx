@@ -24,7 +24,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
     <Pressable
       className="mb-3 flex-row overflow-hidden rounded-lg bg-card shadow-sm"
       onPress={() => onPress(item)}>
-      <CachedImage localFileName={item.image} className="w-28" resizeMode="cover" />
+      <CachedImage localFileName={item.image} className="w-28" resizeMode="contain" />
 
       <View className="flex-1 p-3">
         <View className="flex-row items-start justify-between">

@@ -1,32 +1,22 @@
-'use client';
-
 import { useState } from 'react';
-import { FlatList, Platform, TouchableOpacity, View } from 'react-native';
+import { FlatList, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@roninoss/icons';
-import { useCreatePackItem, usePackItemSuggestions } from '../hooks';
-import { cn } from '~/lib/cn';
-import type { CatalogItem, PackItem } from '~/types';
+import { usePackItemSuggestions } from '../hooks';
+import type { PackItem } from '~/types';
 import { PackItemSuggestionSkeleton } from './PackItemSuggestionSkeleton';
 import { Button } from '~/components/nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Text } from '../../../components/nativewindui/Text';
-import type { PackItemInput } from '../types';
 import { isAuthed } from '~/features/auth/store';
 import { useRouter } from 'expo-router';
+import { ItemSuggestionCard } from './ItemSuggestionCard';
 
 interface AISuggestionsProps {
   packId: string;
-  userId: string;
   packItems: PackItem[];
-  onItemAdded?: () => void;
 }
 
-export function PackItemSuggestions({
-  packId,
-  userId,
-  packItems,
-  onItemAdded,
-}: AISuggestionsProps) {
+export function PackItemSuggestions({ packId, packItems }: AISuggestionsProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
 
@@ -37,30 +27,7 @@ export function PackItemSuggestions({
     isError,
   } = usePackItemSuggestions(packId, packItems, showSuggestions);
 
-  const createItem = useCreatePackItem();
   const { colors } = useColorScheme();
-
-  const handleAddItem = (item: CatalogItem) => {
-    // Create a new pack item from the catalog item
-    const newItem: PackItemInput = {
-      name: item.name,
-      description: item.description || '',
-      weight: item.defaultWeight || 0,
-      weightUnit: item.defaultWeightUnit || 'oz',
-      quantity: 1,
-      category: item.category || 'Uncategorized',
-      consumable: false,
-      worn: false,
-      image: item.image,
-      notes: 'Added from AI suggestions',
-      catalogItemId: item.id,
-    };
-
-    createItem({
-      packId,
-      itemData: newItem,
-    });
-  };
 
   const handleGenerateSuggestions = () => {
     if (!isAuthed.peek()) {
@@ -150,29 +117,7 @@ export function PackItemSuggestions({
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.id}
         className="mb-2"
-        renderItem={({ item }) => (
-          <View className={cn('mr-2 rounded-lg border border-border p-3', 'w-40 bg-card')}>
-            <Text className="mb-1 font-medium text-foreground" numberOfLines={1}>
-              {item.name}
-            </Text>
-            <Text className="mb-2 text-xs text-muted-foreground" numberOfLines={2}>
-              {item.description}
-            </Text>
-            <View className="flex-row items-center justify-between">
-              <Text className="text-xs text-muted-foreground">
-                {item.defaultWeight}
-                {item.weightUnit}
-              </Text>
-              <Button onPress={() => handleAddItem(item)} variant="tonal" size="icon">
-                <Icon
-                  name="plus"
-                  color={Platform.OS === 'ios' ? colors.primary : colors.foreground}
-                  size={21}
-                />
-              </Button>
-            </View>
-          </View>
-        )}
+        renderItem={({ item }) => <ItemSuggestionCard item={item} packId={packId} />}
       />
     </View>
   );

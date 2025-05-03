@@ -16,8 +16,6 @@ export function WeatherTile() {
     router.push('/weather');
   };
 
-  console.log('activeLocation', activeLocation);
-
   return (
     <View>
       <ListItem
