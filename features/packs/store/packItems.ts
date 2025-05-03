@@ -109,6 +109,7 @@ syncObservable(
     fieldCreatedAt: 'createdAt',
     fieldDeleted: 'deleted',
     updatePartial: true,
+    mode: 'merge',
     persist: {
       plugin: observablePersistSqlite(Storage),
       retrySync: true,
