@@ -14,7 +14,7 @@ export async function getPackDetails({
   const db = createDb(c);
 
   const packData = await db.query.packs.findFirst({
-    where: eq(packs.id, Number.parseInt(packId)),
+    where: eq(packs.id, packId),
     with: {
       items: {
         with: {
