@@ -41,6 +41,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       projectId: '267945b1-d9ac-4621-8541-826a2c70576d',
     },
   },
-
+  updates: {
+    url: 'https://u.expo.dev/267945b1-d9ac-4621-8541-826a2c70576d',
+  },
+  runtimeVersion: {
+    policy: 'appVersion',
+  },
   owner: 'packrat',
 });
