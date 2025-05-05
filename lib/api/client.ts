@@ -48,7 +48,7 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 axiosInstance.interceptors.request.use(
   async (config: AxiosRequestConfig) => {
     try {
-      const token = await store.get(tokenAtom);
+      const token = await SecureStore.getItemAsync('access_token');
 
       // If token exists, attach it to the request
       if (token && config.headers) {
