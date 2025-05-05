@@ -1,6 +1,6 @@
 import { Icon } from '@roninoss/icons';
 import { useEffect, useState } from 'react';
-import { View, ScrollView, Image, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Image } from 'react-native';
 
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
@@ -60,7 +60,7 @@ function RecentPackCard({ pack }: { pack: any }) {
             <Icon name="clock-outline" size={14} color={colors.grey} />
           </View>
           <Text variant="caption1" className="text-muted-foreground">
-            Last used: {getRelativeTime(pack.updatedAt)}
+            Last updated: {getRelativeTime(pack.updatedAt)}
           </Text>
         </View>
       </View>
@@ -69,7 +69,7 @@ function RecentPackCard({ pack }: { pack: any }) {
 }
 
 export default function RecentPacksScreen() {
-  const { packs, isLoading, isError } = usePacks();
+  const packs = usePacks();
 
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -79,24 +79,6 @@ export default function RecentPacksScreen() {
     }, 50);
     return () => clearTimeout(timer);
   }, []);
-
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  if (isError || !packs) {
-    return (
-      <View className="flex-1 items-center justify-center px-4">
-        <Text variant="subhead" className="text-red-500">
-          Failed to load packs.
-        </Text>
-      </View>
-    );
-  }
 
   const recentPacks = packs?.slice(0, 5) ?? [];
 

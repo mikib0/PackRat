@@ -1,9 +1,7 @@
-'use client';
-
 import { useLocalSearchParams } from 'expo-router';
 import type React from 'react';
 import { useState, useEffect } from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView } from 'react-native';
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
@@ -125,21 +123,6 @@ export default function CurrentPackScreen() {
     }, 50);
     return () => clearTimeout(timer);
   }, []);
-
-  if (pack.isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-  if (pack.isError || !pack) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-red-500">Failed to load pack data.</Text>
-      </View>
-    );
-  }
 
   const uniqueCategories = pack.categories ?? [];
 

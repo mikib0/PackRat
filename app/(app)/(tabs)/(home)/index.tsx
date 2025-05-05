@@ -16,7 +16,6 @@ import {
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
 import { useAuthState } from '~/features/auth/hooks/useAuthState';
-import { WeatherWidget } from '~/features/locations/components';
 import { useDashboardData } from '~/features/packs/hooks/useDashboardData';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';

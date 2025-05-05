@@ -1,8 +1,6 @@
-'use client';
-
 import { Icon } from '@roninoss/icons';
 import { useLocalSearchParams } from 'expo-router';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView } from 'react-native';
 
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
@@ -56,38 +54,28 @@ export default function PackCategoriesScreen() {
   const params = useLocalSearchParams();
   const pack = usePackDetails(params.id as string);
 
-  if (pack.isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  if (pack.isError || !pack?.categories) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-red-500">Failed to load pack categories.</Text>
-      </View>
-    );
-  }
-
   return (
     <>
       <LargeTitleHeader title="Pack Categories" />
-      <ScrollView className="flex-1">
-        <View className="p-4">
-          <Text variant="subhead" className="mb-2 text-muted-foreground">
-            Organize your gear by functional categories
-          </Text>
-        </View>
+      {pack?.categories ? (
+        <ScrollView className="flex-1">
+          <View className="p-4">
+            <Text variant="subhead" className="mb-2 text-muted-foreground">
+              Organize your gear by functional categories
+            </Text>
+          </View>
 
-        <View className="pb-4">
-          {pack.categories.map((category: any) => (
-            <CategoryCard key={category.name} category={category} />
-          ))}
+          <View className="pb-4">
+            {pack.categories.map((category: any) => (
+              <CategoryCard key={category.name} category={category} />
+            ))}
+          </View>
+        </ScrollView>
+      ) : (
+        <View className="flex-1 items-center justify-center">
+          <Text>The items in this pack aren't categorized.</Text>
         </View>
-      </ScrollView>
+      )}
     </>
   );
 }

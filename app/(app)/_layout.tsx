@@ -60,7 +60,7 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
-        name="pack-stats"
+        name="pack-stats/[id]"
         options={{
           headerShown: false,
           presentation: 'modal',
@@ -76,7 +76,7 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
-        name="pack-categories"
+        name="pack-categories/[id]"
         options={{
           headerShown: false,
           presentation: 'modal',
