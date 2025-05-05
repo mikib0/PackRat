@@ -9,7 +9,7 @@ import { Hono } from "hono";
 
 const packWeightHistoryRoutes = new Hono();
 
-// Helper function to group weight history by month and calculate averages
+// Helper: Compute monthly average weights from history
 const getMonthlyWeightAverages = (data: any[]) => {
   const monthNames = [
     "Jan",
@@ -25,69 +25,63 @@ const getMonthlyWeightAverages = (data: any[]) => {
     "Nov",
     "Dec",
   ];
+
   const monthData: Record<string, { totalWeight: number; count: number }> = {};
 
   data.forEach((entry) => {
     const date = new Date(entry.createdAt);
-    const key = `${date.getFullYear()}-${date.getMonth()}`; // Use year + monthIndex as key
+    const key = `${date.getFullYear()}-${date.getMonth()}`; // "YYYY-M"
     if (!monthData[key]) {
       monthData[key] = { totalWeight: 0, count: 0 };
     }
     monthData[key].totalWeight += entry.weight;
+
     monthData[key].count += 1;
   });
 
-  // Convert to readable format like "Mar"
   const monthlyAverages = Object.entries(monthData).map(
     ([key, { totalWeight, count }]) => {
       const [year, monthIndex] = key.split("-").map(Number);
-      const monthName = monthNames[monthIndex];
       return {
-        month: monthName,
+        year,
+        month: monthNames[monthIndex],
         average_weight: parseFloat((totalWeight / count).toFixed(2)),
       };
     },
   );
 
-  //  sort chronologically (oldest to newest)
-  return monthlyAverages.sort(
-    (a, b) => monthNames.indexOf(a.month) - monthNames.indexOf(b.month),
-  );
+  // Sort chronologically by year + month
+  return monthlyAverages.sort((a, b) => {
+    const aKey = `${a.year}-${monthNames.indexOf(a.month)}`;
+    const bKey = `${b.year}-${monthNames.indexOf(b.month)}`;
+    return aKey.localeCompare(bKey);
+  });
 };
 
-// Helper function to filter data for the last 6 months
+// Helper: Filter entries within the last 6 months
 const filterLast6Months = (data: any[]) => {
   const today = new Date();
   const sixMonthsAgo = new Date(today);
   sixMonthsAgo.setMonth(today.getMonth() - 6);
-
   return data.filter((entry) => new Date(entry.createdAt) >= sixMonthsAgo);
 };
 
-// Get monthly average weight history for a pack
+// GET /weight-history/:packId — Return average weights by month (last 6 months)
 packWeightHistoryRoutes.get("/weight-history/:packId", async (c) => {
   const auth = await authenticateRequest(c);
-  if (!auth) {
-    return unauthorizedResponse();
-  }
+  if (!auth) return unauthorizedResponse();
 
   const db = createDb(c);
-  const packId = Number(c.req.param("packId"));
+  const packId = c.req.param("packId"); // keep as string (matches schema)
 
   try {
-    // Fetch the weight history data for the given pack
     const history = await db.query.packWeightHistory.findMany({
       where: eq(packWeightHistory.packId, packId),
       orderBy: (history) => history.createdAt,
     });
 
-    // Filter data for the last 6 months
-    const filteredHistory = filterLast6Months(history);
-
-    // Compute monthly average weights
-    const monthlyAverages = getMonthlyWeightAverages(filteredHistory);
-
-    console.log("Filtered and Categorized Weight History:");
+    const filtered = filterLast6Months(history);
+    const monthlyAverages = getMonthlyWeightAverages(filtered);
 
     return c.json(monthlyAverages);
   } catch (error) {

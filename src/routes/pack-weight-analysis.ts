@@ -68,7 +68,7 @@ weightAnalysisRoutes.get("/weight-analysis/:packId", async (c) => {
   const db = createDb(c);
 
   try {
-    const packId = Number(c.req.param("packId"));
+    const packId = c.req.param("packId");
 
     const pack = await db.query.packs.findFirst({
       where: and(eq(packs.id, packId), eq(packs.userId, auth.userId)),

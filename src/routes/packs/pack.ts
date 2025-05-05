@@ -1,29 +1,15 @@
 import { createDb } from "@/db";
-import { packs, type PackWithItems } from '@/db/schema';
+import { packs, type PackWithItems } from "@/db/schema";
 import {
   authenticateRequest,
   unauthorizedResponse,
 } from "@/utils/api-middleware";
-import { computePacksWeights, computePackWeights } from '@/utils/compute-pack';
+import { computePacksWeights, computePackWeights } from "@/utils/compute-pack";
+import { convertToGrams } from "@/utils/weight";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 
 const packRoutes = new Hono();
-
-function convertToGrams(weight: number, unit: string): number {
-  switch (unit.toLowerCase()) {
-    case "kg":
-      return weight * 1000;
-    case "g":
-      return weight;
-    case "oz":
-      return weight * 28.3495;
-    case "lb":
-      return weight * 453.592;
-    default:
-      return weight; // Assume grams if unknown
-  }
-}
 
 // Helper to compute categories summary
 function computeCategorySummaries(items: any[], totalPackWeight: number) {
@@ -56,9 +42,6 @@ function computeCategorySummaries(items: any[], totalPackWeight: number) {
     categoryMap[category].items += 1;
   });
 
-  console.log("categorymap", categoryMap);
-  console.log("totalPackWeight", totalPackWeight);
-
   return Object.entries(categoryMap).map(([name, data]) => {
     const percentage =
       totalPackWeight > 0 ? (data.weightInGrams / totalPackWeight) * 100 : 0;
@@ -76,7 +59,7 @@ function computeCategorySummaries(items: any[], totalPackWeight: number) {
 }
 
 // Get a specific pack
-packRoutes.get('/:packId', async (c) => {
+packRoutes.get("/:packId", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -84,7 +67,7 @@ packRoutes.get('/:packId', async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param('packId');
+    const packId = c.req.param("packId");
     const pack = await db.query.packs.findFirst({
       where: eq(packs.id, packId),
       with: {
@@ -93,7 +76,7 @@ packRoutes.get('/:packId', async (c) => {
     });
 
     if (!pack) {
-      return c.json({ error: 'Pack not found' }, 404);
+      return c.json({ error: "Pack not found" }, 404);
     }
 
     const packWithWeights = computePacksWeights([pack])[0];
@@ -109,13 +92,13 @@ packRoutes.get('/:packId', async (c) => {
       categories: categorySummaries,
     });
   } catch (error) {
-    console.error('Error fetching pack:', error);
-    return c.json({ error: 'Failed to fetch pack' }, 500);
+    console.error("Error fetching pack:", error);
+    return c.json({ error: "Failed to fetch pack" }, 500);
   }
 });
 
 // Update a pack
-packRoutes.put('/:packId', async (c) => {
+packRoutes.put("/:packId", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -123,7 +106,7 @@ packRoutes.put('/:packId', async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param('packId');
+    const packId = c.req.param("packId");
     const data = await c.req.json();
 
     const updatedPack: PackWithItems = await db.transaction(async (tx) => {
@@ -152,14 +135,14 @@ packRoutes.put('/:packId', async (c) => {
     });
 
     if (!updatedPack) {
-      return c.json({ error: 'Pack not found' }, 404);
+      return c.json({ error: "Pack not found" }, 404);
     }
 
     const packWithWeights = computePackWeights(updatedPack);
     return c.json(packWithWeights);
   } catch (error) {
-    console.error('Error updating pack:', error);
-    return c.json({ error: 'Failed to update pack' }, 500);
+    console.error("Error updating pack:", error);
+    return c.json({ error: "Failed to update pack" }, 500);
   }
 });
 

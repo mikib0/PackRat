@@ -57,7 +57,7 @@ dashboardRoutes.get("", async (c) => {
     const categoryCountResult = await db
       .select({ count: sql<number>`COUNT(DISTINCT ${packItems.category})` })
       .from(packItems)
-      .where(eq(packItems.packId, Number(currentPack.id)));
+      .where(eq(packItems.packId, currentPack.id));
 
     const packCategoryCount = categoryCountResult[0]?.count ?? 0;
 
