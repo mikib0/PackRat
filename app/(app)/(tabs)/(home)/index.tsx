@@ -188,9 +188,7 @@ function IconView({ className, name }: { className?: string; name: MaterialIconN
   );
 }
 
-function keyExtractor(
-  item: (Omit<ListDataItem, string> & { id: string; route: Href }) | string
-) {
+function keyExtractor(item: (Omit<ListDataItem, string> & { id: string; route: Href }) | string) {
   return typeof item === 'string' ? item : item.id;
 }
 

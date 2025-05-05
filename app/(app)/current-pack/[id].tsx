@@ -117,7 +117,7 @@ export default function CurrentPackScreen() {
   const params = useLocalSearchParams();
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { data: pack, isLoading, isError } = usePackDetails(params.id as string);
+  const pack = usePackDetails(params.id as string);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -126,15 +126,14 @@ export default function CurrentPackScreen() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) {
+  if (pack.isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
       </View>
     );
   }
-
-  if (isError || !pack) {
+  if (pack.isError || !pack) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text className="text-red-500">Failed to load pack data.</Text>

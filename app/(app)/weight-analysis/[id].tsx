@@ -40,9 +40,9 @@ export default function WeightAnalysisScreen() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const params = useLocalSearchParams();
-  const packId = typeof params.id === 'string' ? parseInt(params.id) : undefined;
+  const packId = params.id;
 
-  const { data, isLoading, error } = usePackWeightAnalysis(packId);
+  const { data, isLoading, error } = usePackWeightAnalysis(packId as string);
 
   useEffect(() => {
     const timer = setTimeout(() => {

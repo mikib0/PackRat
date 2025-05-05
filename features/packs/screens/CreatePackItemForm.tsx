@@ -188,12 +188,12 @@ export const CreatePackItemForm = ({
     }
   };
 
-  useEffect(() => {
-    // Show error alert if there's an error
-    if (error) {
-      Alert.alert('Image Error', error);
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   // Show error alert if there's an error
+  //   if (error) {
+  //     Alert.alert('Image Error', error);
+  //   }
+  // }, [error]);
 
   // Determine what image to show in the UI
   const displayImage = selectedImage
@@ -379,7 +379,7 @@ export const CreatePackItemForm = ({
             <form.Field name="image">
               {(field) => (
                 <FormItem>
-                  { displayImage ? (
+                  {displayImage ? (
                     <View className="relative">
                       <Image
                         source={displayImage}

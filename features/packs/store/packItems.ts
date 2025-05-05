@@ -87,9 +87,9 @@ const createPackItem = async ({ packId, ...data }: PackItem) => {
 
 const updatePackItem = async ({ id, ...data }: PackItem) => {
   try {
-    if (data.image){
+    if (data.image) {
       await uploadImage(data.image);
-    } 
+    }
     const response = await axiosInstance.patch(`/api/packs/items/${id}`, data);
     return response.data;
   } catch (error) {

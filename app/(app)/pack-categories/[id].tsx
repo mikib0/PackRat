@@ -14,22 +14,20 @@ function CategoryCard({
 }: {
   category: {
     name: string;
-    itemCount: number;
-    totalWeight: number;
-    weightUnit: string;
-    icon?: string;
-    color?: string;
+    items: number;
+    weight: { value: number; unit: string };
+    percentage: number;
   };
 }) {
   const { colors } = useColorScheme();
-  const itemLabel = category.itemCount === 1 ? 'item' : 'items';
+  const itemLabel = category.items === 1 ? 'item' : 'items';
 
   return (
     <View className="mx-4 mb-3 overflow-hidden rounded-xl bg-card shadow-sm">
       <View className="flex-row items-center p-4">
         <View
           className="h-12 w-12 items-center justify-center rounded-md"
-          style={{ backgroundColor: category.color || colors.grey4 }}>
+          style={{ backgroundColor: colors.grey4 }}>
           <Icon name={category.icon || 'backpack'} size={24} color="white" />
         </View>
 
@@ -39,12 +37,12 @@ function CategoryCard({
           </Text>
           <View className="flex-row items-center justify-between">
             <Text variant="subhead" className="text-muted-foreground">
-              {category.itemCount} {itemLabel}
+              {category.items} {itemLabel}
             </Text>
             <View className="flex-row items-center gap-1">
               <Icon name="dumbbell" size={14} color={colors.grey3} />
               <Text variant="subhead" className="text-muted-foreground">
-                {category.totalWeight} {category.weightUnit}
+                {category.weight.value} {category.weight.unit}
               </Text>
             </View>
           </View>
@@ -56,9 +54,9 @@ function CategoryCard({
 
 export default function PackCategoriesScreen() {
   const params = useLocalSearchParams();
-  const { data: pack, isLoading, isError } = usePackDetails(params.id as string);
+  const pack = usePackDetails(params.id as string);
 
-  if (isLoading) {
+  if (pack.isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
@@ -66,7 +64,7 @@ export default function PackCategoriesScreen() {
     );
   }
 
-  if (isError || !pack?.categories) {
+  if (pack.isError || !pack?.categories) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text className="text-red-500">Failed to load pack categories.</Text>

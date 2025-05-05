@@ -11,7 +11,7 @@ import { usePackWeightHistory } from '~/features/packs/hooks/usePackWeightHistor
 
 export default function PackStatsScreen() {
   const params = useLocalSearchParams();
-  const packId = Number(params.id);
+  const packId = params.id;
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -21,10 +21,12 @@ export default function PackStatsScreen() {
     return () => clearTimeout(timer);
   }, []);
 
-  const { data: pack, isLoading, isError } = usePackDetails(params.id as string);
-  const { data: weightHistory, isLoading: isWeightLoading } = usePackWeightHistory(packId);
+  const pack = usePackDetails(params.id as string);
+  const { data: weightHistory, isLoading: isWeightLoading } = usePackWeightHistory(
+    packId as string
+  );
 
-  if (isLoading) {
+  if (pack.isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
@@ -32,7 +34,7 @@ export default function PackStatsScreen() {
     );
   }
 
-  if (isError || !pack?.categories) {
+  if (pack.isError || !pack?.categories) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text className="text-red-500">Failed to load pack data.</Text>

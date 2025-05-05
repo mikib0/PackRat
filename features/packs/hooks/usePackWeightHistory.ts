@@ -7,7 +7,7 @@ export type PackMonthlyAverage = {
   average_weight: number;
 };
 
-export const getPackWeightHistory = async (packId: number): Promise<PackMonthlyAverage[]> => {
+export const getPackWeightHistory = async (packId: string): Promise<PackMonthlyAverage[]> => {
   try {
     const response = await axiosInstance.get(`/api/weight-history/${packId}`);
     return response.data;
@@ -17,7 +17,7 @@ export const getPackWeightHistory = async (packId: number): Promise<PackMonthlyA
   }
 };
 
-export function usePackWeightHistory(packId?: number) {
+export function usePackWeightHistory(packId?: string) {
   return useQuery({
     queryKey: ['pack-weight-history', packId],
     queryFn: () => getPackWeightHistory(packId!),

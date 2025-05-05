@@ -1,4 +1,5 @@
 import { Icon } from '@roninoss/icons';
+import { useEffect, useState } from 'react';
 import { View, ScrollView, Image, ActivityIndicator } from 'react-native';
 
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
@@ -68,7 +69,16 @@ function RecentPackCard({ pack }: { pack: any }) {
 }
 
 export default function RecentPacksScreen() {
-  const { data: packs, isLoading, error } = usePacks();
+  const { packs, isLoading, isError } = usePacks();
+
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRefreshKey((prev) => prev + 1);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
 
   if (isLoading) {
     return (
@@ -78,7 +88,7 @@ export default function RecentPacksScreen() {
     );
   }
 
-  if (error) {
+  if (isError || !packs) {
     return (
       <View className="flex-1 items-center justify-center px-4">
         <Text variant="subhead" className="text-red-500">
@@ -91,7 +101,7 @@ export default function RecentPacksScreen() {
   const recentPacks = packs?.slice(0, 5) ?? [];
 
   return (
-    <>
+    <View className="flex-1" key={refreshKey}>
       <LargeTitleHeader title="Recent Packs" />
       <ScrollView className="flex-1">
         <View className="p-4">
@@ -106,6 +116,6 @@ export default function RecentPacksScreen() {
           ))}
         </View>
       </ScrollView>
-    </>
+    </View>
   );
 }

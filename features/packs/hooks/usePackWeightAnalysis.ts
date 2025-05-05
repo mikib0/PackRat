@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance, { handleApiError } from '~/lib/api/client';
 
-export const getPackWeightAnalysis = async (packId: number): Promise<any> => {
+export const getPackWeightAnalysis = async (packId: string): Promise<any> => {
   try {
     const response = await axiosInstance.get(`/api/weight-analysis/${packId}`);
     return response.data;
@@ -11,7 +11,7 @@ export const getPackWeightAnalysis = async (packId: number): Promise<any> => {
   }
 };
 
-export function usePackWeightAnalysis(packId?: number) {
+export function usePackWeightAnalysis(packId?: string) {
   return useQuery({
     queryKey: ['pack-weight-analysis', packId],
     queryFn: () => getPackWeightAnalysis(packId!),
