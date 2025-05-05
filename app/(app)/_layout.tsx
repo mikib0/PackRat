@@ -42,7 +42,7 @@ export default function AppLayout() {
       <Stack.Screen name="ai-chat" options={AI_CHAT_OPTIONS} />
       <Stack.Screen name="catalog/index" options={CATALOG_LIST_OPTIONS} />
       <Stack.Screen name="catalog/[id]" options={CATALOG_ITEM_DETAIL_OPTIONS} />
-      <Stack.Screen name="locations" options={{ headerShown: false }} />
+      <Stack.Screen name="weather" options={{ headerShown: false }} />
       <Stack.Screen
         name="current-pack"
         options={{

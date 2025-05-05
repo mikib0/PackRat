@@ -1,3 +1,6 @@
-import { observable } from '@legendapp/state';
+export * from './user';
 
-export const isAuthed = observable(false);
+import { observable } from '@legendapp/state';
+import { userStore } from './user';
+
+export const isAuthed = observable(() => userStore.get() !== null);

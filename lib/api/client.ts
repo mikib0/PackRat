@@ -6,6 +6,7 @@ import axios, {
 } from 'axios';
 import { store } from '~/atoms/store';
 import { tokenAtom, refreshTokenAtom } from '~/features/auth/atoms/authAtoms';
+import * as SecureStore from 'expo-secure-store';
 
 // Define base API URL based on environment
 export const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -85,7 +86,8 @@ axiosInstance.interceptors.response.use(
 
       try {
         // Get refresh token
-        const refreshToken = await store.get(refreshTokenAtom);
+        // const refreshToken = await store.get(refreshTokenAtom);
+        const refreshToken = await SecureStore.getItemAsync('refresh_token');
 
         if (!refreshToken) {
           // No refresh token, logout user
