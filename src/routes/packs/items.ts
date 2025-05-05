@@ -1,19 +1,44 @@
 import { createDb } from "@/db";
-import { packItems, packs } from '@/db/schema';
-import { Env } from '@/types/env';
+import { packItems, packs, packWeightHistory } from "@/db/schema";
+import { Env } from "@/types/env";
 import {
   authenticateRequest,
   unauthorizedResponse,
-} from '@/utils/api-middleware';
-import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { and, eq } from 'drizzle-orm';
-import { Hono } from 'hono';
-import { env } from 'hono/adapter';
+} from "@/utils/api-middleware";
+import { convertToGrams } from "@/utils/weight";
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { and, eq } from "drizzle-orm";
+import { Hono } from "hono";
+import { env } from "hono/adapter";
 
 const packItemsRoutes = new Hono();
 
+// Helper to recalculate and record pack weight
+async function recordPackWeight(
+  db: ReturnType<typeof createDb>,
+  packId: string,
+) {
+  const items = await db.query.packItems.findMany({
+    where: and(eq(packItems.packId, packId), eq(packItems.deleted, false)),
+  });
+
+  const totalWeight = items.reduce((sum, item) => {
+    return (
+      sum + convertToGrams(item.weight ?? 0, item.weightUnit) * item.quantity
+    );
+  }, 0);
+
+  const timestamp = new Date();
+
+  await db.insert(packWeightHistory).values({
+    packId,
+    weight: totalWeight,
+    createdAt: timestamp,
+  });
+}
+
 // Get all items for a pack
-packItemsRoutes.get('/:packId/items', async (c) => {
+packItemsRoutes.get("/:packId/items", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -22,7 +47,7 @@ packItemsRoutes.get('/:packId/items', async (c) => {
   const db = createDb(c);
 
   try {
-    const packId = c.req.param('packId');
+    const packId = c.req.param("packId");
     const items = await db.query.packItems.findMany({
       where: eq(packItems.packId, packId),
       with: {
@@ -31,13 +56,13 @@ packItemsRoutes.get('/:packId/items', async (c) => {
     });
     return c.json(items);
   } catch (error) {
-    console.error('Error fetching pack items:', error);
-    return c.json({ error: 'Failed to fetch pack items' }, 500);
+    console.error("Error fetching pack items:", error);
+    return c.json({ error: "Failed to fetch pack items" }, 500);
   }
 });
 
 // Get pack item by ID
-packItemsRoutes.get('/items/:itemId', async (c) => {
+packItemsRoutes.get("/items/:itemId", async (c) => {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(c);
@@ -47,13 +72,13 @@ packItemsRoutes.get('/items/:itemId', async (c) => {
 
     const db = createDb(c);
     const userId = auth.userId;
-    const itemId = c.req.param('itemId');
+    const itemId = c.req.param("itemId");
 
     // Get the item
     const item = await db.query.packItems.findFirst({
       where: and(
         eq(packItems.id, itemId),
-        eq(packItems.userId, Number(userId))
+        eq(packItems.userId, Number(userId)),
       ),
       with: {
         catalogItem: true,
@@ -61,18 +86,18 @@ packItemsRoutes.get('/items/:itemId', async (c) => {
     });
 
     if (!item) {
-      return c.json({ error: 'Item not found' }, { status: 404 });
+      return c.json({ error: "Item not found" }, { status: 404 });
     }
 
     return c.json(item);
   } catch (error) {
-    console.error('Error fetching pack item:', error);
-    return c.json({ error: 'Failed to fetch pack item' }, { status: 500 });
+    console.error("Error fetching pack item:", error);
+    return c.json({ error: "Failed to fetch pack item" }, { status: 500 });
   }
 });
 
 // Add an item to a pack
-packItemsRoutes.post('/:packId/items', async (c) => {
+packItemsRoutes.post("/:packId/items", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -80,15 +105,15 @@ packItemsRoutes.post('/:packId/items', async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param('packId');
+    const packId = c.req.param("packId");
     const data = await c.req.json();
 
     if (!packId) {
-      return c.json({ error: 'Pack ID is required' }, 400);
+      return c.json({ error: "Pack ID is required" }, 400);
     }
 
     if (!data.id) {
-      return c.json({ error: 'Item ID is required' }, 400);
+      return c.json({ error: "Item ID is required" }, 400);
     }
 
     const [newItem] = await db
@@ -111,21 +136,22 @@ packItemsRoutes.post('/:packId/items', async (c) => {
       })
       .returning();
 
-    // Update the pack's updatedAt timestamp
     await db
       .update(packs)
       .set({ updatedAt: new Date() })
       .where(eq(packs.id, packId));
 
+    await recordPackWeight(db, packId);
+
     return c.json(newItem);
   } catch (error) {
-    console.error('Error adding pack item:', error);
-    return c.json({ error: 'Failed to add pack item' }, 500);
+    console.error("Error adding pack item:", error);
+    return c.json({ error: "Failed to add pack item" }, 500);
   }
 });
 
 // Update a pack item
-packItemsRoutes.patch('/items/:itemId', async (c) => {
+packItemsRoutes.patch("/items/:itemId", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -134,36 +160,36 @@ packItemsRoutes.patch('/items/:itemId', async (c) => {
   const db = createDb(c);
 
   try {
-    const itemId = c.req.param('itemId');
+    const itemId = c.req.param("itemId");
     const data = await c.req.json();
 
     const updateData: Partial<typeof packItems.$inferInsert> = {};
 
-    if ('name' in data) updateData.name = data.name;
-    if ('description' in data) updateData.description = data.description;
-    if ('weight' in data) updateData.weight = data.weight;
-    if ('weightUnit' in data) updateData.weightUnit = data.weightUnit;
-    if ('quantity' in data) updateData.quantity = data.quantity;
-    if ('category' in data) updateData.category = data.category;
-    if ('consumable' in data) updateData.consumable = data.consumable;
-    if ('worn' in data) updateData.worn = data.worn;
-    if ('image' in data) updateData.image = data.image;
-    if ('notes' in data) updateData.notes = data.notes;
-    if ('deleted' in data) updateData.deleted = data.deleted;
+    if ("name" in data) updateData.name = data.name;
+    if ("description" in data) updateData.description = data.description;
+    if ("weight" in data) updateData.weight = data.weight;
+    if ("weightUnit" in data) updateData.weightUnit = data.weightUnit;
+    if ("quantity" in data) updateData.quantity = data.quantity;
+    if ("category" in data) updateData.category = data.category;
+    if ("consumable" in data) updateData.consumable = data.consumable;
+    if ("worn" in data) updateData.worn = data.worn;
+    if ("image" in data) updateData.image = data.image;
+    if ("notes" in data) updateData.notes = data.notes;
+    if ("deleted" in data) updateData.deleted = data.deleted;
 
     updateData.updatedAt = new Date();
 
     // Delete old image from R2 if we are changing image
-    if ('image' in data) {
+    if ("image" in data) {
       try {
         const item = await db.query.packItems.findFirst({
           where: and(
             eq(packItems.id, itemId),
-            eq(packItems.userId, auth.userId)
+            eq(packItems.userId, auth.userId),
           ),
         });
         if (!item) {
-          return c.json({ error: 'Pack item not found' }, 404);
+          return c.json({ error: "Pack item not found" }, 404);
         }
         const oldImage = item.image;
 
@@ -177,11 +203,11 @@ packItemsRoutes.patch('/items/:itemId', async (c) => {
           } = env<Env>(c);
 
           const s3Client = new S3Client({
-            region: 'auto',
+            region: "auto",
             endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
             credentials: {
-              accessKeyId: R2_ACCESS_KEY_ID || '',
-              secretAccessKey: R2_SECRET_ACCESS_KEY || '',
+              accessKeyId: R2_ACCESS_KEY_ID || "",
+              secretAccessKey: R2_SECRET_ACCESS_KEY || "",
             },
           });
 
@@ -204,7 +230,7 @@ packItemsRoutes.patch('/items/:itemId', async (c) => {
       .returning();
 
     if (!updatedItem) {
-      return c.json({ error: 'Pack item not found' }, 404);
+      return c.json({ error: "Pack item not found" }, 404);
     }
 
     // Update the pack's updatedAt timestamp
@@ -212,6 +238,8 @@ packItemsRoutes.patch('/items/:itemId', async (c) => {
       .update(packs)
       .set({ updatedAt: new Date() })
       .where(eq(packs.id, updatedItem.packId));
+
+    await recordPackWeight(db, updatedItem.packId);
 
     return c.json(updatedItem);
   } catch (error) {

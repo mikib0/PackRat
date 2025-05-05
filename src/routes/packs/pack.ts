@@ -1,18 +1,66 @@
 import { createDb } from "@/db";
-import { packs, type PackWithItems } from '@/db/schema';
+import { packs, type PackWithItems } from "@/db/schema";
 import {
   authenticateRequest,
   unauthorizedResponse,
 } from "@/utils/api-middleware";
-import { computePacksWeights, computePackWeights } from '@/utils/compute-pack';
+import { computePacksWeights, computePackWeights } from "@/utils/compute-pack";
 import { getCatalogItems, getPackDetails } from "@/utils/DbUtils";
+import { convertToGrams } from "@/utils/weight";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 
 const packRoutes = new Hono();
 
+// Helper to compute categories summary
+function computeCategorySummaries(items: any[], totalPackWeight: number) {
+  const categoryMap: Record<
+    string,
+    {
+      weightInGrams: number;
+      items: number;
+      originalWeight: number;
+      weightUnit: string;
+    }
+  > = {};
+
+  items.forEach((item) => {
+    const category = item.category;
+    const weight = item.weight ?? 0;
+    const unit = item.weightUnit ?? "g";
+    const convertedWeight = convertToGrams(weight, unit) * item.quantity;
+
+    if (!categoryMap[category]) {
+      categoryMap[category] = {
+        weightInGrams: 0,
+        items: 0,
+        originalWeight: weight,
+        weightUnit: unit,
+      };
+    }
+
+    categoryMap[category].weightInGrams += convertedWeight;
+    categoryMap[category].items += 1;
+  });
+
+  return Object.entries(categoryMap).map(([name, data]) => {
+    const percentage =
+      totalPackWeight > 0 ? (data.weightInGrams / totalPackWeight) * 100 : 0;
+
+    return {
+      name,
+      items: data.items,
+      weight: {
+        value: data.originalWeight,
+        unit: data.weightUnit,
+      },
+      percentage: Math.round(percentage),
+    };
+  });
+}
+
 // Get a specific pack
-packRoutes.get('/:packId', async (c) => {
+packRoutes.get("/:packId", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -20,7 +68,7 @@ packRoutes.get('/:packId', async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param('packId');
+    const packId = c.req.param("packId");
     const pack = await db.query.packs.findFirst({
       where: eq(packs.id, packId),
       with: {
@@ -29,19 +77,29 @@ packRoutes.get('/:packId', async (c) => {
     });
 
     if (!pack) {
-      return c.json({ error: 'Pack not found' }, 404);
+      return c.json({ error: "Pack not found" }, 404);
     }
 
     const packWithWeights = computePacksWeights([pack])[0];
-    return c.json(packWithWeights);
+    const totalPackWeight = packWithWeights.totalWeight ?? 0;
+
+    const categorySummaries = computeCategorySummaries(
+      pack.items,
+      totalPackWeight,
+    );
+
+    return c.json({
+      ...packWithWeights,
+      categories: categorySummaries,
+    });
   } catch (error) {
-    console.error('Error fetching pack:', error);
-    return c.json({ error: 'Failed to fetch pack' }, 500);
+    console.error("Error fetching pack:", error);
+    return c.json({ error: "Failed to fetch pack" }, 500);
   }
 });
 
 // Update a pack
-packRoutes.put('/:packId', async (c) => {
+packRoutes.put("/:packId", async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -49,7 +107,7 @@ packRoutes.put('/:packId', async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param('packId');
+    const packId = c.req.param("packId");
     const data = await c.req.json();
 
     const updatedPack: PackWithItems = await db.transaction(async (tx) => {
@@ -78,14 +136,14 @@ packRoutes.put('/:packId', async (c) => {
     });
 
     if (!updatedPack) {
-      return c.json({ error: 'Pack not found' }, 404);
+      return c.json({ error: "Pack not found" }, 404);
     }
 
     const packWithWeights = computePackWeights(updatedPack);
     return c.json(packWithWeights);
   } catch (error) {
-    console.error('Error updating pack:', error);
-    return c.json({ error: 'Failed to update pack' }, 500);
+    console.error("Error updating pack:", error);
+    return c.json({ error: "Failed to update pack" }, 500);
   }
 });
 
@@ -118,24 +176,24 @@ packRoutes.post("/:packId/item-suggestions", async (c) => {
     const { categories } = await c.req.json();
 
     // Get pack details
-    const pack = await getPackDetails({packId, c});
+    const pack = await getPackDetails({ packId, c });
     if (!pack) {
       return c.json({ error: "Pack not found" }, 404);
     }
 
     // Get catalog items that could be suggested
-    const catalogItems = await getCatalogItems({options: { categories }, c});
+    const catalogItems = await getCatalogItems({ options: { categories }, c });
 
     // For now, let's implement a simple algorithm to suggest items
     // This avoids the AI complexity that's causing issues
 
     // Get existing categories and items in the pack
     const existingCategories = new Set(
-      pack.items.map((item) => item.category || "Uncategorized")
+      pack.items.map((item) => item.category || "Uncategorized"),
     );
 
     const existingItemNames = new Set(
-      pack.items.map((item) => item.name.toLowerCase())
+      pack.items.map((item) => item.name.toLowerCase()),
     );
 
     // Simple suggestion algorithm:
@@ -167,6 +225,5 @@ packRoutes.post("/:packId/item-suggestions", async (c) => {
     return c.json({ error: "Failed to process item suggestions request" }, 500);
   }
 });
-
 
 export { packRoutes };

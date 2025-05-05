@@ -28,7 +28,7 @@ dashboardRoutes.get("", async (c) => {
           items: true,
         },
       }),
-      "g"
+      "g",
     );
 
     const currentPack = recentPacks[0];
@@ -41,16 +41,23 @@ dashboardRoutes.get("", async (c) => {
         packCategoryCount: 0,
         upcomingTripCount: 0,
         weatherAlertCount: 0,
-        gearInventryCount: 0,
+        gearInventoryCount: 0,
         shoppingList: 0,
         packTemplateCount: 0,
       });
     }
 
+    const gearInventoryResult = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(packItems)
+      .where(eq(packItems.userId, Number(auth.userId)));
+
+    const gearInventoryCount = gearInventoryResult[0]?.count ?? 0;
+
     const categoryCountResult = await db
       .select({ count: sql<number>`COUNT(DISTINCT ${packItems.category})` })
       .from(packItems)
-      .where(eq(packItems.packId, Number(currentPack.id)));
+      .where(eq(packItems.packId, currentPack.id));
 
     const packCategoryCount = categoryCountResult[0]?.count ?? 0;
 
@@ -61,7 +68,7 @@ dashboardRoutes.get("", async (c) => {
       packCategoryCount,
       upcomingTripCount: 2,
       weatherAlertCount: 2,
-      gearInventryCount: 20,
+      gearInventoryCount,
       shoppingList: 5,
       packTemplateCount: 4,
     });
