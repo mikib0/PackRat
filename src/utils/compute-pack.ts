@@ -78,7 +78,10 @@ export const computePackWeights = (
 // Helper function to compute weights for a list of packs
 export const computePacksWeights = (
   packs: PackWithItems[],
-  preferredUnit: WeightUnit = "g"
-): PackWithItems[] => {
+  preferredUnit: WeightUnit = 'g'
+): (PackWithItems & {
+  baseWeight: number;
+  totalWeight: number;
+})[] => {
   return packs.map((pack) => computePackWeights(pack, preferredUnit));
 };
