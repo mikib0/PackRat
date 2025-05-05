@@ -1,7 +1,8 @@
 import { Icon, type MaterialIconName } from '@roninoss/icons';
 import { Href, Link, Route, router } from 'expo-router';
 import type React from 'react';
-import { Pressable, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
@@ -14,6 +15,7 @@ import {
   ListSectionHeader,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
+import { useAuthState } from '~/features/auth/hooks/useAuthState';
 import { useDashboardData } from '~/features/packs/hooks/useDashboardData';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -60,9 +62,22 @@ function DemoIcon() {
 
 export function DashboardScreen() {
   const { data, isLoading } = useDashboardData();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const { user } = useAuthState();
+  useEffect(() => {
+    console.log('user', user);
+  }, [user]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRefreshKey((prev) => prev + 1);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <>
+    <View className="flex-1" key={refreshKey}>
       <LargeTitleHeader
         title="Dashboard"
         searchBar={{ iosHideWhenScrolling: true }}
@@ -76,22 +91,9 @@ export function DashboardScreen() {
       />
 
       {isLoading ? (
-        [...Array(6)].map((_, index) => (
-          <View
-            key={index}
-            className={cn(
-              'flex-row items-center gap-4 px-4 py-3',
-              index !== 5 && 'mb-8',
-              index === 0 && 'ios:border-t-0 border-t',
-              'border-border/25 dark:border-border/80'
-            )}>
-            <View className="h-10 w-10 rounded-md bg-gray-300/40 dark:bg-gray-700/30" />
-            <View className="flex-1">
-              <View className="mb-2 h-4 w-1/2 rounded bg-gray-300/40 dark:bg-gray-700/30" />
-              <View className="h-3 w-1/3 rounded bg-gray-200/40 dark:bg-gray-700/20" />
-            </View>
-          </View>
-        ))
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
+        </View>
       ) : data ? (
         <List
           contentContainerClassName="pt-4"
@@ -104,7 +106,7 @@ export function DashboardScreen() {
           sectionHeaderAsGap
         />
       ) : null}
-    </>
+    </View>
   );
 }
 
@@ -148,18 +150,18 @@ function renderItem<T extends ReturnType<typeof transformDashboardData>[number]>
       leftView={item.leftView}
       rightView={
         <View className="flex-1 flex-row items-center justify-center gap-2 px-4">
-          {!!item.rightText && (
+          {item.rightText ? (
             <Text variant="callout" className="ios:px-0 px-2 text-muted-foreground">
               {item.rightText}
             </Text>
-          )}
-          {!!item.badge && (
+          ) : null}
+          {item.badge ? (
             <View className="h-5 w-5 items-center justify-center rounded-full bg-primary">
               <Text variant="footnote" className="font-bold leading-4 text-primary-foreground">
                 {item.badge}
               </Text>
             </View>
-          )}
+          ) : null}
           <ChevronRight />
         </View>
       }
@@ -214,7 +216,7 @@ function transformDashboardData(data: any): DashboardData[] {
     packCategoryCount,
     upcomingTripCount,
     weatherAlertCount,
-    gearInventryCount,
+    gearInventoryCount,
     shoppingList,
     packTemplateCount,
   } = data;
@@ -241,11 +243,11 @@ function transformDashboardData(data: any): DashboardData[] {
         </View>
       ),
       rightText: `${currentPack.totalWeight} g`,
-      route: `/current-pack`,
+      route: `/current-pack/${currentPack.id}`,
     });
   }
 
-  if (recentPacks) {
+  if (recentPacks?.length) {
     output.push({
       id: '2',
       title: 'Recent Packs',
@@ -290,12 +292,14 @@ function transformDashboardData(data: any): DashboardData[] {
 
   output.push('gap 1.5');
 
-  output.push({
-    id: '3',
-    title: 'Pack Stats',
-    leftView: <IconView name="chart-pie" className="bg-blue-500" />,
-    route: '/pack-stats',
-  });
+  if (currentPack) {
+    output.push({
+      id: '3',
+      title: 'Pack Stats',
+      leftView: <IconView name="chart-pie" className="bg-blue-500" />,
+      route: `/pack-stats/${currentPack.id}`,
+    });
+  }
 
   if (packWeight) {
     output.push({
@@ -303,7 +307,7 @@ function transformDashboardData(data: any): DashboardData[] {
       title: 'Weight Analysis',
       leftView: <IconView name="ruler" className="bg-blue-600" />,
       rightText: `Base: ${packWeight} g`,
-      route: '/weight-analysis',
+      route: `/weight-analysis/${currentPack.id}`,
     });
   }
 
@@ -313,7 +317,7 @@ function transformDashboardData(data: any): DashboardData[] {
       title: 'Pack Categories',
       leftView: <IconView name="puzzle" className="bg-green-500" />,
       badge: packCategoryCount,
-      route: '/pack-categories',
+      route: `/pack-categories/${currentPack.id}`,
     });
   }
 
@@ -357,12 +361,12 @@ function transformDashboardData(data: any): DashboardData[] {
 
   output.push('gap 3');
 
-  if (gearInventryCount) {
+  if (gearInventoryCount) {
     output.push({
       id: '9',
       title: 'Gear Inventory',
       leftView: <IconView name="backpack" className="bg-gray-500" />,
-      rightText: `${gearInventryCount} items`,
+      rightText: `${gearInventoryCount} items`,
       route: '/gear-inventory',
     });
   }

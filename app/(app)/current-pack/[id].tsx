@@ -1,101 +1,14 @@
-'use client';
-
-import type React from 'react';
 import { useLocalSearchParams } from 'expo-router';
+import type React from 'react';
 import { useState, useEffect } from 'react';
 import { View, ScrollView } from 'react-native';
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
+import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
+import { usePackDetails } from '~/features/packs/hooks/usePackDetails';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-
-// Mock data for current pack
-const CURRENT_PACK = {
-  id: '1',
-  name: 'Appalachian Trail 2024',
-  totalWeight: '12.4 lbs',
-  baseWeight: '8.2 lbs',
-  consumableWeight: '4.2 lbs',
-  image:
-    'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=400&auto=format&fit=crop',
-  categories: [
-    { name: 'Shelter', weight: '2.3 lbs', items: 3 },
-    { name: 'Sleep System', weight: '1.8 lbs', items: 2 },
-    { name: 'Cooking', weight: '0.9 lbs', items: 4 },
-    { name: 'Water', weight: '0.6 lbs', items: 2 },
-    { name: 'Clothing', weight: '1.5 lbs', items: 7 },
-    { name: 'Electronics', weight: '0.7 lbs', items: 3 },
-    { name: 'First Aid', weight: '0.4 lbs', items: 8 },
-  ],
-  items: [
-    {
-      id: '1',
-      name: 'Tent',
-      weight: '1.8 lbs',
-      category: 'Shelter',
-      worn: false,
-      consumable: false,
-    },
-    {
-      id: '2',
-      name: 'Sleeping Bag',
-      weight: '1.2 lbs',
-      category: 'Sleep System',
-      worn: false,
-      consumable: false,
-    },
-    {
-      id: '3',
-      name: 'Sleeping Pad',
-      weight: '0.6 lbs',
-      category: 'Sleep System',
-      worn: false,
-      consumable: false,
-    },
-    {
-      id: '4',
-      name: 'Stove',
-      weight: '0.3 lbs',
-      category: 'Cooking',
-      worn: false,
-      consumable: false,
-    },
-    {
-      id: '5',
-      name: 'Pot',
-      weight: '0.4 lbs',
-      category: 'Cooking',
-      worn: false,
-      consumable: false,
-    },
-    {
-      id: '6',
-      name: 'Water Filter',
-      weight: '0.2 lbs',
-      category: 'Water',
-      worn: false,
-      consumable: false,
-    },
-    {
-      id: '7',
-      name: 'Water Bottle',
-      weight: '0.4 lbs',
-      category: 'Water',
-      worn: false,
-      consumable: false,
-    },
-    {
-      id: '8',
-      name: 'Food (5 days)',
-      weight: '4.0 lbs',
-      category: 'Food',
-      worn: false,
-      consumable: true,
-    },
-  ],
-};
 
 function WeightCard({
   title,
@@ -103,7 +16,7 @@ function WeightCard({
   className,
 }: {
   title: string;
-  weight: string;
+  weight: number;
   className?: string;
 }) {
   return (
@@ -112,13 +25,12 @@ function WeightCard({
         {title}
       </Text>
       <Text variant="title2" className="mt-1 font-semibold">
-        {weight}
+        {weight} g
       </Text>
     </View>
   );
 }
 
-// Custom list component to avoid issues with the List component
 function CustomList({
   data,
   renderItem,
@@ -136,9 +48,10 @@ function CustomList({
     </View>
   );
 }
-
 function CategoryItem({ category, index }: { category: any; index: number }) {
   const { colors } = useColorScheme();
+  const itemLabel = category.items === 1 ? 'item' : 'items';
+
   return (
     <View
       className={cn(
@@ -148,7 +61,7 @@ function CategoryItem({ category, index }: { category: any; index: number }) {
       <View>
         <Text>{category.name}</Text>
         <Text variant="footnote" className="text-muted-foreground">
-          {category.weight} • {category.items} items
+          {category.weight.value} {category.weight.unit} • {category.items} {itemLabel}
         </Text>
       </View>
       <View
@@ -191,7 +104,7 @@ function ItemRow({ item, index }: { item: any; index: number }) {
           </View>
         )}
         <Text variant="subhead" className="text-muted-foreground">
-          {item.weight}
+          {item.weight} {item.weightUnit}
         </Text>
       </View>
     </View>
@@ -202,14 +115,16 @@ export default function CurrentPackScreen() {
   const params = useLocalSearchParams();
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Force a re-render after initial mount to fix layout issues
+  const pack = usePackDetails(params.id as string);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setRefreshKey((prev) => prev + 1);
     }, 50);
-
     return () => clearTimeout(timer);
   }, []);
+
+  const uniqueCategories = pack.categories ?? [];
 
   return (
     <View className="flex-1" key={refreshKey}>
@@ -219,15 +134,15 @@ export default function CurrentPackScreen() {
         contentContainerStyle={{ paddingBottom: 32 }}
         removeClippedSubviews={false}>
         <View className="flex-row items-center p-4">
-          <Avatar className="mr-4 h-16 w-16">
-            <AvatarImage source={{ uri: CURRENT_PACK.image }} />
+          <Avatar className="mr-4 h-16 w-16" alt="">
+            <AvatarImage source={{ uri: pack.image }} />
             <AvatarFallback>
-              <Text>{CURRENT_PACK.name.substring(0, 2)}</Text>
+              <Text>{pack.name.substring(0, 2)}</Text>
             </AvatarFallback>
           </Avatar>
           <View className="flex-1">
             <Text variant="title2" className="font-semibold">
-              {CURRENT_PACK.name}
+              {pack.name}
             </Text>
             <Text variant="subhead" className="mt-1 text-muted-foreground">
               Last updated: 2 days ago
@@ -236,8 +151,8 @@ export default function CurrentPackScreen() {
         </View>
 
         <View className="mb-4 flex-row gap-3 px-4">
-          <WeightCard title="Total Weight" weight={CURRENT_PACK.totalWeight} />
-          <WeightCard title="Base Weight" weight={CURRENT_PACK.baseWeight} />
+          <WeightCard title="Total Weight" weight={pack?.totalWeight ?? 0} />
+          <WeightCard title="Base Weight" weight={pack?.baseWeight ?? 0} />
         </View>
 
         {/* Categories Section */}
@@ -249,7 +164,7 @@ export default function CurrentPackScreen() {
           </View>
 
           <CustomList
-            data={CURRENT_PACK.categories}
+            data={uniqueCategories}
             keyExtractor={(item) => item.name}
             renderItem={(item, index) => <CategoryItem category={item} index={index} />}
           />
@@ -264,7 +179,7 @@ export default function CurrentPackScreen() {
           </View>
 
           <CustomList
-            data={CURRENT_PACK.items}
+            data={pack.items}
             keyExtractor={(_, index) => index.toString()}
             renderItem={(item, index) => <ItemRow item={item} index={index} />}
           />

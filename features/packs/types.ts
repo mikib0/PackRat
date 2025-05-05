@@ -45,7 +45,20 @@ export type PackCategory =
   | 'skiing'
   | 'custom';
 
+export type Weight = {
+  value: number;
+  unit: string;
+};
+
+export interface PackItemCategory {
+  items: number;
+  name: string;
+  weight: Weight;
+  percentage: number;
+}
+
 export interface Pack {
+  categories: PackItemCategory[];
   id: string;
   name: string;
   description?: string;
