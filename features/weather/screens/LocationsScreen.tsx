@@ -10,6 +10,7 @@ import {
   ScrollView,
   Keyboard,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAtom } from 'jotai';
@@ -102,7 +103,7 @@ export default function LocationsScreen() {
   };
 
   return (
-    <>
+    <SafeAreaView>
       <LargeTitleHeader
         title="Weather"
         rightView={() => (
@@ -228,6 +229,6 @@ export default function LocationsScreen() {
           </>
         )}
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 }
