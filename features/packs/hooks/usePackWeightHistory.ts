@@ -62,7 +62,7 @@ const filterLast6Months = (data: any[]) => {
   const today = new Date();
   const sixMonthsAgo = new Date(today);
   sixMonthsAgo.setMonth(today.getMonth() - 6);
-  return data.filter((entry) => new Date(entry.createdAt) >= sixMonthsAgo);
+  return data.filter((entry) => new Date(entry.localCreatedAt) >= sixMonthsAgo);
 };
 
 export function usePackWeightHistory(packId: string) {
