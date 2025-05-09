@@ -71,36 +71,38 @@ export const packs = pgTable('packs', {
   image: text('image'),
   tags: jsonb('tags').$type<string[]>(),
   deleted: boolean('deleted').default(false),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  localCreatedAt: timestamp('local_created_at').notNull(),
+  localUpdatedAt: timestamp('local_updated_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(), // for controlling sync. controlled by server.
+  updatedAt: timestamp('updated_at').defaultNow().notNull(), // for controlling sync. controlled by server.
 });
 
 // Catalog items table
-export const catalogItems = pgTable("catalog_items", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description"),
-  defaultWeight: real("default_weight"),
-  defaultWeightUnit: text("default_weight_unit"),
-  category: text("category"),
-  image: text("image"),
-  brand: text("brand"),
-  model: text("model"),
-  url: text("url"),
-  ratingValue: real("rating_value"),
-  productUrl: text("product_url"),
-  color: text("color"),
-  size: text("size"),
-  sku: text("sku"),
-  price: real("price"),
-  availability: text("availability"),
-  seller: text("seller"),
-  productSku: text("product_sku"),
-  material: text("material"),
-  currency: text("currency"),
-  condition: text("condition"),
-  techs: jsonb("techs").$type<Record<string, string>>(),
-  links: jsonb("links").$type<
+export const catalogItems = pgTable('catalog_items', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description'),
+  defaultWeight: real('default_weight'),
+  defaultWeightUnit: text('default_weight_unit'),
+  category: text('category'),
+  image: text('image'),
+  brand: text('brand'),
+  model: text('model'),
+  url: text('url'),
+  ratingValue: real('rating_value'),
+  productUrl: text('product_url'),
+  color: text('color'),
+  size: text('size'),
+  sku: text('sku'),
+  price: real('price'),
+  availability: text('availability'),
+  seller: text('seller'),
+  productSku: text('product_sku'),
+  material: text('material'),
+  currency: text('currency'),
+  condition: text('condition'),
+  techs: jsonb('techs').$type<Record<string, string>>(),
+  links: jsonb('links').$type<
     Array<{
       id: string;
       title: string;
@@ -108,7 +110,7 @@ export const catalogItems = pgTable("catalog_items", {
       type: string;
     }>
   >(),
-  reviews: jsonb("reviews").$type<
+  reviews: jsonb('reviews').$type<
     Array<{
       id: string;
       userId: string;
@@ -122,8 +124,8 @@ export const catalogItems = pgTable("catalog_items", {
     }>
   >(),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 // Pack items table
@@ -142,22 +144,26 @@ export const packItems = pgTable('pack_items', {
   packId: text('pack_id')
     .references(() => packs.id, { onDelete: 'cascade' })
     .notNull(),
-  catalogItemId: integer("catalog_item_id").references(() => catalogItems.id),
-  userId: integer("user_id")
+  catalogItemId: integer('catalog_item_id').references(() => catalogItems.id),
+  userId: integer('user_id')
     .references(() => users.id)
     .notNull(),
   deleted: boolean('deleted').default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export const packWeightHistory = pgTable("weight_history", {
-  id: serial("id").primaryKey(),
-  packId: text("pack_id")
-    .references(() => packs.id, { onDelete: "cascade" })
+export const packWeightHistory = pgTable('weight_history', {
+  id: text('id').primaryKey(),
+  userId: integer('user_id')
+    .references(() => users.id)
     .notNull(),
-  weight: real("weight").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  packId: text('pack_id')
+    .references(() => packs.id, { onDelete: 'cascade' })
+    .notNull(),
+  weight: real('weight').notNull(),
+  localCreatedAt: timestamp('local_created_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 // Define relations
