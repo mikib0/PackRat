@@ -7,6 +7,7 @@ import { tokenAtom, refreshTokenAtom, isLoadingAtom, redirectToAtom } from '../a
 import { packItemsSyncState, packsSyncState } from '~/features/packs/store';
 import { isAuthed, userStore, userSyncState } from '~/features/auth/store';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
+import { packWeigthHistorySyncState } from '~/features/packs/store/packWeightHistory';
 
 function redirect(route: string) {
   try {
@@ -215,6 +216,7 @@ export function useAuthActions() {
       packsSyncState.clearPersist();
       packItemsSyncState.clearPersist();
       userSyncState.clearPersist();
+      packWeigthHistorySyncState.clearPersist();
       isAuthed.set(false);
       ImageCacheManager.clearCache();
       router.replace('/');

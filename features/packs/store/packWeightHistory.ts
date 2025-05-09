@@ -1,0 +1,88 @@
+import { observable, syncState } from '@legendapp/state';
+import { syncedCrud } from '@legendapp/state/sync-plugins/crud';
+import axiosInstance, { handleApiError } from '~/lib/api/client';
+import { syncObservable } from '@legendapp/state/sync';
+import Storage from 'expo-sqlite/kv-store';
+import { observablePersistSqlite } from '@legendapp/state/persist-plugins/expo-sqlite';
+import { Pack, PackInStore, PackWeightHistoryEntry } from '../types';
+import { isAuthed } from '~/features/auth/store';
+import { getPackItems, packItemsStore } from './packItems';
+import { nanoid } from 'nanoid/non-secure';
+import { computePackWeights } from '../utils';
+import { packsStore } from './packs';
+
+const listPackWeightHistories = async () => {
+  try {
+    const res = await axiosInstance.get('/api/packs/weight-history');
+    return res.data;
+  } catch (error) {
+    const { message } = handleApiError(error);
+    throw new Error(`Failed to list packWeightHistories: ${message}`);
+  }
+};
+const createPackWeightHistoryEntry = async (packWeightHistoryEntry: PackWeightHistoryEntry) => {
+  try {
+    const response = await axiosInstance.post(
+      `/api/packs/${packWeightHistoryEntry.packId}/weight-history`,
+      packWeightHistoryEntry
+    );
+    return response.data;
+  } catch (error) {
+    const { message } = handleApiError(error);
+    throw new Error(`Failed to create packWeightHistoryEntry: ${message}`);
+  }
+};
+
+export const packWeigthHistoryStore = observable<Record<string, PackWeightHistoryEntry>>({});
+
+syncObservable(
+  packWeigthHistoryStore,
+  syncedCrud({
+    fieldCreatedAt: 'createdAt',
+    persist: {
+      plugin: observablePersistSqlite(Storage),
+      retrySync: true,
+      name: 'packWeigthHistory',
+    },
+    waitFor: isAuthed,
+    waitForSet: isAuthed,
+    retry: {
+      infinite: true, // Keep retrying until it saves
+      backoff: 'exponential',
+      maxDelay: 30000,
+    },
+    list: listPackWeightHistories,
+    create: createPackWeightHistoryEntry,
+    changesSince: 'last-sync',
+    subscribe: ({ refresh }) => {
+      const intervalId = setInterval(() => {
+        refresh();
+      }, 30000); // 30 seconds interval
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    },
+  })
+);
+
+packItemsStore.onChange(({ changes }) => {
+  changes.forEach(({ valueAtPath: currentItem, prevAtPath: prevItem }) => {
+    if (currentItem.weight === prevItem.weight) return;
+    // TODO (refactor): enhance getting of pack items and total weight logic in general
+    const items = getPackItems(currentItem.packId);
+    const packWithWeights = computePackWeights({ ...packsStore[currentItem.packId].peek(), items });
+    const id = nanoid();
+
+    packWeigthHistoryStore[id].set({
+      id,
+      packId: currentItem.packId,
+      weight: packWithWeights.totalWeight,
+      localCreatedAt: new Date().toISOString(),
+    });
+  });
+});
+
+export const packWeigthHistorySyncState = syncState(packWeigthHistoryStore);
+
+export type PackWeigthHistoryStore = typeof packWeigthHistoryStore;

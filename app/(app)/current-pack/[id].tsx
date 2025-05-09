@@ -6,9 +6,12 @@ import { View, ScrollView } from 'react-native';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
+import { userStore } from '~/features/auth/store';
 import { usePackDetails } from '~/features/packs/hooks/usePackDetails';
+import { computeCategorySummaries } from '~/features/packs/utils';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { getRelativeTime } from '~/lib/utils/getRelativeTime';
 
 function WeightCard({
   title,
@@ -61,7 +64,8 @@ function CategoryItem({ category, index }: { category: any; index: number }) {
       <View>
         <Text>{category.name}</Text>
         <Text variant="footnote" className="text-muted-foreground">
-          {category.weight.value} {category.weight.unit} • {category.items} {itemLabel}
+          {category.weight} {userStore.preferredWeightUnit.peek() ?? 'g'} • {category.items}{' '}
+          {itemLabel}
         </Text>
       </View>
       <View
@@ -113,21 +117,12 @@ function ItemRow({ item, index }: { item: any; index: number }) {
 
 export default function CurrentPackScreen() {
   const params = useLocalSearchParams();
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const pack = usePackDetails(params.id as string);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setRefreshKey((prev) => prev + 1);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const uniqueCategories = pack.categories ?? [];
+  const uniqueCategories = computeCategorySummaries(pack);
 
   return (
-    <View className="flex-1" key={refreshKey}>
+    <View className="flex-1">
       <LargeTitleHeader title="Current Pack" />
       <ScrollView
         className="flex-1"
@@ -145,7 +140,7 @@ export default function CurrentPackScreen() {
               {pack.name}
             </Text>
             <Text variant="subhead" className="mt-1 text-muted-foreground">
-              Last updated: 2 days ago
+              Last updated: {getRelativeTime(pack.localUpdatedAt)}
             </Text>
           </View>
         </View>

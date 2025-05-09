@@ -58,7 +58,6 @@ export interface PackItemCategory {
 }
 
 export interface Pack {
-  categories: PackItemCategory[];
   id: string;
   name: string;
   description?: string;
@@ -68,18 +67,22 @@ export interface Pack {
   image?: string;
   tags?: string[];
   items: PackItem[];
-  baseWeight?: number;
-  totalWeight?: number;
+  baseWeight: number;
+  totalWeight: number;
   deleted: boolean;
+  localCreatedAt: string;
+  localUpdatedAt: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface PackInput {
-  name: string;
-  description?: string;
-  category: PackCategory;
-  isPublic: boolean;
-  image?: string;
-  tags?: string[];
+export type PackInStore = Omit<Pack, 'items' | 'baseWeight' | 'totalWeight'>;
+
+export type PackInput = Omit<PackInStore, 'id' | 'userId' | 'deleted' | 'createdAt' | 'updatedAt'>;
+
+export interface PackWeightHistoryEntry {
+  id: string;
+  packId: string;
+  weight: number;
+  localCreatedAt: string;
 }
