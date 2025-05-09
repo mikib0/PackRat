@@ -1,21 +1,23 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { Icon } from '@roninoss/icons';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { FlatList, Image, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+
+import { useDeletePack, usePackDetails } from '../hooks';
+
 import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { Chip } from '~/components/initial/Chip';
-import { PackItemCard } from '~/features/packs/components/PackItemCard';
 import { WeightBadge } from '~/components/initial/WeightBadge';
-import { Button } from '~/components/nativewindui/Button';
-import { useDeletePack, usePackDetails } from '../hooks';
-import { cn } from '~/lib/cn';
-import { NotFoundScreen } from '~/screens/NotFoundScreen';
-import type { PackItem } from '~/types';
-import { Icon } from '@roninoss/icons';
 import { Alert } from '~/components/nativewindui/Alert';
-import { PackItemSuggestions } from '~/features/packs/components/PackItemSuggestions';
-import { useColorScheme } from '~/lib/useColorScheme';
+import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { isAuthed } from '~/features/auth/store';
+import { PackItemCard } from '~/features/packs/components/PackItemCard';
+import { PackItemSuggestions } from '~/features/packs/components/PackItemSuggestions';
+import { cn } from '~/lib/cn';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { NotFoundScreen } from '~/screens/NotFoundScreen';
+import type { PackItem } from '~/types';
 
 export function PackDetailScreen() {
   const router = useRouter();
@@ -24,6 +26,11 @@ export function PackDetailScreen() {
   const [activeTab, setActiveTab] = useState('all');
 
   const pack = usePackDetails(id as string);
+  useFocusEffect(
+    useCallback(() => {
+      pack.refetch?.();
+    }, [pack])
+  );
   const deletePack = useDeletePack();
   const { colors } = useColorScheme();
 

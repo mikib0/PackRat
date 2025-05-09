@@ -1,8 +1,9 @@
 import { Icon, type MaterialIconName } from '@roninoss/icons';
-import { Href, Link, Route, router } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
+import { Href, Link, router, useFocusEffect } from 'expo-router';
 import type React from 'react';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { useCallback, useEffect } from 'react';
+import { ActivityIndicator, Pressable, SafeAreaView, View } from 'react-native';
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
@@ -15,15 +16,15 @@ import {
   ListSectionHeader,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
+import { withAuthWall } from '~/features/auth/hocs';
 import { useAuthState } from '~/features/auth/hooks/useAuthState';
+import { isAuthed } from '~/features/auth/store';
+import { DashboardAuthWall } from '~/features/dashboard/components';
 import { useDashboardData } from '~/features/packs/hooks/useDashboardData';
+import { WeatherTile } from '~/features/weather/components/WeatherTile';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { Pack } from '~/types';
-import { isAuthed } from '~/features/auth/store';
-import { withAuthWall } from '~/features/auth/hocs';
-import { DashboardAuthWall } from '~/features/dashboard/components';
-import { WeatherTile } from '~/features/weather/components/WeatherTile';
 
 function SettingsIcon() {
   const { colors } = useColorScheme();
@@ -62,22 +63,21 @@ function DemoIcon() {
 
 export function DashboardScreen() {
   const { data, isLoading } = useDashboardData();
-  const [refreshKey, setRefreshKey] = useState(0);
-
   const { user } = useAuthState();
+  const queryClient = useQueryClient();
+
+  useFocusEffect(
+    useCallback(() => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    }, [queryClient])
+  );
+
   useEffect(() => {
     console.log('user', user);
   }, [user]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setRefreshKey((prev) => prev + 1);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
-    <View className="flex-1" key={refreshKey}>
+    <SafeAreaView className="flex-1">
       <LargeTitleHeader
         title="Dashboard"
         searchBar={{ iosHideWhenScrolling: true }}
@@ -106,7 +106,7 @@ export function DashboardScreen() {
           sectionHeaderAsGap
         />
       ) : null}
-    </View>
+    </SafeAreaView>
   );
 }
 
