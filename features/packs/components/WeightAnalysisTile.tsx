@@ -14,7 +14,7 @@ export function WeightAnalysisTile() {
   const currentPack = useCurrentPack();
   const alertRef = useRef<AlertRef>(null);
 
-  const packWeight = currentPack.totalWeight;
+  const packWeight = currentPack?.totalWeight ?? 0;
   const route: Href | null = currentPack ? `/weight-analysis/${currentPack.id}` : null;
 
   const handlePress = () => {

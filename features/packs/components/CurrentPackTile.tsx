@@ -32,7 +32,7 @@ export function CurrentPackTile() {
           <Avatar alt="Current pack avatar">
             <AvatarImage source={{ uri: avatarImage }} />
             <AvatarFallback>
-              <Text>{currentPack.name.slice(0, 2).toUpperCase()}</Text>
+              <Text>{currentPack ? currentPack.name.slice(0, 2).toUpperCase() : 'NA'}</Text>
             </AvatarFallback>
           </Avatar>
         </View>
