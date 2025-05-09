@@ -69,7 +69,7 @@ syncObservable(
 
 packItemsStore.onChange(({ changes }) => {
   changes.forEach(({ valueAtPath: currentItem, prevAtPath: prevItem }) => {
-    if (currentItem.weight === prevItem.weight) return;
+    if (currentItem.weight === prevItem?.weight) return;
     // TODO (refactor): enhance getting of pack items and total weight logic in general
     const items = getPackItems(currentItem.packId);
     const packWithWeights = computePackWeights({ ...packsStore[currentItem.packId].peek(), items });
