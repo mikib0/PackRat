@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import type React from 'react';
 import { useState, useEffect } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, SafeAreaView } from 'react-native';
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
@@ -122,7 +122,7 @@ export default function CurrentPackScreen() {
   const uniqueCategories = computeCategorySummaries(pack);
 
   return (
-    <View className="flex-1">
+    <SafeAreaView className="flex-1">
       <LargeTitleHeader title="Current Pack" />
       <ScrollView
         className="flex-1"
@@ -180,6 +180,6 @@ export default function CurrentPackScreen() {
           />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

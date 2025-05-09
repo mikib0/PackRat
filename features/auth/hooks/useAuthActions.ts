@@ -173,7 +173,7 @@ export function useAuthActions() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message || 'Registration failed');
+        throw new Error(responseData.error || 'Registration failed');
       }
     } catch (error: any) {
       console.error('Registration error:', error.message);

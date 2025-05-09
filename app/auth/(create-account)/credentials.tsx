@@ -192,6 +192,7 @@ export default function CredentialsScreen() {
                         onSubmitEditing={() => KeyboardController.setFocusTo('next')}
                         submitBehavior="submit"
                         autoFocus
+                        autoCapitalize="none"
                         onFocus={() => setFocusedTextField('email')}
                         onBlur={() => {
                           setFocusedTextField(null);
