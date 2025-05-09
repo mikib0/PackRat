@@ -4,7 +4,7 @@ import axiosInstance, { handleApiError } from '~/lib/api/client';
 import { syncObservable } from '@legendapp/state/sync';
 import Storage from 'expo-sqlite/kv-store';
 import { observablePersistSqlite } from '@legendapp/state/persist-plugins/expo-sqlite';
-import { Pack, PackInStore, PackWeightHistoryEntry } from '../types';
+import { PackWeightHistoryEntry } from '../types';
 import { isAuthed } from '~/features/auth/store';
 import { getPackItems, packItemsStore } from './packItems';
 import { nanoid } from 'nanoid/non-secure';
@@ -39,6 +39,7 @@ syncObservable(
   packWeigthHistoryStore,
   syncedCrud({
     fieldCreatedAt: 'createdAt',
+    mode: 'merge',
     persist: {
       plugin: observablePersistSqlite(Storage),
       retrySync: true,
