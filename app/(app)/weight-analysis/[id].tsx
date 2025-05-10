@@ -1,7 +1,6 @@
 'use client';
 import { useLocalSearchParams } from 'expo-router';
-import { useState, useEffect } from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView, SafeAreaView } from 'react-native';
 
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
@@ -46,7 +45,7 @@ export default function WeightAnalysisScreen() {
   const preferredWeightUnit = userStore.preferredWeightUnit.peek() ?? 'g';
 
   return (
-    <View className="flex-1">
+    <SafeAreaView className="flex-1">
       <LargeTitleHeader title="Weight Analysis" />
       <ScrollView
         className="flex-1"
@@ -126,6 +125,6 @@ export default function WeightAnalysisScreen() {
           </Text>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

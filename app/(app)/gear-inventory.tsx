@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native'; // 👈 import ActivityIndicator
+import { View, ScrollView, Pressable, ActivityIndicator, SafeAreaView } from 'react-native'; // 👈 import ActivityIndicator
 
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
@@ -47,7 +47,7 @@ export default function GearInventoryScreen() {
   const itemsByCategory = groupByCategory(items);
 
   return (
-    <>
+    <SafeAreaView className="flex-1">
       <LargeTitleHeader title="Gear Inventory" />
       <ScrollView className="flex-1">
         <View className="flex-row items-center justify-between p-4">
@@ -97,6 +97,6 @@ export default function GearInventoryScreen() {
           </View>
         )}
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 }
