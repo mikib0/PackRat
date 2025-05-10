@@ -156,7 +156,7 @@ export const packItems = pgTable('pack_items', {
 export const packWeightHistory = pgTable('weight_history', {
   id: text('id').primaryKey(),
   userId: integer('user_id')
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   packId: text('pack_id')
     .references(() => packs.id, { onDelete: 'cascade' })

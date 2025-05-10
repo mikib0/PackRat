@@ -57,6 +57,13 @@
       "when": 1746777713756,
       "tag": "0007_clammy_sugar_man",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1746876691228,
+      "tag": "0008_bright_avengers",
+      "breakpoints": true
     }
   ]
 }
