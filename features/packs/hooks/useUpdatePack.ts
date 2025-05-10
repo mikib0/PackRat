@@ -4,7 +4,7 @@ import type { Pack } from '../types';
 
 export function useUpdatePack() {
   const updatePack = useCallback((pack: Pack) => {
-    packsStore[pack.id].set(pack);
+    packsStore[pack.id].set({ ...pack, localUpdatedAt: new Date().toISOString() });
   }, []);
 
   return updatePack;

@@ -1,30 +1,31 @@
-import { Icon, type MaterialIconName } from '@roninoss/icons';
-import { useQueryClient } from '@tanstack/react-query';
-import { Href, Link, router, useFocusEffect } from 'expo-router';
-import type React from 'react';
-import { useCallback, useEffect } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, View } from 'react-native';
+import { Icon } from '@roninoss/icons';
+import { Link } from 'expo-router';
+import { Pressable, View } from 'react-native';
 
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import {
   ESTIMATED_ITEM_HEIGHT,
   List,
-  type ListDataItem,
-  ListItem,
   type ListRenderItemInfo,
   ListSectionHeader,
 } from '~/components/nativewindui/List';
-import { Text } from '~/components/nativewindui/Text';
-import { withAuthWall } from '~/features/auth/hocs';
-import { useAuthState } from '~/features/auth/hooks/useAuthState';
-import { isAuthed } from '~/features/auth/store';
-import { DashboardAuthWall } from '~/features/dashboard/components';
-import { useDashboardData } from '~/features/packs/hooks/useDashboardData';
-import { WeatherTile } from '~/features/weather/components/WeatherTile';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Pack } from '~/types';
+import { WeatherTile } from '~/features/weather/components/WeatherTile';
+import { CurrentPackTile } from '~/features/packs/components/CurrentPackTile';
+import { RecentPacksTile } from '~/features/packs/components/RecentPacksTile';
+import { AIChatTile } from '~/features/ai/components/AIChatTile';
+import { PackStatsTile } from '~/features/packs/components/PackStatsTile';
+import { WeightAnalysisTile } from '~/features/packs/components/WeightAnalysisTile';
+import { PackCategoriesTile } from '~/features/packs/components/PackCategoriesTile';
+import { UpcomingTripsTile } from '~/features/trips/components/UpcomingTripsTile';
+import { TrailConditionsTile } from '~/features/trips/components/TrailConditionsTile';
+import { WeatherAlertsTile } from '~/features/weather/components/WeatherAlertsTile';
+import { GearInventoryTile } from '~/features/packs/components/GearInventoryTile';
+import { SharedPacksTile } from '~/features/packs/components/SharedPacksTile';
+import { PackTemplatesTile } from '~/features/pack-templates/components/PackTemplatesTile';
+import { ShoppingListTile } from '~/features/packs/components/ShoppingListTile';
+import { featureFlags } from '~/config';
 
 function SettingsIcon() {
   const { colors } = useColorScheme();
@@ -61,23 +62,39 @@ function DemoIcon() {
   );
 }
 
-export function DashboardScreen() {
-  const { data, isLoading } = useDashboardData();
-  const { user } = useAuthState();
-  const queryClient = useQueryClient();
-
-  useFocusEffect(
-    useCallback(() => {
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    }, [queryClient])
-  );
-
-  useEffect(() => {
-    console.log('user', user);
-  }, [user]);
+export default function DashboardScreen() {
+  const dashboardLayout = [
+    { id: 'current-pack', component: CurrentPackTile },
+    { id: 'recent-packs', component: RecentPacksTile },
+    'gap 1',
+    { id: 'ask-packrat-ai', component: AIChatTile },
+    'gap 1.5',
+    { id: 'pack-stats', component: PackStatsTile },
+    { id: 'weight-analysis', component: WeightAnalysisTile },
+    { id: 'pack-categories', component: PackCategoriesTile },
+    ...(featureFlags.enableTrips
+      ? [
+          'gap 2',
+          { id: 'upcoming-trips', component: UpcomingTripsTile },
+          { id: 'trail-conditions', component: TrailConditionsTile },
+        ]
+      : []),
+    'gap 2.5',
+    { id: 'weather', component: WeatherTile },
+    ...(featureFlags.enableTrips ? [{ id: 'weather-alerts', component: WeatherAlertsTile }] : []),
+    'gap 3',
+    { id: 'gear-inventory', component: GearInventoryTile },
+    ...(featureFlags.enableShoppingList
+      ? [{ id: 'shopping-list', component: ShoppingListTile }]
+      : []),
+    ...(featureFlags.enableSharedPacks ? [{ id: 'shared-packs', component: SharedPacksTile }] : []),
+    ...(featureFlags.enablePackTemplates
+      ? [{ id: 'pack-templates', component: PackTemplatesTile }]
+      : []),
+  ];
 
   return (
-    <SafeAreaView className="flex-1">
+    <View className="flex-1">
       <LargeTitleHeader
         title="Dashboard"
         searchBar={{ iosHideWhenScrolling: true }}
@@ -90,313 +107,34 @@ export function DashboardScreen() {
         )}
       />
 
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
-        </View>
-      ) : data ? (
-        <List
-          contentContainerClassName="pt-4"
-          contentInsetAdjustmentBehavior="automatic"
-          variant="insets"
-          data={transformDashboardData(data)}
-          estimatedItemSize={ESTIMATED_ITEM_HEIGHT.titleOnly}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          sectionHeaderAsGap
-        />
-      ) : null}
-    </SafeAreaView>
-  );
-}
-
-export default withAuthWall(DashboardScreen, DashboardAuthWall);
-
-function renderItem<T extends ReturnType<typeof transformDashboardData>[number]>(
-  info: ListRenderItemInfo<T>
-) {
-  if (typeof info.item === 'string') {
-    return <ListSectionHeader {...info} />;
-  }
-
-  if (info.item.route === '/weather') {
-    return <WeatherTile />;
-  }
-
-  const item = info.item as DashboardDataItem;
-
-  const handlePress = () => {
-    if (!isAuthed.peek() && item.protected) {
-      // If the user is not authenticated and the feature is protected, redirect to the auth page
-      return router.push({
-        pathname: '/auth',
-        params: {
-          redirectTo: typeof item.route === 'string' ? item.route : JSON.stringify(item.route), // stringifying to pass along parameters e.g when route = { pathname: 'ai-chat', params: { contexType: 'general' } }
-          showSignInCopy: 'true',
-        },
-      });
-    }
-
-    router.push(item.route);
-  };
-
-  return (
-    <ListItem
-      className={cn(
-        'ios:pl-0 pl-2',
-        info.index === 0 && 'ios:border-t-0 border-border/25 dark:border-border/80 border-t'
-      )}
-      titleClassName="text-lg"
-      leftView={item.leftView}
-      rightView={
-        <View className="flex-1 flex-row items-center justify-center gap-2 px-4">
-          {item.rightText ? (
-            <Text variant="callout" className="ios:px-0 px-2 text-muted-foreground">
-              {item.rightText}
-            </Text>
-          ) : null}
-          {item.badge ? (
-            <View className="h-5 w-5 items-center justify-center rounded-full bg-primary">
-              <Text variant="footnote" className="font-bold leading-4 text-primary-foreground">
-                {item.badge}
-              </Text>
-            </View>
-          ) : null}
-          <ChevronRight />
-        </View>
-      }
-      item={{
-        title: item.title,
-        subTitle: item.subTitle,
-      }}
-      onPress={handlePress}
-      target="Cell"
-      index={0}
-    />
-  );
-}
-
-function ChevronRight() {
-  const { colors } = useColorScheme();
-  return <Icon name="chevron-right" size={17} color={colors.grey} />;
-}
-
-function IconView({ className, name }: { className?: string; name: MaterialIconName }) {
-  return (
-    <View className="px-3">
-      <View className={cn('h-6 w-6 items-center justify-center rounded-md', className)}>
-        <Icon name={name} size={15} color="white" />
-      </View>
+      <List
+        contentContainerClassName="pt-4"
+        contentInsetAdjustmentBehavior="automatic"
+        variant="insets"
+        data={dashboardLayout}
+        estimatedItemSize={ESTIMATED_ITEM_HEIGHT.titleOnly}
+        renderItem={renderDashboardItem}
+        keyExtractor={keyExtractor}
+        sectionHeaderAsGap
+      />
     </View>
   );
 }
 
-function keyExtractor(item: (Omit<ListDataItem, string> & { id: string; route: Href }) | string) {
-  return typeof item === 'string' ? item : item.id;
+function renderDashboardItem(info: ListRenderItemInfo<any>) {
+  const item = info.item;
+
+  if (typeof item === 'string') {
+    return <ListSectionHeader {...info} />;
+  }
+
+  const Component = item.component;
+  return <Component />;
 }
 
-type DashboardDataItem = {
-  id: string;
-  title: string;
-  subTitle?: string;
-  leftView?: React.ReactNode;
-  rightText?: string;
-  badge?: number;
-  route: Href;
-  protected?: boolean;
-};
-
-type DashboardData = DashboardDataItem | string;
-
-function transformDashboardData(data: any): DashboardData[] {
-  const {
-    currentPack,
-    recentPacks,
-    packWeight,
-    packCategoryCount,
-    upcomingTripCount,
-    weatherAlertCount,
-    gearInventoryCount,
-    shoppingList,
-    packTemplateCount,
-  } = data;
-
-  const fallbackImage =
-    'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=400&auto=format&fit=crop';
-
-  const output: DashboardData[] = [];
-
-  if (currentPack) {
-    const avatarImage = currentPack.image || fallbackImage;
-    output.push({
-      id: '1',
-      title: 'Current Pack',
-      subTitle: currentPack.name,
-      leftView: (
-        <View className="px-3">
-          <Avatar alt="Current pack avatar">
-            <AvatarImage source={{ uri: avatarImage }} />
-            <AvatarFallback>
-              <Text>{currentPack.name.slice(0, 2).toUpperCase()}</Text>
-            </AvatarFallback>
-          </Avatar>
-        </View>
-      ),
-      rightText: `${currentPack.totalWeight} g`,
-      route: `/current-pack/${currentPack.id}`,
-    });
+function keyExtractor(item: any) {
+  if (typeof item === 'string') {
+    return item;
   }
-
-  if (recentPacks?.length) {
-    output.push({
-      id: '2',
-      title: 'Recent Packs',
-      leftView: (
-        <View className="flex-row px-3">
-          {recentPacks.slice(0, 2).map((pack: Pack, index: number) => {
-            const img = pack.image || fallbackImage;
-            return (
-              <Avatar
-                key={index}
-                alt={`${pack.name} avatar`}
-                className={cn('h-6 w-6', index > 0 && '-ml-2')}>
-                <AvatarImage source={{ uri: img }} />
-                <AvatarFallback>
-                  <Text>{pack.name.slice(0, 2).toUpperCase()}</Text>
-                </AvatarFallback>
-              </Avatar>
-            );
-          })}
-        </View>
-      ),
-      badge: recentPacks.length,
-      route: '/recent-packs',
-    });
-  }
-
-  output.push('gap 1');
-
-  output.push({
-    id: '13',
-    title: 'Ask PackRat AI',
-    leftView: <IconView name="message" className="bg-purple-500" />,
-    rightText: 'Anything outdoors...',
-    route: {
-      pathname: '/ai-chat',
-      params: {
-        contextType: 'general',
-      },
-    },
-    protected: true,
-  });
-
-  output.push('gap 1.5');
-
-  if (currentPack) {
-    output.push({
-      id: '3',
-      title: 'Pack Stats',
-      leftView: <IconView name="chart-pie" className="bg-blue-500" />,
-      route: `/pack-stats/${currentPack.id}`,
-    });
-  }
-
-  if (packWeight) {
-    output.push({
-      id: '4',
-      title: 'Weight Analysis',
-      leftView: <IconView name="ruler" className="bg-blue-600" />,
-      rightText: `Base: ${packWeight} g`,
-      route: `/weight-analysis/${currentPack.id}`,
-    });
-  }
-
-  if (packCategoryCount) {
-    output.push({
-      id: '5',
-      title: 'Pack Categories',
-      leftView: <IconView name="puzzle" className="bg-green-500" />,
-      badge: packCategoryCount,
-      route: `/pack-categories/${currentPack.id}`,
-    });
-  }
-
-  output.push('gap 2');
-
-  if (upcomingTripCount) {
-    output.push({
-      id: '6',
-      title: 'Upcoming Trips',
-      leftView: <IconView name="map" className="bg-red-500" />,
-      badge: upcomingTripCount,
-      route: '/upcoming-trips',
-    });
-  }
-
-  output.push({
-    id: '8',
-    title: 'Trail Conditions',
-    leftView: <IconView name="soccer-field" className="bg-violet-500" />,
-    route: '/trail-conditions',
-  });
-
-  output.push('gap 2.5');
-
-  output.push({
-    id: '6.5',
-    title: 'Weather',
-    route: '/weather',
-  });
-
-  if (weatherAlertCount) {
-    output.push({
-      id: '7',
-      title: 'Weather Alerts',
-      leftView: <IconView name="weather-rainy" className="bg-amber-500" />,
-      rightText: `${weatherAlertCount} active`,
-      route: '/weather-alerts',
-      protected: true,
-    });
-  }
-
-  output.push('gap 3');
-
-  if (gearInventoryCount) {
-    output.push({
-      id: '9',
-      title: 'Gear Inventory',
-      leftView: <IconView name="backpack" className="bg-gray-500" />,
-      rightText: `${gearInventoryCount} items`,
-      route: '/gear-inventory',
-    });
-  }
-
-  if (shoppingList) {
-    output.push({
-      id: '10',
-      title: 'Shopping List',
-      leftView: <IconView name="cart-outline" className="bg-gray-600" />,
-      badge: shoppingList,
-      route: '/shopping-list',
-    });
-  }
-
-  output.push({
-    id: '11',
-    title: 'Shared Packs',
-    leftView: <IconView name="account-multiple" className="bg-sky-500" />,
-    route: '/shared-packs',
-  });
-
-  if (packTemplateCount) {
-    output.push({
-      id: '12',
-      title: 'Pack Templates',
-      leftView: <IconView name="file-document-multiple" className="bg-sky-400" />,
-      rightText: `${packTemplateCount} templates`,
-      route: '/pack-templates',
-    });
-  }
-
-  return output;
+  return item.id;
 }

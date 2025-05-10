@@ -137,6 +137,10 @@ syncObservable(
   })
 );
 
+export function getPackItems(id: string) {
+  return Object.values(packItemsStore.get()).filter((item) => item.packId === id && !item.deleted);
+}
+
 export const packItemsSyncState = syncState(packItemsStore);
 
 export type PackItemsStore = typeof packItemsStore;

@@ -1,4 +1,4 @@
-import { packItemsStore } from '~/features/packs/store';
+import { packItemsStore, packsStore } from '~/features/packs/store';
 import { useCallback } from 'react';
 import type { PackItem, PackItemInput } from '../types';
 import { nanoid } from 'nanoid/non-secure';
@@ -16,6 +16,7 @@ export function useCreatePackItem() {
       };
 
       packItemsStore[id].set(newItem);
+      packsStore[packId].localUpdatedAt.set(new Date().toISOString());
     },
     []
   );

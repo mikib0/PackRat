@@ -6,7 +6,7 @@ import { Text } from '~/components/nativewindui/Text';
 
 const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');
 
-export function DashboardAuthWall() {
+export function WeatherAuthWall() {
   const router = useRouter();
   const currentRoute = usePathname();
 
@@ -19,30 +19,25 @@ export function DashboardAuthWall() {
             <Image source={LOGO_SOURCE} className="h-12 w-12 rounded-md" resizeMode="contain" />
           </View>
           <Text variant="title1" className="text-center">
-            Join PackRat to Unlock All Features
+            Weather Features Require Sign In
           </Text>
         </View>
 
         <View className="mb-10 flex-col gap-6">
           <FeatureItem
-            icon="cloud-outline"
-            title="Sync Across Devices"
-            description="Keep your packs in sync everywhere"
-          />
-          <FeatureItem
             icon="weather-sunny"
-            title="Weather Integration"
-            description="Get weather-based recommendations"
+            title="Weather Forecasts"
+            description="Get detailed weather information"
           />
           <FeatureItem
-            icon="message-outline"
-            title="AI Chat & Suggestions"
-            description="Smart packing assistance"
+            icon="umbrella-outline"
+            title="Weather Alerts"
+            description="Stay informed about weather changes"
           />
           <FeatureItem
             icon="archive-outline"
-            title="Share Your Packs"
-            description="Share and browse public packs"
+            title="Packing Suggestions"
+            description="Weather-based packing recommendations"
           />
         </View>
 
@@ -81,4 +76,3 @@ function FeatureItem({
     </View>
   );
 }
-

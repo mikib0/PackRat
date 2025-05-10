@@ -5,6 +5,7 @@ import { View, ScrollView, ActivityIndicator } from 'react-native';
 
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
+import { userStore } from '~/features/auth/store';
 import { usePackWeightAnalysis } from '~/features/packs/hooks/usePackWeightAnalysis';
 import { cn } from '~/lib/cn';
 
@@ -37,31 +38,15 @@ function WeightCard({
 }
 
 export default function WeightAnalysisScreen() {
-  const [refreshKey, setRefreshKey] = useState(0);
-
   const params = useLocalSearchParams();
   const packId = params.id;
 
-  const { data, isLoading, error } = usePackWeightAnalysis(packId as string);
+  const { data, items } = usePackWeightAnalysis(packId as string);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setRefreshKey((prev) => prev + 1);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading)
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  if (error) return <Text className="p-4 text-red-500">Error loading weight analysis</Text>;
-  if (!data) return null;
+  const preferredWeightUnit = userStore.preferredWeightUnit.peek() ?? 'g';
 
   return (
-    <View className="flex-1" key={refreshKey}>
+    <View className="flex-1">
       <LargeTitleHeader title="Weight Analysis" />
       <ScrollView
         className="flex-1"
@@ -71,13 +56,17 @@ export default function WeightAnalysisScreen() {
           <WeightCard title="Base Weight" weight={`${data.baseWeight} g`} className="col-span-1" />
           <WeightCard
             title="Consumables Weight"
-            weight={`${data.consumableWeight} g`}
+            weight={`${data.consumableWeight} ${preferredWeightUnit}`}
             className="col-span-1"
           />
-          <WeightCard title="Worn Weight" weight={`${data.wornWeight} g`} className="col-span-1" />
+          <WeightCard
+            title="Worn Weight"
+            weight={`${data.wornWeight} ${preferredWeightUnit}`}
+            className="col-span-1"
+          />
           <WeightCard
             title="Total Weight"
-            weight={`${data.totalWeight} g`}
+            weight={`${data.totalWeight} ${preferredWeightUnit}`}
             className="col-span-1"
           />
         </View>
@@ -100,14 +89,14 @@ export default function WeightAnalysisScreen() {
                   {category.name}
                 </Text>
                 <Text variant="subhead" className="text-muted-foreground">
-                  {category.weight}
+                  {category.weight} {preferredWeightUnit}
                 </Text>
               </View>
             </View>
 
             {/* Items */}
             <View>
-              {category.items.map((item, itemIndex) => (
+              {items.map((item, itemIndex) => (
                 <View
                   key={`${categoryIndex}-${itemIndex}`}
                   className={cn(
@@ -130,6 +119,12 @@ export default function WeightAnalysisScreen() {
             </View>
           </View>
         ))}
+
+        {!data.categories.length && (
+          <Text className="px-8 text-center">
+            Add items and categorize them for weight breakdown.
+          </Text>
+        )}
       </ScrollView>
     </View>
   );

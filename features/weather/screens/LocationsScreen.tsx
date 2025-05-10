@@ -24,8 +24,10 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { searchQueryAtom } from '../atoms/locationsAtoms';
 import { useLocations, useActiveLocation, useLocationRefresh } from '../hooks';
 import { LocationCard } from '../components/LocationCard';
+import { withAuthWall } from '~/features/auth/hocs';
+import { WeatherAuthWall } from '../components/WeatherAuthWall';
 
-export default function LocationsScreen() {
+function LocationsScreen() {
   const { colors } = useColorScheme();
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
@@ -232,3 +234,5 @@ export default function LocationsScreen() {
     </SafeAreaView>
   );
 }
+
+export default withAuthWall(LocationsScreen, WeatherAuthWall);

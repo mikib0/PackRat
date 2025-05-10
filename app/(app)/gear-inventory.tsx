@@ -4,9 +4,9 @@ import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native'; /
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
 import { PackItemCard } from '~/features/packs/components/PackItemCard';
-import { useUserPackItems } from '~/features/packs/hooks/useUserPackItem';
+import { useUserPackItems } from '~/features/packs/hooks/useUserPackItems';
 import { cn } from '~/lib/cn';
-import type { PackItem } from '~/types';
+import type { PackItem } from '~/features/packs/types';
 
 function CategorySection({ category, items }: { category: string; items: PackItem[] }) {
   return (
@@ -27,15 +27,17 @@ function CategorySection({ category, items }: { category: string; items: PackIte
 
 export default function GearInventoryScreen() {
   const [viewMode, setViewMode] = useState<'all' | 'category'>('all');
-  const { data: items = [], isLoading } = useUserPackItems();
+  const items = useUserPackItems();
 
   const groupByCategory = (items: PackItem[]) => {
     return items.reduce(
       (acc, item) => {
-        if (!acc[item.category]) {
-          acc[item.category] = [];
+        const category = item.category || 'Other';
+
+        if (!acc[category]) {
+          acc[category] = [];
         }
-        acc[item.category].push(item);
+        acc[category].push(item);
         return acc;
       },
       {} as Record<string, PackItem[]>
@@ -81,13 +83,11 @@ export default function GearInventoryScreen() {
           </View>
         </View>
 
-        {isLoading ? (
-          <View className="mt-20 flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#4F46E5" />
-          </View>
-        ) : viewMode === 'all' ? (
+        {viewMode === 'all' ? (
           <View className="pb-4">
-            {items?.map((item) => <PackItemCard key={item.id} item={item} onPress={() => {}} />)}
+            {items.map((item) => (
+              <PackItemCard key={item.id} item={item} onPress={() => {}} />
+            ))}
           </View>
         ) : (
           <View className="pb-4">
