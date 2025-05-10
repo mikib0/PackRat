@@ -84,7 +84,7 @@ export default function GearInventoryScreen() {
         </View>
 
         {viewMode === 'all' ? (
-          <View className="pb-4">
+          <View className=" flex-1 pb-20">
             {items.map((item) => (
               <PackItemCard key={item.id} item={item} onPress={() => {}} />
             ))}

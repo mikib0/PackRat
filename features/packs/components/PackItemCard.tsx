@@ -46,7 +46,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
           </Text>
         )}
 
-        <View className="flex-row items-baseline justify-between">
+        <View className="flex-row items-start justify-between">
           <View className="mt-2 flex-row items-center gap-2">
             {item.quantity > 1 && (
               <View className="rounded-full bg-muted px-2 py-0.5">
