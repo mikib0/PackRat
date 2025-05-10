@@ -148,6 +148,7 @@ const SCREEN_OPTIONS = {
 } as const;
 
 const TABS_OPTIONS = {
+  title: '',
   headerShown: false,
 } as const;
 
