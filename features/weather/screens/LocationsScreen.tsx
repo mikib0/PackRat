@@ -1,5 +1,5 @@
 import { Icon } from '@roninoss/icons';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { useEffect, useState, useRef } from 'react';
 import {
   Pressable,
@@ -30,6 +30,7 @@ import { WeatherAuthWall } from '../components/WeatherAuthWall';
 function LocationsScreen() {
   const { colors } = useColorScheme();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
   const { locationsState } = useLocations();
   const { setActiveLocation } = useActiveLocation();
@@ -68,12 +69,18 @@ function LocationsScreen() {
     }
   }, [isLoading]);
 
-  // Clear search when navigating away
+  // Clear search when navigating to this screen -> https://github.com/PackRat-AI/PackRat/issues/1424
   useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      clearSearch();
+    });
+
+    // Also clear when navigating away (cleanup)
     return () => {
+      unsubscribe();
       setSearchQuery('');
     };
-  }, []);
+  }, [navigation]);
 
   const handleLocationPress = (locationId: string) => {
     router.push(`/weather/${locationId}`);
