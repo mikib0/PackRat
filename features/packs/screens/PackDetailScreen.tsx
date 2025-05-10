@@ -1,7 +1,7 @@
 import { Icon } from '@roninoss/icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { FlatList, Image, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Image, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 
 import { useDeletePack, usePackDetails } from '../hooks';
 
@@ -56,10 +56,11 @@ export function PackDetailScreen() {
   const filteredItems = getFilteredItems();
 
   const getTabStyle = (tab: string) => {
-    return cn(
-      'flex-1 items-center py-4',
-      activeTab === tab ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground'
-    );
+    return cn('flex-1 items-center py-4', activeTab === tab ? 'border-b-2 border-primary' : '');
+  };
+
+  const getTabTextStyle = (tab: string) => {
+    return cn(activeTab === tab ? 'text-primary' : 'text-muted-foreground');
   };
 
   if (!pack) {
@@ -172,42 +173,33 @@ export function PackDetailScreen() {
               <Text>Ask AI</Text>
             </Button>
           </View>
-          <FlatList
-            data={filteredItems}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View className="px-4 pt-3">
+
+          <View className="flex-row border-b border-border">
+            <TouchableOpacity className={getTabStyle('all')} onPress={() => setActiveTab('all')}>
+              <Text className={getTabTextStyle('all')}>All Items</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity className={getTabStyle('worn')} onPress={() => setActiveTab('worn')}>
+              <Text className={getTabTextStyle('worn')}>Worn</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className={getTabStyle('consumable')}
+              onPress={() => setActiveTab('consumable')}>
+              <Text className={getTabTextStyle('consumable')}>Consumable</Text>
+            </TouchableOpacity>
+          </View>
+          {filteredItems.length > 0 ? (
+            filteredItems.map((item, index) => (
+              <View key={index} className="px-4 pt-3">
                 <PackItemCard item={item} onPress={handleItemPress} />
               </View>
-            )}
-            ListHeaderComponent={
-              <View className="flex-row border-b border-border">
-                <TouchableOpacity
-                  className={getTabStyle('all')}
-                  onPress={() => setActiveTab('all')}>
-                  <Text className={getTabStyle('all')}>All Items</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  className={getTabStyle('worn')}
-                  onPress={() => setActiveTab('worn')}>
-                  <Text className={getTabStyle('worn')}>Worn</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  className={getTabStyle('consumable')}
-                  onPress={() => setActiveTab('consumable')}>
-                  <Text className={getTabStyle('consumable')}>Consumable</Text>
-                </TouchableOpacity>
-              </View>
-            }
-            ListEmptyComponent={
-              <View className="items-center justify-center p-4">
-                <Text className="text-muted-foreground">No items found</Text>
-              </View>
-            }
-            scrollEnabled={false}
-          />
+            ))
+          ) : (
+            <View className="items-center justify-center p-4">
+              <Text className="text-muted-foreground">No items found</Text>
+            </View>
+          )}
 
           {/* AI Suggestions Section */}
           {!!filteredItems.length && (
