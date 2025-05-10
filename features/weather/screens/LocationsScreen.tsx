@@ -1,5 +1,5 @@
 import { Icon } from '@roninoss/icons';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { useEffect, useState, useRef } from 'react';
 import {
   Pressable,
@@ -30,6 +30,7 @@ import { WeatherAuthWall } from '../components/WeatherAuthWall';
 function LocationsScreen() {
   const { colors } = useColorScheme();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
   const { locationsState } = useLocations();
   const { setActiveLocation } = useActiveLocation();
@@ -68,12 +69,18 @@ function LocationsScreen() {
     }
   }, [isLoading]);
 
-  // Clear search when navigating away
+  // Clear search when navigating to this screen -> https://github.com/PackRat-AI/PackRat/issues/1424
   useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      clearSearch();
+    });
+
+    // Also clear when navigating away (cleanup)
     return () => {
+      unsubscribe();
       setSearchQuery('');
     };
-  }, []);
+  }, [navigation]);
 
   const handleLocationPress = (locationId: string) => {
     router.push(`/weather/${locationId}`);
@@ -104,8 +111,14 @@ function LocationsScreen() {
     router.push('/weather/search');
   };
 
+  // Determine which state to show
+  const showEmptyState = locations.length === 0 && !isLoading && !isSearchFocused;
+  const showSearchResults = isSearchFocused && searchQuery.length > 0;
+  const showNoSearchResults = showSearchResults && filteredLocations.length === 0;
+  const showLocationsList = filteredLocations.length > 0;
+
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
       <LargeTitleHeader
         title="Weather"
         rightView={() => (
@@ -129,11 +142,16 @@ function LocationsScreen() {
           onChangeText={handleSearchChange}
           containerClassName="bg-muted"
           onFocus={() => setIsSearchFocused(true)}
-          onBlur={() => setIsSearchFocused(false)}
+          onBlur={() => {
+            // Only unfocus if search is empty
+            if (searchQuery.length === 0) {
+              setIsSearchFocused(false);
+            }
+          }}
         />
       </View>
 
-      {isSearchFocused && searchQuery.length > 0 && filteredLocations.length === 0 && (
+      {showNoSearchResults && (
         <Animated.View
           entering={FadeIn.duration(200)}
           exiting={FadeOut.duration(200)}
@@ -158,79 +176,77 @@ function LocationsScreen() {
         </Animated.View>
       )}
 
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-          paddingTop: 8,
-          paddingBottom: insets.bottom + 16,
-          flexGrow: filteredLocations.length === 0 && !isSearchFocused ? 1 : undefined,
-        }}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={refreshAllLocations}
-            tintColor={colors.primary}
-          />
-        }
-        keyboardShouldPersistTaps="handled">
-        {isLoading ? (
-          <View className="flex-1 items-center justify-center py-12">
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text className="mt-4 text-muted-foreground">Loading weather data...</Text>
-          </View>
-        ) : (
-          <>
-            {filteredLocations.length > 0 && (
-              <>
-                {isSearchFocused && searchQuery.length > 0 && (
-                  <View className="mb-2">
-                    <Text className="text-xs uppercase text-muted-foreground">
-                      {filteredLocations.length}{' '}
-                      {filteredLocations.length === 1 ? 'RESULT' : 'RESULTS'}
-                    </Text>
-                  </View>
-                )}
-
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center py-12">
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text className="mt-4 text-muted-foreground">Loading weather data...</Text>
+        </View>
+      ) : (
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingTop: 8,
+            paddingBottom: insets.bottom + 16,
+            flexGrow: showEmptyState ? 1 : undefined,
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={refreshAllLocations}
+              tintColor={colors.primary}
+            />
+          }
+          keyboardShouldPersistTaps="handled">
+          {showLocationsList && (
+            <>
+              {showSearchResults && (
                 <View className="mb-2">
-                  <Text className="text-xs text-muted-foreground">
-                    Long press on a location for options
+                  <Text className="text-xs uppercase text-muted-foreground">
+                    {filteredLocations.length}{' '}
+                    {filteredLocations.length === 1 ? 'RESULT' : 'RESULTS'}
                   </Text>
                 </View>
+              )}
 
-                {filteredLocations.map((location) => (
-                  <LocationCard
-                    key={location.id}
-                    location={location}
-                    onPress={() => handleLocationPress(location.id)}
-                    onSetActive={() => handleSetActive(location.id)}
-                    onRemove={() => handleRemoveLocation(location.id)}
-                  />
-                ))}
-              </>
-            )}
-
-            {filteredLocations.length === 0 && !isSearchFocused && (
-              <View className="flex-1 items-center justify-center">
-                <Icon name="map-marker-radius-outline" size={64} color={colors.grey2} />
-                <Text className="mt-4 text-center text-lg font-medium">No saved locations</Text>
-                <Text className="mb-4 mt-2 px-8 text-center text-sm text-muted-foreground">
-                  Add locations to track weather conditions for your hiking trips and get
-                  personalized recommendations
-                </Text>
-                <TouchableOpacity
-                  className="mt-2 rounded-full bg-primary px-6 py-3"
-                  onPress={handleAddLocation}>
-                  <Text className="font-medium text-white">Add Your First Location</Text>
-                </TouchableOpacity>
-                <Text className="mt-4 text-xs text-muted-foreground">
-                  Location data helps PackRat AI provide better advice
+              <View className="mb-2">
+                <Text className="text-xs text-muted-foreground">
+                  Long press on a location for options
                 </Text>
               </View>
-            )}
-          </>
-        )}
-      </ScrollView>
+
+              {filteredLocations.map((location) => (
+                <LocationCard
+                  key={location.id}
+                  location={location}
+                  onPress={() => handleLocationPress(location.id)}
+                  onSetActive={() => handleSetActive(location.id)}
+                  onRemove={() => handleRemoveLocation(location.id)}
+                />
+              ))}
+            </>
+          )}
+
+          {showEmptyState && (
+            <View className="flex-1 items-center justify-center">
+              <Icon name="map-marker-radius-outline" size={64} color={colors.grey2} />
+              <Text className="mt-4 text-center text-lg font-medium">No saved locations</Text>
+              <Text className="mb-4 mt-2 px-8 text-center text-sm text-muted-foreground">
+                Add locations to track weather conditions for your hiking trips and get personalized
+                recommendations
+              </Text>
+              <TouchableOpacity
+                className="mt-2 rounded-full bg-primary px-6 py-3"
+                onPress={handleAddLocation}>
+                <Text className="font-medium text-white">Add Your First Location</Text>
+              </TouchableOpacity>
+              <Text className="mt-4 text-xs text-muted-foreground">
+                Location data helps PackRat AI provide better advice
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }

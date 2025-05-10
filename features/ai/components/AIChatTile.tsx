@@ -45,13 +45,13 @@ export function AIChatTile() {
       rightView={
         <View className="flex-1 flex-row items-center justify-center gap-2 px-4">
           <Text variant="callout" className="ios:px-0 px-2 text-muted-foreground">
-            'Anything outdoors...'
+            Anything outdoors...
           </Text>
           <ChevronRight />
         </View>
       }
       item={{
-        title: 'Ask PackRat AI',
+        title: 'PackRat AI',
       }}
       onPress={handlePress}
       target="Cell"
