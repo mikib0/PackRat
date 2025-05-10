@@ -10,7 +10,7 @@ import { CachedImage } from '~/features/packs/components/CachedImage';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
-import type { PackItem } from '~/types';
+import type { PackItem } from '../types';
 
 type PackItemCardProps = {
   item: PackItem;

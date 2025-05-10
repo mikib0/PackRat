@@ -4,7 +4,7 @@ import axiosInstance, { handleApiError } from '~/lib/api/client';
 import { syncObservable } from '@legendapp/state/sync';
 import Storage from 'expo-sqlite/kv-store';
 import { observablePersistSqlite } from '@legendapp/state/persist-plugins/expo-sqlite';
-import { Pack } from '../types';
+import { Pack, PackInStore } from '../types';
 import { isAuthed } from '~/features/auth/store';
 
 const listPacks = async () => {
@@ -16,7 +16,7 @@ const listPacks = async () => {
     throw new Error(`Failed to list packs: ${message}`);
   }
 };
-const createPack = async (packData: Omit<Pack, 'items'>) => {
+const createPack = async (packData: PackInStore) => {
   try {
     const response = await axiosInstance.post('/api/packs', packData);
     return response.data;
@@ -26,7 +26,7 @@ const createPack = async (packData: Omit<Pack, 'items'>) => {
   }
 };
 
-const updatePack = async ({ id, ...data }: Omit<Pack, 'items'>) => {
+const updatePack = async ({ id, ...data }: Partial<PackInStore>) => {
   try {
     const response = await axiosInstance.put(`/api/packs/${id}`, data);
     return response.data;
@@ -36,7 +36,7 @@ const updatePack = async ({ id, ...data }: Omit<Pack, 'items'>) => {
   }
 };
 
-export const packsStore = observable<Record<string, Omit<Pack, 'items'>>>({});
+export const packsStore = observable<Record<string, PackInStore>>({});
 
 syncObservable(
   packsStore,
@@ -44,6 +44,7 @@ syncObservable(
     fieldUpdatedAt: 'updatedAt',
     fieldCreatedAt: 'createdAt',
     fieldDeleted: 'deleted',
+    mode: 'merge',
     persist: {
       plugin: observablePersistSqlite(Storage),
       retrySync: true,

@@ -1,32 +1,14 @@
 import { Icon } from '@roninoss/icons';
-import { useEffect, useState } from 'react';
 import { View, ScrollView, Image } from 'react-native';
 
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { Text } from '~/components/nativewindui/Text';
-import { usePacks } from '~/features/packs/hooks/usePacks';
+import { useRecentPacks } from '~/features/packs/hooks/useRecentPacks';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { getRelativeTime } from '~/lib/utils/getRelativeTime';
 
 function RecentPackCard({ pack }: { pack: any }) {
   const { colors } = useColorScheme();
-
-  function getRelativeTime(dateString: string): string {
-    const diff = (Date.now() - new Date(dateString).getTime()) / 1000;
-    const units = [
-      { label: 'month', seconds: 2592000 },
-      { label: 'week', seconds: 604800 },
-      { label: 'day', seconds: 86400 },
-      { label: 'hour', seconds: 3600 },
-      { label: 'minute', seconds: 60 },
-    ];
-
-    for (const { label, seconds } of units) {
-      const val = Math.floor(diff / seconds);
-      if (val >= 1) return `${val} ${label}${val > 1 ? 's' : ''} ago`;
-    }
-
-    return 'Just now';
-  }
 
   return (
     <View className="mx-4 mb-3 overflow-hidden rounded-xl bg-card shadow-sm">
@@ -47,10 +29,10 @@ function RecentPackCard({ pack }: { pack: any }) {
           </View>
           <View className="items-end">
             <Text variant="subhead" className="font-medium">
-              {pack.totalWeight} g
+              {pack.totalWeight ?? 0} g
             </Text>
             <Text variant="footnote" className="text-muted-foreground">
-              {getRelativeTime(pack.createdAt)}
+              {getRelativeTime(pack.localCreatedAt)}
             </Text>
           </View>
         </View>
@@ -60,7 +42,7 @@ function RecentPackCard({ pack }: { pack: any }) {
             <Icon name="clock-outline" size={14} color={colors.grey} />
           </View>
           <Text variant="caption1" className="text-muted-foreground">
-            Last updated: {getRelativeTime(pack.updatedAt)}
+            Last updated: {getRelativeTime(pack.localUpdatedAt)}
           </Text>
         </View>
       </View>
@@ -69,35 +51,32 @@ function RecentPackCard({ pack }: { pack: any }) {
 }
 
 export default function RecentPacksScreen() {
-  const packs = usePacks();
-
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setRefreshKey((prev) => prev + 1);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const recentPacks = packs?.slice(0, 5) ?? [];
+  const recentPacks = useRecentPacks();
 
   return (
-    <View className="flex-1" key={refreshKey}>
+    <View className="flex-1">
       <LargeTitleHeader title="Recent Packs" />
-      <ScrollView className="flex-1">
-        <View className="p-4">
-          <Text variant="subhead" className="mb-2 text-muted-foreground">
-            Your recently used packs
+      {recentPacks.length ? (
+        <ScrollView className="flex-1">
+          <View className="p-4">
+            <Text variant="subhead" className="mb-2 text-muted-foreground">
+              Your recently updated packs
+            </Text>
+          </View>
+
+          <View className="pb-4">
+            {recentPacks.map((pack) => (
+              <RecentPackCard key={pack.id} pack={pack} />
+            ))}
+          </View>
+        </ScrollView>
+      ) : (
+        <View className="flex-1 items-center justify-center">
+          <Text variant="body" className="mb-2 text-muted-foreground">
+            No recent packs.
           </Text>
         </View>
-
-        <View className="pb-4">
-          {recentPacks.map((pack) => (
-            <RecentPackCard key={pack.id} pack={pack} />
-          ))}
-        </View>
-      </ScrollView>
+      )}
     </View>
   );
 }
