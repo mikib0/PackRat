@@ -184,7 +184,7 @@ packRoutes.post('/:packId/weight-history', async (c) => {
         packId,
         userId: auth.userId,
         weight: data.totalWeight,
-        localCreatedAt: data.localCreatedAt,
+        localCreatedAt: new Date(data.localCreatedAt),
       })
       .returning();
 
