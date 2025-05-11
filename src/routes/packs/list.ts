@@ -61,8 +61,8 @@ packsListRoutes.post('/', async (c) => {
         isPublic: data.isPublic,
         image: data.image,
         tags: data.tags,
-        localCreatedAt: data.localCreatedAt,
-        localUpdatedAt: data.localUpdatedAt,
+        localCreatedAt: new Date(data.localCreatedAt),
+        localUpdatedAt: new Date(data.localUpdatedAt),
       })
       .returning();
 
