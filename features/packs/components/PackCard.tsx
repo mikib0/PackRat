@@ -1,6 +1,6 @@
 import { isArray } from 'radash';
 import { Image, Pressable, Text, View } from 'react-native';
-import type { Pack } from '~/types';
+import type { Pack } from '../types';
 import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { Icon } from '@roninoss/icons';
