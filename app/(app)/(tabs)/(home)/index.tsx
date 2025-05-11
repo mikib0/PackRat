@@ -1,8 +1,13 @@
+'use client';
+
 import { Icon } from '@roninoss/icons';
 import { Link } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, Text, FlatList } from 'react-native';
+import { useState, useRef, useMemo } from 'react';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
+import type { LargeTitleSearchBarRef } from '~/components/nativewindui/LargeTitleHeader/types';
 import {
   ESTIMATED_ITEM_HEIGHT,
   List,
@@ -26,6 +31,42 @@ import { SharedPacksTile } from '~/features/packs/components/SharedPacksTile';
 import { PackTemplatesTile } from '~/features/pack-templates/components/PackTemplatesTile';
 import { ShoppingListTile } from '~/features/packs/components/ShoppingListTile';
 import { featureFlags } from '~/config';
+
+// Define tile metadata for search functionality
+const tileMetadata = {
+  'current-pack': { title: 'Current Pack', keywords: ['active', 'current', 'pack'] },
+  'recent-packs': { title: 'Recent Packs', keywords: ['recent', 'packs', 'history'] },
+  'ask-packrat-ai': { title: 'Ask PackRat AI', keywords: ['ai', 'chat', 'assistant', 'help'] },
+  'pack-stats': { title: 'Pack Statistics', keywords: ['stats', 'statistics', 'analytics'] },
+  'weight-analysis': {
+    title: 'Weight Analysis',
+    keywords: ['weight', 'analysis', 'heavy', 'light'],
+  },
+  'pack-categories': { title: 'Pack Categories', keywords: ['categories', 'organize', 'group'] },
+  'upcoming-trips': {
+    title: 'Upcoming Trips',
+    keywords: ['trips', 'upcoming', 'planned', 'schedule'],
+  },
+  'trail-conditions': {
+    title: 'Trail Conditions',
+    keywords: ['trail', 'conditions', 'terrain', 'path'],
+  },
+  weather: { title: 'Weather', keywords: ['weather', 'forecast', 'temperature', 'conditions'] },
+  'weather-alerts': {
+    title: 'Weather Alerts',
+    keywords: ['weather', 'alerts', 'warnings', 'emergency'],
+  },
+  'gear-inventory': {
+    title: 'Gear Inventory',
+    keywords: ['gear', 'inventory', 'equipment', 'items'],
+  },
+  'shopping-list': { title: 'Shopping List', keywords: ['shopping', 'list', 'buy', 'purchase'] },
+  'shared-packs': {
+    title: 'Shared Packs',
+    keywords: ['shared', 'packs', 'collaborate', 'friends'],
+  },
+  'pack-templates': { title: 'Pack Templates', keywords: ['templates', 'preset', 'pattern'] },
+};
 
 function SettingsIcon() {
   const { colors } = useColorScheme();
@@ -63,7 +104,10 @@ function DemoIcon() {
 }
 
 export default function DashboardScreen() {
-  const dashboardLayout = [
+  const [searchValue, setSearchValue] = useState('');
+  const searchBarRef = useRef<LargeTitleSearchBarRef>(null);
+
+  const dashboardLayout = useRef([
     { id: 'current-pack', component: CurrentPackTile },
     { id: 'recent-packs', component: RecentPacksTile },
     'gap 1',
@@ -91,13 +135,92 @@ export default function DashboardScreen() {
     ...(featureFlags.enablePackTemplates
       ? [{ id: 'pack-templates', component: PackTemplatesTile }]
       : []),
-  ];
+  ]).current;
+
+  // Filter dashboard tiles based on search value
+  const filteredTiles = useMemo(() => {
+    if (!searchValue.trim()) {
+      return [];
+    }
+
+    const searchLower = searchValue.toLowerCase();
+
+    return dashboardLayout.filter((item) => {
+      if (typeof item === 'object' && item.id) {
+        const metadata = tileMetadata[item.id];
+        if (metadata) {
+          // Check if title or any keywords match
+          return (
+            metadata.title.toLowerCase().includes(searchLower) ||
+            metadata.keywords.some((keyword) => keyword.toLowerCase().includes(searchLower))
+          );
+        }
+      }
+      return false;
+    });
+  }, [searchValue, dashboardLayout]);
 
   return (
     <View className="flex-1">
       <LargeTitleHeader
         title="Dashboard"
-        searchBar={{ iosHideWhenScrolling: true }}
+        searchBar={{
+          ref: searchBarRef,
+          iosHideWhenScrolling: true,
+          onChangeText(text) {
+            setSearchValue(text);
+          },
+          placeholder: 'Search...',
+          content: searchValue ? (
+            <FlatList
+              data={filteredTiles}
+              keyExtractor={keyExtractor}
+              className="space-y-4 px-4"
+              renderItem={({ item }) => {
+                if (typeof item === 'object' && item.component) {
+                  const Component = item.component;
+                  return (
+                    <Pressable
+                      key={item.id}
+                      className="py-2"
+                      onPress={() => {
+                        setSearchValue('');
+                        searchBarRef.current?.clearText();
+                      }}>
+                      <Component />
+                    </Pressable>
+                  );
+                }
+                return null;
+              }}
+              ListHeaderComponent={() =>
+                filteredTiles.length > 0 ? (
+                  <Text className="px-4 py-2 text-sm text-muted-foreground">
+                    {filteredTiles.length} {filteredTiles.length === 1 ? 'result' : 'results'}
+                  </Text>
+                ) : null
+              }
+              ListEmptyComponent={() => (
+                <View className="items-center justify-center p-6">
+                  <Icon name="file-search-outline" size={48} color="#9ca3af" />
+                  <View className="h-4" />
+                  <View className="items-center">
+                    <Text className="text-lg font-medium text-muted-foreground">
+                      No matching tiles found
+                    </Text>
+                    <Text className="mt-1 text-center text-sm text-muted-foreground">
+                      Try different keywords or clear your search
+                    </Text>
+                  </View>
+                </View>
+              )}
+            />
+          ) : (
+            <View className="flex-1 items-center justify-center p-4">
+              <Text className="text-muted-foreground">Search dashboard</Text>
+            </View>
+          ),
+        }}
         backVisible={false}
         rightView={() => (
           <View className="flex-row items-center gap-2 pr-2">
