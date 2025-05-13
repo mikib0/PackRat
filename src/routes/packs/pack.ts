@@ -6,7 +6,7 @@ import {
 } from '@/utils/api-middleware';
 import { computePackWeights } from '@/utils/compute-pack';
 import { getCatalogItems, getPackDetails } from '@/utils/DbUtils';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 
 const packRoutes = new Hono();
@@ -39,7 +39,7 @@ packRoutes.get('/:packId', async (c) => {
 });
 
 // Update a pack
-packRoutes.put("/:packId", async (c) => {
+packRoutes.put('/:packId', async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -47,48 +47,46 @@ packRoutes.put("/:packId", async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param("packId");
+    const packId = c.req.param('packId');
     const data = await c.req.json();
 
-    const updatedPack: PackWithItems = await db.transaction(async (tx) => {
-      await tx
-        .update(packs)
-        .set({
-          name: data.name,
-          description: data.description,
-          category: data.category,
-          isPublic: data.isPublic,
-          image: data.image,
-          tags: data.tags,
-          deleted: data.deleted,
-          updatedAt: new Date(),
-        })
-        .where(eq(packs.id, packId));
+    await db
+      .update(packs)
+      .set({
+        name: data.name,
+        description: data.description,
+        category: data.category,
+        isPublic: data.isPublic,
+        image: data.image,
+        tags: data.tags,
+        deleted: data.deleted,
+        localUpdatedAt: new Date(data.localUpdatedAt),
+        updatedAt: new Date(),
+      })
+      .where(and(eq(packs.id, packId), eq(packs.userId, auth.userId)));
 
-      const updatedPackWithItems = await tx.query.packs.findFirst({
-        where: eq(packs.id, packId),
+    const updatedPack: PackWithItems | undefined =
+      await db.query.packs.findFirst({
+        where: and(eq(packs.id, packId), eq(packs.userId, auth.userId)),
         with: {
           items: true,
         },
       });
 
-      return updatedPackWithItems!;
-    });
-
     if (!updatedPack) {
-      return c.json({ error: "Pack not found" }, 404);
+      return c.json({ error: 'Pack not found' }, 404);
     }
 
     const packWithWeights = computePackWeights(updatedPack);
     return c.json(packWithWeights);
   } catch (error) {
-    console.error("Error updating pack:", error);
-    return c.json({ error: "Failed to update pack" }, 500);
+    console.error('Error updating pack:', error);
+    return c.json({ error: 'Failed to update pack' }, 500);
   }
 });
 
 // Delete a pack
-packRoutes.delete("/:packId", async (c) => {
+packRoutes.delete('/:packId', async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -96,29 +94,29 @@ packRoutes.delete("/:packId", async (c) => {
 
   const db = createDb(c);
   try {
-    const packId = c.req.param("packId");
+    const packId = c.req.param('packId');
     await db.delete(packs).where(eq(packs.id, packId));
     return c.json({ success: true });
   } catch (error) {
-    console.error("Error deleting pack:", error);
-    return c.json({ error: "Failed to delete pack" }, 500);
+    console.error('Error deleting pack:', error);
+    return c.json({ error: 'Failed to delete pack' }, 500);
   }
 });
 
-packRoutes.post("/:packId/item-suggestions", async (c) => {
+packRoutes.post('/:packId/item-suggestions', async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
   }
 
   try {
-    const packId = c.req.param("packId");
+    const packId = c.req.param('packId');
     const { categories } = await c.req.json();
 
     // Get pack details
     const pack = await getPackDetails({ packId, c });
     if (!pack) {
-      return c.json({ error: "Pack not found" }, 404);
+      return c.json({ error: 'Pack not found' }, 404);
     }
 
     // Get catalog items that could be suggested
@@ -129,11 +127,11 @@ packRoutes.post("/:packId/item-suggestions", async (c) => {
 
     // Get existing categories and items in the pack
     const existingCategories = new Set(
-      pack.items.map((item) => item.category || "Uncategorized"),
+      pack.items.map((item) => item.category || 'Uncategorized')
     );
 
     const existingItemNames = new Set(
-      pack.items.map((item) => item.name.toLowerCase()),
+      pack.items.map((item) => item.name.toLowerCase())
     );
 
     // Simple suggestion algorithm:
@@ -161,8 +159,8 @@ packRoutes.post("/:packId/item-suggestions", async (c) => {
 
     return c.json(limitedSuggestions);
   } catch (error) {
-    console.error("Pack Item Suggestions API error:", error);
-    return c.json({ error: "Failed to process item suggestions request" }, 500);
+    console.error('Pack Item Suggestions API error:', error);
+    return c.json({ error: 'Failed to process item suggestions request' }, 500);
   }
 });
 
@@ -183,7 +181,7 @@ packRoutes.post('/:packId/weight-history', async (c) => {
         id: data.id,
         packId,
         userId: auth.userId,
-        weight: data.totalWeight,
+        weight: data.weight,
         localCreatedAt: new Date(data.localCreatedAt),
       })
       .returning();

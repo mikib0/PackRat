@@ -13,30 +13,6 @@ import { env } from "hono/adapter";
 
 const packItemsRoutes = new Hono();
 
-// Helper to recalculate and record pack weight
-async function recordPackWeight(
-  db: ReturnType<typeof createDb>,
-  packId: string,
-) {
-  const items = await db.query.packItems.findMany({
-    where: and(eq(packItems.packId, packId), eq(packItems.deleted, false)),
-  });
-
-  const totalWeight = items.reduce((sum, item) => {
-    return (
-      sum + convertToGrams(item.weight ?? 0, item.weightUnit) * item.quantity
-    );
-  }, 0);
-
-  const timestamp = new Date();
-
-  await db.insert(packWeightHistory).values({
-    packId,
-    weight: totalWeight,
-    createdAt: timestamp,
-  });
-}
-
 // Get all items for a pack
 packItemsRoutes.get("/:packId/items", async (c) => {
   const auth = await authenticateRequest(c);
@@ -141,8 +117,6 @@ packItemsRoutes.post("/:packId/items", async (c) => {
       .set({ updatedAt: new Date() })
       .where(eq(packs.id, packId));
 
-    await recordPackWeight(db, packId);
-
     return c.json(newItem);
   } catch (error) {
     console.error("Error adding pack item:", error);
@@ -238,8 +212,6 @@ packItemsRoutes.patch("/items/:itemId", async (c) => {
       .update(packs)
       .set({ updatedAt: new Date() })
       .where(eq(packs.id, updatedItem.packId));
-
-    await recordPackWeight(db, updatedItem.packId);
 
     return c.json(updatedItem);
   } catch (error) {
