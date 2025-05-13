@@ -2,6 +2,7 @@ import { Icon } from '@roninoss/icons';
 import 'expo-dev-client';
 import { Stack, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import { AiChatHeader } from '~/components/ai-chatHeader';
 import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 
 import { ThemeToggle } from '~/components/ThemeToggle';
@@ -179,6 +180,7 @@ const ITEM_NEW_OPTIONS = {
 
 const AI_CHAT_OPTIONS = {
   title: 'AI Chat',
+  header: () => <AiChatHeader />,
   presentation: 'modal',
   animation: 'fade_from_bottom', // for android
 } as const;
