@@ -132,12 +132,6 @@ export function PackListScreen() {
           </View>
         )}
       />
-      {!isAuthenticated && <SyncBanner />}
-      <View className="bg-background px-4 py-2">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-1">
-          {filterOptions.map(renderFilterChip)}
-        </ScrollView>
-      </View>
 
       <FlatList
         data={filteredPacks}
@@ -148,11 +142,19 @@ export function PackListScreen() {
           </View>
         )}
         ListHeaderComponent={
-          <View className="px-4 pb-0 pt-2">
-            <Text className="text-muted-foreground">
-              {filteredPacks?.length} {filteredPacks?.length === 1 ? 'pack' : 'packs'}
-            </Text>
-          </View>
+          <>
+            {!isAuthenticated && <SyncBanner />}
+            <View className="bg-background px-4 py-2">
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-1">
+                {filterOptions.map(renderFilterChip)}
+              </ScrollView>
+            </View>
+            <View className="px-4 pb-0 pt-2">
+              <Text className="text-muted-foreground">
+                {filteredPacks?.length} {filteredPacks?.length === 1 ? 'pack' : 'packs'}
+              </Text>
+            </View>
+          </>
         }
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center p-8">
