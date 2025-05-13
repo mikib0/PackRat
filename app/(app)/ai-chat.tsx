@@ -16,6 +16,7 @@ import {
   type ViewStyle,
   TouchableOpacity,
   View,
+  SafeAreaView,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
@@ -45,7 +46,7 @@ import { useActiveLocation } from '~/features/weather/hooks';
 
 const USER = 'User';
 const AI = 'PackRat AI';
-const HEADER_HEIGHT = Platform.select({ ios: 88, default: 64 });
+const HEADER_HEIGHT = 20;
 const dimensions = Dimensions.get('window');
 
 const ROOT_STYLE: ViewStyle = {
@@ -74,27 +75,28 @@ function Header() {
   const { colors } = useColorScheme();
 
   return Platform.OS === 'ios' ? (
-    <BlurView intensity={100} style={[HEADER_POSITION_STYLE, { paddingTop: insets.top }]}>
-      <View className="flex-row items-center justify-between px-4 pb-2">
-        <View className="flex-row items-center">
-          <Button variant="plain" size="icon" onPress={router.back}>
-            <Icon size={30} color={colors.primary} name="chevron-left" />
-          </Button>
-        </View>
-        <View className="items-center">
-          <Text variant="title3" className="text-center">
-            PackRat AI
-          </Text>
-          <Text variant="caption2" className="text-muted-foreground">
-            Your Hiking Assistant
-          </Text>
-        </View>
-        <Button variant="plain" size="icon" className="opacity-0">
-          <Icon size={28} color={colors.primary} name="pin-outline" />
-        </Button>
-      </View>
-    </BlurView>
+    <View style={{ backgroundColor: 'red', height: 100, width: 100 }}></View>
   ) : (
+    // <BlurView intensity={100} style={[HEADER_POSITION_STYLE, { paddingTop: insets.top }]}>
+    //   <View className="flex-row items-center justify-between px-4 pb-2">
+    //     <View className="flex-row items-center">
+    //       <Button variant="plain" size="icon" onPress={router.back}>
+    //         <Icon size={30} color={colors.primary} name="chevron-left" />
+    //       </Button>
+    //     </View>
+    //     <View className="items-center">
+    //       <Text variant="title3" className="text-center">
+    //         PackRat AI
+    //       </Text>
+    //       <Text variant="caption2" className="text-muted-foreground">
+    //         Your Hiking Assistant
+    //       </Text>
+    //     </View>
+    //     <Button variant="plain" size="icon" className="opacity-0">
+    //       <Icon size={28} color={colors.primary} name="pin-outline" />
+    //     </Button>
+    //   </View>
+    // </BlurView>
     <View
       className="absolute left-0 right-0 top-0 z-50 justify-end bg-card dark:bg-background"
       style={{ paddingTop: insets.top, height: HEADER_HEIGHT + insets.top }}>
@@ -281,13 +283,13 @@ export default function AIChat() {
   }, [messages]);
 
   return (
-    <>
+    <SafeAreaView>
       <Stack.Screen
         options={{
           header: () => <Header />,
         }}
       />
-      <GestureDetector gesture={pan}>
+      {/* <GestureDetector gesture={pan}>
         <KeyboardAvoidingView
           style={[
             ROOT_STYLE,
@@ -368,8 +370,8 @@ export default function AIChat() {
               : `Ask about this ${context.contextType == 'item' ? 'item' : 'pack'}...`
           }
         />
-      </KeyboardStickyView>
-    </>
+      </KeyboardStickyView> */}
+    </SafeAreaView>
   );
 }
 
