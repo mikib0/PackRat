@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { useAtom } from 'jotai';
 import {
   FlatList,
@@ -56,6 +56,7 @@ export function PackListScreen() {
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
   const [activeFilter, setActiveFilter] = useAtom(activeFilterAtom);
   const { isAuthenticated } = useAuth();
+  const route = usePathname();
 
   const searchBarRef = useRef<LargeTitleSearchBarRef>(null);
 
@@ -94,11 +95,12 @@ export function PackListScreen() {
 
   const handleSearchResultPress = useCallback(
     (pack: Omit<Pack, 'items' | 'baseWeight' | 'totalWeight'>) => {
-      setSearchValue('');
-      searchBarRef.current?.clearText();
+      // setSearchValue('');
+      // searchBarRef.current?.clearText();
+      // router.replace('/packs');
       handlePackPress(pack);
     },
-    [setSearchValue, searchBarRef, handlePackPress]
+    [handlePackPress]
   );
 
   return (
