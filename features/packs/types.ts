@@ -78,7 +78,10 @@ export interface Pack {
 
 export type PackInStore = Omit<Pack, 'items' | 'baseWeight' | 'totalWeight'>;
 
-export type PackInput = Omit<PackInStore, 'id' | 'userId' | 'deleted' | 'createdAt' | 'updatedAt'>;
+export type PackInput = Omit<
+  PackInStore,
+  'id' | 'userId' | 'deleted' | 'createdAt' | 'updatedAt' | 'localCreatedAt' | 'localUpdatedAt'
+>;
 
 export interface PackWeightHistoryEntry {
   id: string;
