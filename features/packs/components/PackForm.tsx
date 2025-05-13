@@ -17,7 +17,7 @@ import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { TextField } from '~/components/nativewindui/TextField';
 import { useCreatePack, useUpdatePack } from '../hooks';
 import { useColorScheme } from '~/lib/useColorScheme';
-import type { Pack, PackCategory } from '~/types';
+import type { Pack, PackCategory } from '../types';
 import { Button } from '../../../components/nativewindui/Button';
 // Define Zod schema
 const packFormSchema = z.object({
@@ -73,42 +73,18 @@ export const PackForm = ({ pack }: { pack?: Pack }) => {
       onChange: packFormSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log('Form Submitted:', value);
       if (isEditingExistingPack) {
-        await updatePack(
-          {
-            ...pack,
-            ...value,
-          },
-          {
-            onSuccess: (pack) => {
-              // We are inside a modal, so we need to pop the current screen and then push the new one
-              router.back();
-              router.push(`/pack/${pack.id}`);
-            },
-            onError: (error) => {
-              console.error('Error Editing Pack:', error);
-            },
-          }
-        );
+        updatePack({
+          ...pack,
+          ...value,
+        });
       } else
         createPack({
           ...value,
-          category: value.category as
-            | 'hiking'
-            | 'backpacking'
-            | 'camping'
-            | 'climbing'
-            | 'winter'
-            | 'desert'
-            | 'custom'
-            | 'water sports'
-            | 'skiing',
+          category: value.category as PackCategory,
         });
 
-      // We are inside a modal, so we need to pop the current screen and then push the new one
       router.back();
-      router.push(`/pack/${pack.id}`);
     },
   });
 

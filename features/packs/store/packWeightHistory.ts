@@ -6,7 +6,7 @@ import Storage from 'expo-sqlite/kv-store';
 import { observablePersistSqlite } from '@legendapp/state/persist-plugins/expo-sqlite';
 import { PackWeightHistoryEntry } from '../types';
 import { isAuthed } from '~/features/auth/store';
-import { getPackItems, packItemsStore } from './packItems';
+import { packItemsStore } from './packItems';
 import { nanoid } from 'nanoid/non-secure';
 import { computePackWeights } from '../utils';
 import { packsStore } from './packs';
@@ -67,22 +67,21 @@ syncObservable(
   })
 );
 
-packItemsStore.onChange(({ changes }) => {
-  changes.forEach(({ valueAtPath: currentItem, prevAtPath: prevItem }) => {
-    if (currentItem.weight === prevItem?.weight) return;
-    // TODO (refactor): enhance getting of pack items and total weight logic in general
-    const items = getPackItems(currentItem.packId);
-    const packWithWeights = computePackWeights({ ...packsStore[currentItem.packId].peek(), items });
-    const id = nanoid();
+export function recordPackWeight(packId: string) {
+  const pack = packsStore[packId].peek();
+  const packItems = Object.values(packItemsStore.peek()).filter(
+    (item) => item.packId === packId && !item.deleted
+  );
+  const { totalWeight } = computePackWeights({ ...pack, items: packItems });
+  const id = nanoid();
 
-    packWeigthHistoryStore[id].set({
-      id,
-      packId: currentItem.packId,
-      weight: packWithWeights.totalWeight,
-      localCreatedAt: new Date().toISOString(),
-    });
+  packWeigthHistoryStore[id].set({
+    id,
+    packId,
+    weight: totalWeight,
+    localCreatedAt: new Date().toISOString(),
   });
-});
+}
 
 export const packWeigthHistorySyncState = syncState(packWeigthHistoryStore);
 
