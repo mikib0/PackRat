@@ -181,7 +181,6 @@ const ITEM_NEW_OPTIONS = {
 const AI_CHAT_OPTIONS = {
   title: 'AI Chat',
   header: () => <AiChatHeader />,
-  presentation: 'modal',
   animation: 'fade_from_bottom', // for android
 } as const;
 
