@@ -42,8 +42,6 @@ import { getContextualGreeting, getContextualSuggestions } from '~/utils/chatCon
 import { useAtomValue } from 'jotai';
 import { tokenAtom } from '~/features/auth/atoms/authAtoms';
 import { useActiveLocation } from '~/features/weather/hooks';
-import { useSheetRef, Sheet } from '~/components/nativewindui/Sheet';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
 
 const USER = 'User';
 const AI = 'PackRat AI';
@@ -89,6 +87,7 @@ export default function AIChat() {
   const params = useLocalSearchParams();
   const [showSuggestions, setShowSuggestions] = React.useState(true);
   const { activeLocation } = useActiveLocation();
+  const listRef = React.useRef<FlashList<any> | null>(null);
 
   // Extract context from params
   const context = {
@@ -228,33 +227,14 @@ export default function AIChat() {
 
     return [today, ...formattedMessages];
   }, [messages]);
-  const bottomSheetRef = useSheetRef();
 
   React.useEffect(() => {
-    setTimeout(() => {
-      console.log('00000000000000');
-      bottomSheetRef.current?.present?.();
-    }, 1000);
-  }, []);
+    setTimeout(() => listRef.current?.scrollToEnd());
+  }, [chatMessages]);
 
   return (
     <>
       <Stack.Screen />
-
-      <Sheet
-        ref={bottomSheetRef}
-        snapPoints={['40%']}
-        index={-1}
-        enableDynamicSizing={false}
-        enablePanDownToClose
-        backgroundStyle={{ backgroundColor: colors.card }}
-        handleIndicatorStyle={{ backgroundColor: colors.grey2 }}>
-        <BottomSheetView style={{ flex: 1 }}>
-          <View className="px-4 pb-4 pt-2">
-            <Text className="mb-2 text-lg font-semibold">Select Location</Text>
-          </View>
-        </BottomSheetView>
-      </Sheet>
       <GestureDetector gesture={pan}>
         <KeyboardAvoidingView
           style={[
@@ -264,6 +244,7 @@ export default function AIChat() {
           behavior="padding">
           <FlashList
             // inverted
+            ref={listRef}
             estimatedItemSize={70}
             ListHeaderComponent={
               <View>

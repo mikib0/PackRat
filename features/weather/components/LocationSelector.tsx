@@ -9,7 +9,6 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useLocations } from '../hooks';
 import { useActiveLocation } from '../hooks';
-import { useEffect } from 'react';
 
 export function LocationSelector() {
   const { colors } = useColorScheme();
@@ -17,7 +16,6 @@ export function LocationSelector() {
   const { locationsState } = useLocations();
   const { activeLocation, setActiveLocation } = useActiveLocation();
   const bottomSheetRef = useSheetRef();
-  console.log('activeLocation', activeLocation);
 
   // Get the locations array safely
   const locations = locationsState.state === 'hasData' ? locationsState.data : [];
@@ -88,7 +86,7 @@ export function LocationSelector() {
         enablePanDownToClose
         backgroundStyle={{ backgroundColor: colors.card }}
         handleIndicatorStyle={{ backgroundColor: colors.grey2 }}>
-        <BottomSheetView style={{ flex: 1 }}>
+        <BottomSheetScrollView style={{ flex: 1 }}>
           <View className="px-4 pb-4 pt-2">
             <Text className="mb-2 text-lg font-semibold">Select Location</Text>
             <Text className="mb-4 text-xs text-muted-foreground">
@@ -134,7 +132,7 @@ export function LocationSelector() {
               <Text>Manage Locations</Text>
             </TouchableOpacity>
           </View>
-        </BottomSheetView>
+        </BottomSheetScrollView>
       </Sheet>
     </>
   );
