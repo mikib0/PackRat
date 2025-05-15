@@ -7,7 +7,7 @@ import { Text } from '~/components/nativewindui/Text';
 import { Icon } from '@roninoss/icons';
 import { useColorScheme } from '~/lib/useColorScheme';
 
-const HEADER_HEIGHT = 20;
+const HEADER_HEIGHT = Platform.select({ ios: 88, default: 64 });
 
 const HEADER_POSITION_STYLE = {
   position: 'absolute',

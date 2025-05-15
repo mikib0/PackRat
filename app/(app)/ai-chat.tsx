@@ -87,6 +87,7 @@ export default function AIChat() {
   const params = useLocalSearchParams();
   const [showSuggestions, setShowSuggestions] = React.useState(true);
   const { activeLocation } = useActiveLocation();
+  const listRef = React.useRef<FlashList<any> | null>(null);
 
   // Extract context from params
   const context = {
@@ -227,6 +228,10 @@ export default function AIChat() {
     return [today, ...formattedMessages];
   }, [messages]);
 
+  React.useEffect(() => {
+    setTimeout(() => listRef.current?.scrollToEnd());
+  }, [chatMessages]);
+
   return (
     <>
       <Stack.Screen />
@@ -239,6 +244,7 @@ export default function AIChat() {
           behavior="padding">
           <FlashList
             // inverted
+            ref={listRef}
             estimatedItemSize={70}
             ListHeaderComponent={
               <View>
