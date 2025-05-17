@@ -9,53 +9,53 @@ import {
   jsonb,
   varchar,
   real,
-} from 'drizzle-orm/pg-core';
+} from "drizzle-orm/pg-core";
 
 // User table
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  email: text('email').unique().notNull(),
-  emailVerified: boolean('email_verified').default(false),
-  passwordHash: text('password_hash'),
-  firstName: text('first_name'),
-  lastName: text('last_name'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: text("email").unique().notNull(),
+  emailVerified: boolean("email_verified").default(false),
+  passwordHash: text("password_hash"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Authentication providers table
-export const authProviders = pgTable('auth_providers', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
+export const authProviders = pgTable("auth_providers", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
     .references(() => users.id)
     .notNull(),
-  provider: text('provider').notNull(), // 'email', 'google', 'apple'
-  providerId: text('provider_id'), // ID from the provider
-  createdAt: timestamp('created_at').defaultNow(),
+  provider: text("provider").notNull(), // 'email', 'google', 'apple'
+  providerId: text("provider_id"), // ID from the provider
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Refresh tokens table
-export const refreshTokens = pgTable('refresh_tokens', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
+export const refreshTokens = pgTable("refresh_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
     .references(() => users.id)
     .notNull(),
-  token: text('token').notNull().unique(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  revokedAt: timestamp('revoked_at'),
-  replacedByToken: text('replaced_by_token'),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  revokedAt: timestamp("revoked_at"),
+  replacedByToken: text("replaced_by_token"),
 });
 
 // One-time password table
-export const oneTimePasswords = pgTable('one_time_passwords', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
+export const oneTimePasswords = pgTable("one_time_passwords", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  code: varchar('code', { length: 6 }).notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+    .references(() => users.id, { onDelete: "cascade" }),
+  code: varchar("code", { length: 6 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Packs table
@@ -71,8 +71,10 @@ export const packs = pgTable('packs', {
   image: text('image'),
   tags: jsonb('tags').$type<string[]>(),
   deleted: boolean('deleted').default(false),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  localCreatedAt: timestamp('local_created_at').notNull(),
+  localUpdatedAt: timestamp('local_updated_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(), // for controlling sync. controlled by server.
+  updatedAt: timestamp('updated_at').defaultNow().notNull(), // for controlling sync. controlled by server.
 });
 
 // Catalog items table
@@ -151,6 +153,19 @@ export const packItems = pgTable('pack_items', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const packWeightHistory = pgTable('weight_history', {
+  id: text('id').primaryKey(),
+  userId: integer('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  packId: text('pack_id')
+    .references(() => packs.id, { onDelete: 'cascade' })
+    .notNull(),
+  weight: real('weight').notNull(),
+  localCreatedAt: timestamp('local_created_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Define relations
 
 export const packsRelations = relations(packs, ({ one, many }) => ({
@@ -180,6 +195,16 @@ export const catalogItemsRelations = relations(catalogItems, ({ many }) => ({
   packItems: many(packItems),
 }));
 
+export const packWeightHistoryRelations = relations(
+  packWeightHistory,
+  ({ one }) => ({
+    pack: one(packs, {
+      fields: [packWeightHistory.packId],
+      references: [packs.id],
+    }),
+  }),
+);
+
 // Infer models from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -204,3 +229,4 @@ export type NewCatalogItem = InferInsertModel<typeof catalogItems>;
 
 export type PackItem = InferSelectModel<typeof packItems>;
 export type NewPackItem = InferInsertModel<typeof packItems>;
+

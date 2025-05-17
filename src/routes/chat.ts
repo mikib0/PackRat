@@ -23,13 +23,13 @@ chatRoutes.post("/", async (c) => {
       await c.req.json();
 
     // Only get weather data if location is defined
-    const weatherData = location ? await getWeatherData(location) : null;
+    const weatherData = location ? await getWeatherData(location, c) : null;
 
     // Build context based on what was passed
     let systemPrompt = "";
 
     if (contextType === "item" && itemId) {
-      const item = await getItemDetails(itemId);
+      const item = await getItemDetails({ itemId, c });
       if (item) {
         // Determine if it's a pack item or catalog item
         const isPackItem = "packId" in item;
@@ -60,7 +60,7 @@ chatRoutes.post("/", async (c) => {
         `;
       }
     } else if (contextType === "pack" && packId) {
-      const pack = await getPackDetails(packId);
+      const pack = await getPackDetails({ packId, c });
       if (pack) {
         // Calculate total weight
         const totalWeight = pack.items.reduce((sum, item) => {

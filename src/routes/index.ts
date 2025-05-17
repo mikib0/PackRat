@@ -2,12 +2,11 @@ import { authMiddleware } from "@/middleware";
 import { Hono } from "hono";
 import { authRoutes } from "./auth";
 import { catalogRoutes } from "./catalog";
-import { chatRoutes } from "./chat";
-import { packItemSuggestionsRoutes } from "./pack-item-suggestions";
+import { chatRoutes } from './chat';
 import { packsRoutes } from "./packs";
-import { weatherRoutes } from "./weather";
-import { dashboardRoutes } from "./dashboard";
-import { uploadRoutes } from "./upload";
+import { weatherRoutes } from './weather';
+import { uploadRoutes } from './upload';
+import { userRoutes } from "./user";
 
 const publicRoutes = new Hono();
 
@@ -21,10 +20,9 @@ protectedRoutes.use(authMiddleware);
 // Mount protected routes
 protectedRoutes.route("/catalog", catalogRoutes);
 protectedRoutes.route("/packs", packsRoutes);
-protectedRoutes.route("/chat", chatRoutes);
-protectedRoutes.route("/pack-item-suggestions", packItemSuggestionsRoutes);
-publicRoutes.route("/weather", weatherRoutes);
-protectedRoutes.route("/dashboard", dashboardRoutes);
+protectedRoutes.route('/chat', chatRoutes);
+publicRoutes.route('/weather', weatherRoutes);
+protectedRoutes.route("/user", userRoutes);
 protectedRoutes.route("/upload", uploadRoutes);
 
 const routes = new Hono();
