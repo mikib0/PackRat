@@ -45,6 +45,18 @@ export type PackCategory =
   | 'skiing'
   | 'custom';
 
+export type Weight = {
+  value: number;
+  unit: string;
+};
+
+export interface PackItemCategory {
+  items: number;
+  name: string;
+  weight: Weight;
+  percentage: number;
+}
+
 export interface Pack {
   id: string;
   name: string;
@@ -55,18 +67,25 @@ export interface Pack {
   image?: string;
   tags?: string[];
   items: PackItem[];
-  baseWeight?: number;
-  totalWeight?: number;
+  baseWeight: number;
+  totalWeight: number;
   deleted: boolean;
+  localCreatedAt: string;
+  localUpdatedAt: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface PackInput {
-  name: string;
-  description?: string;
-  category: PackCategory;
-  isPublic: boolean;
-  image?: string;
-  tags?: string[];
+export type PackInStore = Omit<Pack, 'items' | 'baseWeight' | 'totalWeight'>;
+
+export type PackInput = Omit<
+  PackInStore,
+  'id' | 'userId' | 'deleted' | 'createdAt' | 'updatedAt' | 'localCreatedAt' | 'localUpdatedAt'
+>;
+
+export interface PackWeightHistoryEntry {
+  id: string;
+  packId: string;
+  weight: number;
+  localCreatedAt: string;
 }

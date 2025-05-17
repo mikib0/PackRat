@@ -34,11 +34,7 @@ export const refreshTokenAtom = atomWithStorage<string | null>('refresh_token', 
   removeItem: async (key) => SecureStore.deleteItemAsync(key),
 });
 
-// User data atom
-export const userAtom = atom<User | null>(null);
-
 // Loading state atom
 export const isLoadingAtom = atom(false);
 
-// Derived atom for authentication status
-export const isAuthenticatedAtom = atom((get) => !!get(userAtom));
+export const redirectToAtom = atom<string>('/');

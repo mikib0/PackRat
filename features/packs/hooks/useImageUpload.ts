@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
 import axiosInstance from '~/lib/api/client';
-import { use$ } from '@legendapp/state/react';
-import { userStore } from '~/features/profile/store';
 import { nanoid } from 'nanoid/non-secure';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 
@@ -15,7 +12,6 @@ export type SelectedImage = {
 
 export function useImageUpload() {
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(null);
-  const user = use$(userStore);
 
   // Pick image from gallery
   const pickImage = async (): Promise<void> => {
@@ -112,7 +108,7 @@ export function useImageUpload() {
 
     // Get file extension from the original uri or default to jpg
     const extension = selectedImage.fileName.split('.').pop()?.toLowerCase() || 'jpg';
-    const fileName = `${user!.id}-${nanoid()}.${extension}`;
+    const fileName = `${nanoid()}.${extension}`;
 
     try {
       ImageCacheManager.cacheLocalTempImage(imageUri, fileName);
@@ -122,7 +118,6 @@ export function useImageUpload() {
       return null;
     }
   };
-
 
   return {
     selectedImage,

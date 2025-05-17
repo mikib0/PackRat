@@ -2,6 +2,7 @@ import { Icon } from '@roninoss/icons';
 import 'expo-dev-client';
 import { Stack, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import { AiChatHeader } from '~/components/ai-chatHeader';
 import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 
 import { ThemeToggle } from '~/components/ThemeToggle';
@@ -42,7 +43,7 @@ export default function AppLayout() {
       <Stack.Screen name="ai-chat" options={AI_CHAT_OPTIONS} />
       <Stack.Screen name="catalog/index" options={CATALOG_LIST_OPTIONS} />
       <Stack.Screen name="catalog/[id]" options={CATALOG_ITEM_DETAIL_OPTIONS} />
-      <Stack.Screen name="locations" options={{ headerShown: false }} />
+      <Stack.Screen name="weather" options={{ headerShown: false }} />
       <Stack.Screen
         name="current-pack"
         options={{
@@ -60,7 +61,7 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
-        name="pack-stats"
+        name="pack-stats/[id]"
         options={{
           headerShown: false,
           presentation: 'modal',
@@ -76,7 +77,7 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
-        name="pack-categories"
+        name="pack-categories/[id]"
         options={{
           headerShown: false,
           presentation: 'modal',
@@ -148,6 +149,7 @@ const SCREEN_OPTIONS = {
 } as const;
 
 const TABS_OPTIONS = {
+  title: '',
   headerShown: false,
 } as const;
 
@@ -178,7 +180,7 @@ const ITEM_NEW_OPTIONS = {
 
 const AI_CHAT_OPTIONS = {
   title: 'AI Chat',
-  presentation: 'modal',
+  header: () => <AiChatHeader />,
   animation: 'fade_from_bottom', // for android
 } as const;
 

@@ -8,6 +8,7 @@ import { Pack, PackItem } from '../types';
 import { isAuthed } from '~/features/auth/store';
 import * as FileSystem from 'expo-file-system';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
+import { userStore } from '~/features/auth/store';
 
 // Function to get a presigned URL for uploading
 const getPresignedUrl = async (
@@ -34,8 +35,9 @@ const uploadImage = async (fileName: string): Promise<void> => {
   try {
     const fileExtension = fileName.split('.').pop()?.toLowerCase() || 'jpg';
     const type = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
+    const remoteFileName = `${userStore.id.peek()}-${fileName}`;
     // Get presigned URL
-    const { url: presignedUrl } = await getPresignedUrl(fileName, type);
+    const { url: presignedUrl } = await getPresignedUrl(remoteFileName, type);
 
     // Upload the image
     const uploadResult = await FileSystem.uploadAsync(
@@ -63,7 +65,6 @@ const listAllPackItems = async () => {
   try {
     const res = await axiosInstance.get<Pack[]>('/api/packs');
     const items = res.data.flatMap((pack: Pack) => pack.items);
-    console.log('listing pack items', items);
     return items;
   } catch (error) {
     const { message } = handleApiError(error);
@@ -87,9 +88,9 @@ const createPackItem = async ({ packId, ...data }: PackItem) => {
 
 const updatePackItem = async ({ id, ...data }: PackItem) => {
   try {
-    if (data.image){
+    if (data.image) {
       await uploadImage(data.image);
-    } 
+    }
     const response = await axiosInstance.patch(`/api/packs/items/${id}`, data);
     return response.data;
   } catch (error) {
@@ -107,6 +108,7 @@ syncObservable(
     fieldCreatedAt: 'createdAt',
     fieldDeleted: 'deleted',
     updatePartial: true,
+    mode: 'merge',
     persist: {
       plugin: observablePersistSqlite(Storage),
       retrySync: true,
@@ -134,6 +136,10 @@ syncObservable(
     },
   })
 );
+
+export function getPackItems(id: string) {
+  return Object.values(packItemsStore.get()).filter((item) => item.packId === id && !item.deleted);
+}
 
 export const packItemsSyncState = syncState(packItemsStore);
 

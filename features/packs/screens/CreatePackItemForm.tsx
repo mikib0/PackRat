@@ -22,7 +22,7 @@ import { useCreatePackItem, useUpdatePackItem } from '../hooks';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { WeightUnit } from '~/types';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 
 // Define Zod schema
@@ -71,7 +71,6 @@ export const CreatePackItemForm = ({
     deleteImage,
     clearSelectedImage,
   } = useImageUpload();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Keep track of the initial image URL for comparison during updates
   const initialImageUrl = useRef(existingItem?.image || null);
@@ -79,7 +78,7 @@ export const CreatePackItemForm = ({
 
   // Track if the image has been changed
   const [imageChanged, setImageChanged] = useState(false);
-
+  console.log('existingItem', existingItem);
   const form = useForm({
     defaultValues: existingItem || {
       name: '',
@@ -96,46 +95,40 @@ export const CreatePackItemForm = ({
     validators: {
       onChange: itemFormSchema,
     },
-  });
+    onSubmit: async ({ value }) => {
+      try {
+        let imageUrl = value.image;
+        const oldImageUrl = initialImageUrl.current;
 
-  const handleSubmit = async () => {
-    try {
-      // First upload the image if one is selected
-      let imageUrl = form.getFieldValue('image');
-      const oldImageUrl = initialImageUrl.current;
-
-      // Permanently save the new image on users' device if one is selected - because selectedImage is currrently in temporary cache
-      if (selectedImage) {
-        imageUrl = await permanentlyPersistImageLocally();
-        if (!imageUrl) {
-          Alert.alert('Error', 'Failed to save item image. Please try again.');
-          setIsSubmitting(false);
-          return;
+        // Permanently save the new image on users' device if one is selected - because selectedImage is currrently in temporary cache
+        if (selectedImage) {
+          imageUrl = await permanentlyPersistImageLocally();
+          if (!imageUrl) {
+            Alert.alert('Error', 'Failed to save item image. Please try again.');
+            return;
+          }
+          value.image = imageUrl;
         }
-        form.setFieldValue('image', imageUrl);
-      }
 
-      // Get the form values with the updated image URL
-      const formData = form.state.values;
+        // Submit the form with the image URL
+        if (isEditing) {
+          updatePackItem({ id: existingItem.id, ...value });
+          router.back();
+        } else {
+          createPackItem({ packId, itemData: value });
+          router.back();
+        }
 
-      // Submit the form with the image URL
-      if (isEditing) {
-        updatePackItem({ id: existingItem.id, ...formData });
-        router.back();
-      } else {
-        createPackItem({ packId, itemData: formData });
-        router.back();
+        // Check if we need to delete the old image
+        if (isEditing && oldImageUrl && imageChanged) {
+          deleteImage(oldImageUrl); // delete old image from local storage
+        }
+      } catch (err) {
+        console.error('Error submitting form:', err);
+        Alert.alert('Error', 'Failed to save item. Please try again.');
       }
-
-      // Check if we need to delete the old image
-      if (isEditing && oldImageUrl && imageChanged) {
-        deleteImage(oldImageUrl); // delete old image from local storage
-      }
-    } catch (err) {
-      console.error('Error submitting form:', err);
-      Alert.alert('Error', 'Failed to save item. Please try again.');
-    }
-  };
+    },
+  });
 
   const handleAddImage = async () => {
     const options = ['Take Photo', 'Choose from Library', 'Cancel'];
@@ -176,7 +169,7 @@ export const CreatePackItemForm = ({
   };
 
   const handleRemoveImage = () => {
-    // If we have a selected image (not yet uploaded), clear it
+    // If we have a selected image, clear it
     if (selectedImage) {
       clearSelectedImage();
     }
@@ -187,13 +180,6 @@ export const CreatePackItemForm = ({
       setImageChanged(true);
     }
   };
-
-  useEffect(() => {
-    // Show error alert if there's an error
-    if (error) {
-      Alert.alert('Image Error', error);
-    }
-  }, [error]);
 
   // Determine what image to show in the UI
   const displayImage = selectedImage
@@ -216,10 +202,11 @@ export const CreatePackItemForm = ({
                 <FormItem>
                   <TextField
                     placeholder="Item Name"
+                    autoFocus
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChangeText={field.handleChange}
-                    errorMessage={field.state.meta.errors.map((err: any) => err.message).join(', ')}
+                    errorMessage={field.state.meta.errors[0]?.message}
                     leftView={
                       <View className="ios:pl-2 justify-center pl-2">
                         <Icon name="backpack" size={16} color={colors.grey3} />
@@ -280,7 +267,7 @@ export const CreatePackItemForm = ({
                     onBlur={field.handleBlur}
                     onChangeText={field.handleChange}
                     keyboardType="numeric"
-                    errorMessage={field.state.meta.errors.map((err: any) => err.message).join(', ')}
+                    errorMessage={field.state.meta.errors[0]?.message}
                     leftView={
                       <View className="ios:pl-2 justify-center pl-2">
                         <Icon name="dumbbell" size={16} color={colors.grey3} />
@@ -317,7 +304,7 @@ export const CreatePackItemForm = ({
                     onBlur={field.handleBlur}
                     onChangeText={field.handleChange}
                     keyboardType="numeric"
-                    errorMessage={field.state.meta.errors.map((err: any) => err.message).join(', ')}
+                    errorMessage={field.state.meta.errors[0]?.message}
                     leftView={
                       <View className="ios:pl-2 justify-center pl-2">
                         <Icon name="circle-outline" size={16} color={colors.grey3} />
@@ -379,7 +366,7 @@ export const CreatePackItemForm = ({
             <form.Field name="image">
               {(field) => (
                 <FormItem>
-                  { displayImage ? (
+                  {displayImage ? (
                     <View className="relative">
                       <Image
                         source={displayImage}
@@ -429,10 +416,10 @@ export const CreatePackItemForm = ({
           </FormSection>
         </Form>
 
-        <form.Subscribe selector={(state) => [state.canSubmit]}>
-          {([canSubmit]) => (
+        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
             <Pressable
-              onPress={handleSubmit}
+              onPress={form.handleSubmit}
               disabled={!canSubmit || isSubmitting}
               className={`mt-6 rounded-lg px-4 py-3.5 ${
                 !canSubmit || isSubmitting ? 'bg-primary/70' : 'bg-primary'

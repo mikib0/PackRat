@@ -1,15 +1,14 @@
 import { use$ } from '@legendapp/state/react';
-import { packItemsStore, packsStore } from '~/features/packs/store';
+import { getPackItems, packsStore } from '~/features/packs/store';
+import { computePackWeights } from '../utils/computePackWeights';
 
 // Hook to get a single pack
 export function usePackDetails(id: string) {
   const pack = use$(() => {
-    return {
-      ...packsStore[id].get(),
-      items: Object.values(packItemsStore.get()).filter(
-        (item) => item.packId == id && !item.deleted
-      ),
-    };
+    const pack_ = packsStore[id].get();
+    const items = getPackItems(id);
+    const packWithWeights = computePackWeights({ ...pack_, items });
+    return packWithWeights;
   });
 
   return pack;

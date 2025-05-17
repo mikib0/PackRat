@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ScrollView, View, Image, SafeAreaView } from 'react-native';
+import { ScrollView, View, Image, SafeAreaView, Platform } from 'react-native';
 import { Icon } from '@roninoss/icons';
 import { Button } from '~/components/nativewindui/Button';
 import { Chip } from '~/components/initial/Chip';
@@ -48,7 +48,22 @@ export function CatalogItemDetailScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView>
-        <Image source={{ uri: item.image }} className="h-64 w-full" resizeMode="cover" />
+        <Image
+          source={{
+            uri: item.image,
+            ...(Platform.OS === 'android'
+              ? {
+                  headers: {
+                    'User-Agent':
+                      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+                    Accept: 'image/webp,image/apng,image/*,*/*;q=0.8',
+                  },
+                }
+              : {}),
+          }}
+          className="h-64 w-full"
+          resizeMode="contain"
+        />
 
         <View className="bg-card p-4">
           <View className="mb-2">

@@ -57,13 +57,14 @@ function CatalogItemsScreen() {
     ? catalogItems.filter((item) => {
         const matchesSearch =
           item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchValue.toLowerCase()) ||
-          (item.brand && item.brand.toLowerCase().includes(searchValue.toLowerCase())); // TODO: resolve bug here that cause matchesSearch to be false after navigating back from details screen
+          item.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
+          item.brand?.toLowerCase().includes(searchValue.toLowerCase()); // TODO: resolve bug here that cause matchesSearch to be false after navigating back from details screen
 
-        const matchesCategory = activeFilter === 'all' || item.category === activeFilter;
+        const matchesCategory =
+          activeFilter === 'all' || item.category?.toLocaleLowerCase() === activeFilter;
 
-        // return matchesSearch && matchesCategory;
-        return matchesCategory;
+        // return !!(matchesSearch && matchesCategory);
+        return !!matchesCategory;
       })
     : [];
 

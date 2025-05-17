@@ -1,14 +1,16 @@
-import { Pressable, Text, View } from 'react-native';
-import { WeightBadge } from '~/components/initial/WeightBadge';
-import { cn } from '~/lib/cn';
-import type { PackItem } from '~/types';
-import { Alert } from '../../../components/nativewindui/Alert';
-import { Button } from '../../../components/nativewindui/Button';
 import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
-import { useColorScheme } from '~/lib/useColorScheme';
+import { Pressable, Text, View } from 'react-native';
+
+import { Alert } from '../../../components/nativewindui/Alert';
+import { Button } from '../../../components/nativewindui/Button';
 import { useDeletePackItem } from '../hooks';
 import { CachedImage } from '~/features/packs/components/CachedImage';
+
+import { WeightBadge } from '~/components/initial/WeightBadge';
+import { cn } from '~/lib/cn';
+import { useColorScheme } from '~/lib/useColorScheme';
+import type { PackItem } from '../types';
 
 type PackItemCardProps = {
   item: PackItem;
@@ -24,7 +26,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
     <Pressable
       className="mb-3 flex-row overflow-hidden rounded-lg bg-card shadow-sm"
       onPress={() => onPress(item)}>
-      <CachedImage fileName={item.image} className="w-28" resizeMode="cover" />
+      <CachedImage localFileName={item.image} className="w-28" resizeMode="cover" />
 
       <View className="flex-1 p-3">
         <View className="flex-row items-start justify-between">
@@ -44,7 +46,7 @@ export function PackItemCard({ item, onPress }: PackItemCardProps) {
           </Text>
         )}
 
-        <View className="flex-row items-baseline justify-between">
+        <View className="flex-row items-start justify-between">
           <View className="mt-2 flex-row items-center gap-2">
             {item.quantity > 1 && (
               <View className="rounded-full bg-muted px-2 py-0.5">
