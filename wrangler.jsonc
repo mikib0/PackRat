@@ -1,6 +1,6 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "packrat-v2-api",
+    "name": "packrat-api",
     "main": "src/index.ts",
     "compatibility_date": "2024-04-01",
     "compatibility_flags": [
