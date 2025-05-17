@@ -34,7 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#026A9F',
     },
-    package: 'com.andrewbierman.packrat',
+    package: 'com.packratai.mobile',
   },
   extra: {
     eas: {
