@@ -6,12 +6,18 @@ import {
 } from '@/utils/api-middleware';
 import { computePacksWeights } from '@/utils/compute-pack';
 import { eq } from 'drizzle-orm';
-import { Hono } from 'hono';
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
-const packsListRoutes = new Hono();
+const packsListRoutes = new OpenAPIHono();
 
 // Get all packs for the user
-packsListRoutes.get('/', async (c) => {
+const listGetRoute = createRoute({
+  method: 'get',
+  path: '/',
+  responses: { 200: { description: 'Get user packs' } },
+});
+
+packsListRoutes.openapi(listGetRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -35,7 +41,14 @@ packsListRoutes.get('/', async (c) => {
 });
 
 // Create a new pack
-packsListRoutes.post('/', async (c) => {
+const listPostRoute = createRoute({
+  method: 'post',
+  path: '/',
+  request: { body: { content: { 'application/json': { schema: z.any() } } } },
+  responses: { 200: { description: 'Create pack' } },
+});
+
+packsListRoutes.openapi(listPostRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -74,7 +87,13 @@ packsListRoutes.post('/', async (c) => {
   }
 });
 
-packsListRoutes.get('/weight-history', async (c) => {
+const weightHistoryRoute = createRoute({
+  method: 'get',
+  path: '/weight-history',
+  responses: { 200: { description: 'Get weight history' } },
+});
+
+packsListRoutes.openapi(weightHistoryRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();

@@ -5,11 +5,20 @@ import {
   unauthorizedResponse,
 } from "@/utils/api-middleware";
 import { eq } from "drizzle-orm";
-import { Hono } from "hono";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
-const catalogListRoutes = new Hono();
+const catalogListRoutes = new OpenAPIHono();
 
-catalogListRoutes.get("/", async (c) => {
+const listGetRoute = createRoute({
+  method: 'get',
+  path: '/',
+  request: {
+    query: z.object({ id: z.string().optional() }),
+  },
+  responses: { 200: { description: 'Get catalog items' } },
+});
+
+catalogListRoutes.openapi(listGetRoute, async (c) => {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(c);
@@ -42,7 +51,20 @@ catalogListRoutes.get("/", async (c) => {
   }
 });
 
-catalogListRoutes.post("/", async (c) => {
+const listPostRoute = createRoute({
+  method: 'post',
+  path: '/',
+  request: {
+    body: {
+      content: {
+        'application/json': { schema: z.any() },
+      },
+    },
+  },
+  responses: { 200: { description: 'Create catalog item' } },
+});
+
+catalogListRoutes.openapi(listPostRoute, async (c) => {
   try {
     // Only admins should be able to create catalog items
     const auth = await authenticateRequest(c);

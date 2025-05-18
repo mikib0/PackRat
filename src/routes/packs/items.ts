@@ -8,13 +8,20 @@ import {
 import { convertToGrams } from "@/utils/weight";
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { and, eq } from "drizzle-orm";
-import { Hono } from "hono";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { env } from "hono/adapter";
 
-const packItemsRoutes = new Hono();
+const packItemsRoutes = new OpenAPIHono();
 
 // Get all items for a pack
-packItemsRoutes.get("/:packId/items", async (c) => {
+const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/{packId}/items',
+  request: { params: z.object({ packId: z.string() }) },
+  responses: { 200: { description: 'Get pack items' } },
+});
+
+packItemsRoutes.openapi(getItemsRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -38,7 +45,14 @@ packItemsRoutes.get("/:packId/items", async (c) => {
 });
 
 // Get pack item by ID
-packItemsRoutes.get("/items/:itemId", async (c) => {
+const getItemRoute = createRoute({
+  method: 'get',
+  path: '/items/{itemId}',
+  request: { params: z.object({ itemId: z.string() }) },
+  responses: { 200: { description: 'Get pack item' } },
+});
+
+packItemsRoutes.openapi(getItemRoute, async (c) => {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(c);
@@ -73,7 +87,17 @@ packItemsRoutes.get("/items/:itemId", async (c) => {
 });
 
 // Add an item to a pack
-packItemsRoutes.post("/:packId/items", async (c) => {
+const addItemRoute = createRoute({
+  method: 'post',
+  path: '/{packId}/items',
+  request: {
+    params: z.object({ packId: z.string() }),
+    body: { content: { 'application/json': { schema: z.any() } } },
+  },
+  responses: { 200: { description: 'Add item to pack' } },
+});
+
+packItemsRoutes.openapi(addItemRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -125,7 +149,17 @@ packItemsRoutes.post("/:packId/items", async (c) => {
 });
 
 // Update a pack item
-packItemsRoutes.patch("/items/:itemId", async (c) => {
+const updateItemRoute = createRoute({
+  method: 'patch',
+  path: '/items/{itemId}',
+  request: {
+    params: z.object({ itemId: z.string() }),
+    body: { content: { 'application/json': { schema: z.any() } } },
+  },
+  responses: { 200: { description: 'Update pack item' } },
+});
+
+packItemsRoutes.openapi(updateItemRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();

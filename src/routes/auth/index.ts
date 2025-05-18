@@ -18,12 +18,19 @@ import {
   sendVerificationCodeEmail,
 } from "@/utils/email";
 import { and, eq, gt, isNull } from "drizzle-orm";
-import { Hono } from "hono";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
-const authRoutes = new Hono();
+const authRoutes = new OpenAPIHono();
 
 // Login route
-authRoutes.post("/login", async (c) => {
+const loginRoute = createRoute({
+  method: 'post',
+  path: '/login',
+  request: { body: { content: { 'application/json': { schema: z.any() } } } },
+  responses: { 200: { description: 'Login' } },
+});
+
+authRoutes.openapi(loginRoute, async (c) => {
   try {
     const { email, password } = await c.req.json();
     const db = createDb(c);
@@ -100,7 +107,14 @@ authRoutes.post("/login", async (c) => {
 });
 
 // Register route
-authRoutes.post("/register", async (c) => {
+const registerRoute = createRoute({
+  method: 'post',
+  path: '/register',
+  request: { body: { content: { 'application/json': { schema: z.any() } } } },
+  responses: { 200: { description: 'Register user' } },
+});
+
+authRoutes.openapi(registerRoute, async (c) => {
   try {
     const { email, password, firstName, lastName } = await c.req.json();
     const db = createDb(c);
@@ -170,7 +184,14 @@ authRoutes.post("/register", async (c) => {
 });
 
 // Verify email route
-authRoutes.post("/verify-email", async (c) => {
+const verifyEmailRoute = createRoute({
+  method: 'post',
+  path: '/verify-email',
+  request: { body: { content: { 'application/json': { schema: z.any() } } } },
+  responses: { 200: { description: 'Verify email' } },
+});
+
+authRoutes.openapi(verifyEmailRoute, async (c) => {
   try {
     const { email, code } = await c.req.json();
     const db = createDb(c);
@@ -256,7 +277,14 @@ authRoutes.post("/verify-email", async (c) => {
 });
 
 // Resend verification route
-authRoutes.post("resend-verification", async (c) => {
+const resendVerificationRoute = createRoute({
+  method: 'post',
+  path: '/resend-verification',
+  request: { body: { content: { 'application/json': { schema: z.any() } } } },
+  responses: { 200: { description: 'Resend verification code' } },
+});
+
+authRoutes.openapi(resendVerificationRoute, async (c) => {
   try {
     const { email } = await c.req.json();
 
@@ -319,7 +347,14 @@ authRoutes.post("resend-verification", async (c) => {
 });
 
 // Forgot password route
-authRoutes.post("forgot-password", async (c) => {
+const forgotPasswordRoute = createRoute({
+  method: 'post',
+  path: '/forgot-password',
+  request: { body: { content: { 'application/json': { schema: z.any() } } } },
+  responses: { 200: { description: 'Forgot password' } },
+});
+
+authRoutes.openapi(forgotPasswordRoute, async (c) => {
   try {
     const { email } = await c.req.json();
 
@@ -375,7 +410,14 @@ authRoutes.post("forgot-password", async (c) => {
 });
 
 // Reset password route
-authRoutes.post("/reset-password", async (c) => {
+const resetPasswordRoute = createRoute({
+  method: 'post',
+  path: '/reset-password',
+  request: { body: { content: { 'application/json': { schema: z.any() } } } },
+  responses: { 200: { description: 'Reset password' } },
+});
+
+authRoutes.openapi(resetPasswordRoute, async (c) => {
   try {
     const { email, code, newPassword } = await c.req.json();
 
@@ -462,7 +504,14 @@ authRoutes.post("/reset-password", async (c) => {
 });
 
 // Refresh token route
-authRoutes.post("/refresh", async (c) => {
+const refreshTokenRoute = createRoute({
+  method: 'post',
+  path: '/refresh',
+  request: { body: { content: { 'application/json': { schema: z.any() } } } },
+  responses: { 200: { description: 'Refresh token' } },
+});
+
+authRoutes.openapi(refreshTokenRoute, async (c) => {
   try {
     const { refreshToken } = await c.req.json();
 
@@ -550,7 +599,14 @@ authRoutes.post("/refresh", async (c) => {
 });
 
 // Logout route
-authRoutes.post("/logout", async (c) => {
+const logoutRoute = createRoute({
+  method: 'post',
+  path: '/logout',
+  request: { body: { content: { 'application/json': { schema: z.any() } } } },
+  responses: { 200: { description: 'Logout' } },
+});
+
+authRoutes.openapi(logoutRoute, async (c) => {
   try {
     const db = createDb(c);
 
@@ -578,7 +634,13 @@ authRoutes.post("/logout", async (c) => {
 });
 
 // Me route
-authRoutes.get("/me", async (c) => {
+const meRoute = createRoute({
+  method: 'get',
+  path: '/me',
+  responses: { 200: { description: 'Get current user' } },
+});
+
+authRoutes.openapi(meRoute, async (c) => {
   try {
     const auth = await authenticateRequest(c);
     const db = createDb(c);
