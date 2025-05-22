@@ -8,6 +8,7 @@ import { packItemsSyncState, packsSyncState } from '~/features/packs/store';
 import { isAuthed, userStore, userSyncState } from '~/features/auth/store';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 import { packWeigthHistorySyncState } from '~/features/packs/store/packWeightHistory';
+import axiosInstance from '~/lib/api/client';
 
 function redirect(route: string) {
   try {
@@ -23,6 +24,22 @@ export function useAuthActions() {
   const setRefreshToken = useSetAtom(refreshTokenAtom);
   const setIsLoading = useSetAtom(isLoadingAtom);
   const redirectTo = useAtomValue(redirectToAtom);
+
+  const clearLocalData = async () => {
+    // Clear tokens from secure storage
+    await SecureStore.deleteItemAsync('access_token');
+    await SecureStore.deleteItemAsync('refresh_token');
+
+    // Clear state
+    await setToken(null);
+    await setRefreshToken(null);
+    packsSyncState.clearPersist();
+    packItemsSyncState.clearPersist();
+    userSyncState.clearPersist();
+    packWeigthHistorySyncState.clearPersist();
+    isAuthed.set(false);
+    ImageCacheManager.clearCache();
+  };
 
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
@@ -206,19 +223,7 @@ export function useAuthActions() {
         });
       }
 
-      // Clear tokens from secure storage
-      await SecureStore.deleteItemAsync('access_token');
-      await SecureStore.deleteItemAsync('refresh_token');
-
-      // Clear state
-      await setToken(null);
-      await setRefreshToken(null);
-      packsSyncState.clearPersist();
-      packItemsSyncState.clearPersist();
-      userSyncState.clearPersist();
-      packWeigthHistorySyncState.clearPersist();
-      isAuthed.set(false);
-      ImageCacheManager.clearCache();
+      clearLocalData();
       router.replace('/');
     } catch (error) {
       console.error('Sign out error:', error);
@@ -333,6 +338,26 @@ export function useAuthActions() {
     }
   };
 
+  const deleteAccount = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.delete('/api/auth');
+
+      if (response.status !== 200) {
+        throw new Error(response.data?.error || 'Failed to delete account');
+      }
+
+      // Clear tokens and user data
+      await clearLocalData();
+      router.replace('/');
+    } catch (error) {
+      console.error('Delete account error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     signIn,
     signInWithGoogle,
@@ -343,5 +368,6 @@ export function useAuthActions() {
     resetPassword,
     verifyEmail,
     resendVerificationEmail,
+    deleteAccount,
   };
 }
