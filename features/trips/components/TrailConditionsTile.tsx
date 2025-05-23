@@ -1,11 +1,11 @@
 import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { ListItem } from '~/components/nativewindui/List';
+import { ListItem } from 'nativewindui/List';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Alert } from '~/components/nativewindui/Alert';
+import { Alert } from 'nativewindui/Alert';
 import { useRef } from 'react';
-import { AlertRef } from '~/components/nativewindui/Alert/types';
+import { AlertRef } from 'nativewindui/Alert/types';
 import { featureFlags } from '~/config';
 
 export function TrailConditionsTile() {

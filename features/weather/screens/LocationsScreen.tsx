@@ -16,9 +16,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAtom } from 'jotai';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
-import { SearchInput } from '~/components/nativewindui/SearchInput';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
+import { SearchInput } from 'nativewindui/SearchInput';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { searchQueryAtom } from '../atoms/locationsAtoms';

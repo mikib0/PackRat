@@ -15,7 +15,7 @@ import {
   shouldShowQuantity,
 } from '~/lib/utils/itemCalculations';
 import { NotFoundScreen } from '../../../screens/NotFoundScreen';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from 'nativewindui/Button';
 import { usePackItem } from '../hooks';
 import { isAuthed } from '~/features/auth/store';
 import { CachedImage } from '~/features/packs/components/CachedImage';

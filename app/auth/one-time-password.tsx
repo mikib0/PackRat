@@ -17,12 +17,12 @@ import {
 import { KeyboardAwareScrollView, KeyboardController } from 'react-native-keyboard-controller';
 import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
-import { AlertAnchor } from '~/components/nativewindui/Alert';
-import type { AlertRef } from '~/components/nativewindui/Alert/types';
-import { Button } from '~/components/nativewindui/Button';
-import { Text } from '~/components/nativewindui/Text';
-import { TextField } from '~/components/nativewindui/TextField';
+import { ActivityIndicator } from 'nativewindui/ActivityIndicator';
+import { AlertAnchor } from 'nativewindui/Alert';
+import type { AlertRef } from 'nativewindui/Alert/types';
+import { Button } from 'nativewindui/Button';
+import { Text } from 'nativewindui/Text';
+import { TextField } from 'nativewindui/TextField';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 import { Route } from 'expo-router';

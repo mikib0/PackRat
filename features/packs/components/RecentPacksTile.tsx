@@ -1,9 +1,9 @@
 import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
-import { ListItem } from '~/components/nativewindui/List';
-import { Text } from '~/components/nativewindui/Text';
+import { Avatar, AvatarFallback, AvatarImage } from 'nativewindui/Avatar';
+import { ListItem } from 'nativewindui/List';
+import { Text } from 'nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useRecentPacks } from '../hooks/useRecentPacks';

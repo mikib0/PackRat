@@ -3,10 +3,10 @@ import * as React from 'react';
 import { Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '~/components/nativewindui/Button';
-import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
-import { Text } from '~/components/nativewindui/Text';
-import { Toggle } from '~/components/nativewindui/Toggle';
+import { Button } from 'nativewindui/Button';
+import { Form, FormItem, FormSection } from 'nativewindui/Form';
+import { Text } from 'nativewindui/Text';
+import { Toggle } from 'nativewindui/Toggle';
 import { cn } from '~/lib/cn';
 
 export default function NotificationsScreen() {

@@ -3,17 +3,12 @@ import { Platform, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AdaptiveSearchHeader } from '~/components/nativewindui/AdaptiveSearchHeader';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
-import { Button } from '~/components/nativewindui/Button';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import {
-  List,
-  ListDataItem,
-  ListRenderItemInfo,
-  ListSectionHeader,
-} from '~/components/nativewindui/List';
-import { Text } from '~/components/nativewindui/Text';
+import { AdaptiveSearchHeader } from 'nativewindui/AdaptiveSearchHeader';
+import { Avatar, AvatarFallback, AvatarImage } from 'nativewindui/Avatar';
+import { Button } from 'nativewindui/Button';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { List, ListDataItem, ListRenderItemInfo, ListSectionHeader } from 'nativewindui/List';
+import { Text } from 'nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 

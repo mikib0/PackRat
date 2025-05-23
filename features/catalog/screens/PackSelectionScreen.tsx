@@ -12,11 +12,11 @@ import {
   Animated,
 } from 'react-native';
 import { Icon } from '@roninoss/icons';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from 'nativewindui/Button';
 import { useCatalogItemDetails } from '../hooks';
 import type { Pack } from '~/types';
-import { SearchInput } from '~/components/nativewindui/SearchInput';
-import { Text } from '~/components/nativewindui/Text';
+import { SearchInput } from 'nativewindui/SearchInput';
+import { Text } from 'nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { usePacks } from '~/features/packs';
 

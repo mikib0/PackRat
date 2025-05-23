@@ -15,9 +15,9 @@ import {
   Alert,
 } from 'react-native';
 import { z } from 'zod';
-import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
-import { SegmentedControl } from '~/components/nativewindui/SegmentedControl';
-import { TextField } from '~/components/nativewindui/TextField';
+import { Form, FormItem, FormSection } from 'nativewindui/Form';
+import { SegmentedControl } from 'nativewindui/SegmentedControl';
+import { TextField } from 'nativewindui/TextField';
 import { useCreatePackItem, useUpdatePackItem } from '../hooks';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { useColorScheme } from '~/lib/useColorScheme';

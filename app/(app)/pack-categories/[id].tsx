@@ -2,8 +2,8 @@ import { Icon } from '@roninoss/icons';
 import { useLocalSearchParams } from 'expo-router';
 import { View, ScrollView } from 'react-native';
 
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { userStore } from '~/features/auth/store';
 import { usePackDetails } from '~/features/packs/hooks/usePackDetails';
 import { computeCategorySummaries } from '~/features/packs/utils';

@@ -1,13 +1,13 @@
 import { Icon } from '@roninoss/icons';
 import { Href, useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { ListItem } from '~/components/nativewindui/List';
-import { Text } from '~/components/nativewindui/Text';
+import { ListItem } from 'nativewindui/List';
+import { Text } from 'nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useCurrentPack } from '../hooks';
-import { Alert } from '~/components/nativewindui/Alert';
+import { Alert } from 'nativewindui/Alert';
 import { useRef } from 'react';
-import { type AlertRef } from '~/components/nativewindui/Alert/types';
+import { type AlertRef } from 'nativewindui/Alert/types';
 
 export function WeightAnalysisTile() {
   const router = useRouter();

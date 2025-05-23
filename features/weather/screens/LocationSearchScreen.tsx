@@ -17,8 +17,8 @@ import debounce from 'lodash.debounce';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Text } from '~/components/nativewindui/Text';
-import { SearchInput } from '~/components/nativewindui/SearchInput';
+import { Text } from 'nativewindui/Text';
+import { SearchInput } from 'nativewindui/SearchInput';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useLocationSearch } from '../hooks';

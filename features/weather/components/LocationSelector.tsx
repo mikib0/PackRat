@@ -3,8 +3,8 @@ import { useRouter } from 'expo-router';
 import { TouchableOpacity, View, Pressable, Alert, ScrollView } from 'react-native';
 import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 
-import { Text } from '~/components/nativewindui/Text';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { Text } from 'nativewindui/Text';
+import { Sheet, useSheetRef } from 'nativewindui/Sheet';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useLocations } from '../hooks';

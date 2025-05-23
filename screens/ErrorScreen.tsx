@@ -3,7 +3,7 @@
 import { Icon, MaterialIconName } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from 'nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
 
 type ErrorScreenProps = {

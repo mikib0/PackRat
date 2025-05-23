@@ -5,10 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { AlertAnchor } from '~/components/nativewindui/Alert';
-import type { AlertRef } from '~/components/nativewindui/Alert/types';
-import { Button } from '~/components/nativewindui/Button';
-import { Text } from '~/components/nativewindui/Text';
+import { AlertAnchor } from 'nativewindui/Alert';
+import type { AlertRef } from 'nativewindui/Alert/types';
+import { Button } from 'nativewindui/Button';
+import { Text } from 'nativewindui/Text';
 import { useAuthActions } from '~/features/auth/hooks/useAuthActions';
 import { useLocalSearchParams } from 'expo-router';
 import { featureFlags } from '~/config';

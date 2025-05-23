@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { Stack, usePathname, useRouter } from 'expo-router';
-import { Button } from '~/components/nativewindui/Button';
-import { Text } from '~/components/nativewindui/Text';
+import { Button } from 'nativewindui/Button';
+import { Text } from 'nativewindui/Text';
 import { Icon } from '@roninoss/icons';
 
 const SCREEN_OPTIONS = {

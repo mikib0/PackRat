@@ -1,8 +1,8 @@
 import { Icon } from '@roninoss/icons';
 import { View, ScrollView, Image } from 'react-native';
 
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { useRecentPacks } from '~/features/packs/hooks/useRecentPacks';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { getRelativeTime } from '~/lib/utils/getRelativeTime';

@@ -2,8 +2,8 @@ import { Icon } from '@roninoss/icons';
 import { useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
-import { Alert } from '../../../components/nativewindui/Alert';
-import { Button } from '../../../components/nativewindui/Button';
+import { Alert } from 'nativewindui/Alert';
+import { Button } from 'nativewindui/Button';
 import { useDeletePackItem } from '../hooks';
 import { CachedImage } from '~/features/packs/components/CachedImage';
 

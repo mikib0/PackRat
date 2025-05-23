@@ -32,8 +32,8 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '~/components/nativewindui/Button';
-import { Text } from '~/components/nativewindui/Text';
+import { Button } from 'nativewindui/Button';
+import { Text } from 'nativewindui/Text';
 import { LocationSelector } from '~/features/weather/components/LocationSelector';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';

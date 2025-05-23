@@ -1,26 +1,26 @@
 import { Stack, useRouter } from 'expo-router';
 import { Platform, View } from 'react-native';
 
-import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
-import { Button } from '~/components/nativewindui/Button';
+import { Avatar, AvatarFallback } from 'nativewindui/Avatar';
+import { Button } from 'nativewindui/Button';
 import {
   ESTIMATED_ITEM_HEIGHT,
   List,
   ListItem,
   type ListRenderItemInfo,
   ListSectionHeader,
-} from '~/components/nativewindui/List';
-import { Text } from '~/components/nativewindui/Text';
+} from 'nativewindui/List';
+import { Text } from 'nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useAuth } from '~/features/auth/hooks/useAuth';
 import { useUser } from '~/features/auth/hooks/useUser';
 import { withAuthWall } from '~/features/auth/hocs';
 import { ProfileAuthWall } from '~/features/profile/components';
-import { Alert } from '~/components/nativewindui/Alert';
+import { Alert } from 'nativewindui/Alert';
 import { useRef } from 'react';
-import { AlertRef } from '~/components/nativewindui/Alert/types';
+import { AlertRef } from 'nativewindui/Alert/types';
 import { packItemsSyncState, packsSyncState } from '~/features/packs/store';
-import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
+import { ActivityIndicator } from 'nativewindui/ActivityIndicator';
 
 const SCREEN_OPTIONS = {
   title: 'Profile',

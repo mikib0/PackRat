@@ -2,8 +2,8 @@
 import { useLocalSearchParams } from 'expo-router';
 import { View, ScrollView, SafeAreaView } from 'react-native';
 
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { userStore } from '~/features/auth/store';
 import { usePackWeightAnalysis } from '~/features/packs/hooks/usePackWeightAnalysis';
 import { cn } from '~/lib/cn';

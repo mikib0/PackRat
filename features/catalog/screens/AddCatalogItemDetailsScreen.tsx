@@ -16,11 +16,11 @@ import {
   Animated,
 } from 'react-native';
 import { Icon } from '@roninoss/icons';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from 'nativewindui/Button';
 import { useCatalogItemDetails } from '../hooks';
 import type { WeightUnit } from '~/types';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Text } from '~/components/nativewindui/Text';
+import { Text } from 'nativewindui/Text';
 import { useCreatePackItem, usePackDetails } from '~/features/packs';
 
 export function AddCatalogItemDetailsScreen() {

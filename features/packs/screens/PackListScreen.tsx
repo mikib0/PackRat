@@ -15,13 +15,13 @@ import { activeFilterAtom, searchValueAtom } from '~/features/packs/packListAtom
 import { PackCard } from '~/features/packs/components/PackCard';
 import { usePacks } from '~/features/packs/hooks/usePacks';
 import { useAuth } from '~/features/auth/hooks/useAuth';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { Pack, PackCategory } from '../types';
 import SyncBanner from '~/features/packs/components/SyncBanner';
 import { useCallback, useRef } from 'react';
 import { SearchResults } from '~/features/packs/components/SearchResults';
-import { LargeTitleSearchBarRef } from '~/components/nativewindui/LargeTitleHeader/types';
+import { LargeTitleSearchBarRef } from 'nativewindui/LargeTitleHeader/types';
 
 type FilterOption = {
   label: string;

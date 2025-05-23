@@ -6,8 +6,8 @@ import { Platform, Pressable, PressableProps, StyleProp, View, ViewStyle } from 
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Badge } from '~/components/nativewindui/Badge';
-import { Text } from '~/components/nativewindui/Text';
+import { Badge } from 'nativewindui/Badge';
+import { Text } from 'nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 

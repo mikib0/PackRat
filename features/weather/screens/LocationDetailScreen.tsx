@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
-import { Text } from '~/components/nativewindui/Text';
+import { Text } from 'nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useLocations, useActiveLocation, useLocationRefresh } from '../hooks';

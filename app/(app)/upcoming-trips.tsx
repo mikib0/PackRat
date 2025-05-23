@@ -2,10 +2,10 @@ import { Icon } from '@roninoss/icons';
 import { useState } from 'react';
 import { View, ScrollView } from 'react-native';
 
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { List, ListItem } from '~/components/nativewindui/List';
-import { Text } from '~/components/nativewindui/Text';
+import { Avatar, AvatarFallback, AvatarImage } from 'nativewindui/Avatar';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { List, ListItem } from 'nativewindui/List';
+import { Text } from 'nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 

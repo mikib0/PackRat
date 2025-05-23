@@ -24,17 +24,17 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
-import { Button } from '~/components/nativewindui/Button';
-import { ContextMenu } from '~/components/nativewindui/ContextMenu';
-import { createContextItem } from '~/components/nativewindui/ContextMenu/utils';
-import { Checkbox } from '~/components/nativewindui/Checkbox';
-import { DropdownMenu } from '~/components/nativewindui/DropdownMenu';
-import { createDropdownItem } from '~/components/nativewindui/DropdownMenu/utils';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { List, ListItem, ListRenderItemInfo } from '~/components/nativewindui/List';
-import { Text } from '~/components/nativewindui/Text';
-import { Toolbar } from '~/components/nativewindui/Toolbar';
+import { Avatar, AvatarFallback } from 'nativewindui/Avatar';
+import { Button } from 'nativewindui/Button';
+import { ContextMenu } from 'nativewindui/ContextMenu';
+import { createContextItem } from 'nativewindui/ContextMenu/utils';
+import { Checkbox } from 'nativewindui/Checkbox';
+import { DropdownMenu } from 'nativewindui/DropdownMenu';
+import { createDropdownItem } from 'nativewindui/DropdownMenu/utils';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { List, ListItem, ListRenderItemInfo } from 'nativewindui/List';
+import { Text } from 'nativewindui/Text';
+import { Toolbar } from 'nativewindui/Toolbar';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 

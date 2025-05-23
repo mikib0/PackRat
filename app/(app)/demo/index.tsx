@@ -9,9 +9,9 @@ import { Linking, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '~/components/Card';
 
-import { Button } from '~/components/nativewindui/Button';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { Button } from 'nativewindui/Button';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';

@@ -2,8 +2,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { View, ScrollView, ActivityIndicator } from 'react-native';
 
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { featureFlags } from '~/config';
 import { userStore } from '~/features/auth/store';
 import { usePackDetails } from '~/features/packs/hooks/usePackDetails';

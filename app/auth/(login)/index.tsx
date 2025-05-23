@@ -10,10 +10,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 
-import { Button } from '~/components/nativewindui/Button';
-import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
-import { Text } from '~/components/nativewindui/Text';
-import { TextField } from '~/components/nativewindui/TextField';
+import { Button } from 'nativewindui/Button';
+import { Form, FormItem, FormSection } from 'nativewindui/Form';
+import { Text } from 'nativewindui/Text';
+import { TextField } from 'nativewindui/TextField';
 import { useAuth } from '~/features/auth/hooks/useAuth';
 
 const LOGO_SOURCE = require('~/assets/packrat-app-icon-gradient.png');

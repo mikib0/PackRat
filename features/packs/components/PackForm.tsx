@@ -11,14 +11,14 @@ import {
   View,
 } from 'react-native';
 import { z } from 'zod';
-import { DropdownMenu } from '~/components/nativewindui/DropdownMenu';
-import { createDropdownItem } from '~/components/nativewindui/DropdownMenu/utils';
-import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
-import { TextField } from '~/components/nativewindui/TextField';
+import { DropdownMenu } from 'nativewindui/DropdownMenu';
+import { createDropdownItem } from 'nativewindui/DropdownMenu/utils';
+import { Form, FormItem, FormSection } from 'nativewindui/Form';
+import { TextField } from 'nativewindui/TextField';
 import { useCreatePack, useUpdatePack } from '../hooks';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { Pack, PackCategory } from '../types';
-import { Button } from '../../../components/nativewindui/Button';
+import { Button } from 'nativewindui/Button';
 // Define Zod schema
 const packFormSchema = z.object({
   name: z.string().min(1, 'Pack name is required'),

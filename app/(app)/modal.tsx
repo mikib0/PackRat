@@ -2,12 +2,12 @@ import { Icon } from '@roninoss/icons';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { Platform, ScrollView, View } from 'react-native';
-import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
-import { Alert } from '~/components/nativewindui/Alert';
-import { AlertRef } from '~/components/nativewindui/Alert/types';
-import { Button } from '~/components/nativewindui/Button';
+import { ActivityIndicator } from 'nativewindui/ActivityIndicator';
+import { Alert } from 'nativewindui/Alert';
+import { AlertRef } from 'nativewindui/Alert/types';
+import { Button } from 'nativewindui/Button';
 
-import { Text } from '~/components/nativewindui/Text';
+import { Text } from 'nativewindui/Text';
 import { useAuth } from '~/features/auth/hooks/useAuth';
 import { useColorScheme } from '~/lib/useColorScheme';
 

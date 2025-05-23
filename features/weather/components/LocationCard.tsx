@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
-import { Text } from '~/components/nativewindui/Text';
+import { Text } from 'nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import type { WeatherLocation } from '../types';

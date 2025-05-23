@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator, SafeAreaView } from 'react-native'; // 👈 import ActivityIndicator
 
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { PackItemCard } from '~/features/packs/components/PackItemCard';
 import { useUserPackItems } from '~/features/packs/hooks/useUserPackItems';
 import { cn } from '~/lib/cn';

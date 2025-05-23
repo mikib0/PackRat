@@ -30,12 +30,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
-import { Button } from '~/components/nativewindui/Button';
-import { ContextMenu } from '~/components/nativewindui/ContextMenu';
-import { DropdownMenu } from '~/components/nativewindui/DropdownMenu';
-import { createDropdownItem } from '~/components/nativewindui/DropdownMenu/utils';
-import { Text } from '~/components/nativewindui/Text';
+import { Avatar, AvatarFallback } from 'nativewindui/Avatar';
+import { Button } from 'nativewindui/Button';
+import { ContextMenu } from 'nativewindui/ContextMenu';
+import { DropdownMenu } from 'nativewindui/DropdownMenu';
+import { createDropdownItem } from 'nativewindui/DropdownMenu/utils';
+import { Text } from 'nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 

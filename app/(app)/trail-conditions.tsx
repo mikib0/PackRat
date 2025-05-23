@@ -1,8 +1,8 @@
 import { Icon } from '@roninoss/icons';
 import { View, ScrollView } from 'react-native';
 
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { cn } from '~/lib/cn';
 
 // Mock data for trail conditions

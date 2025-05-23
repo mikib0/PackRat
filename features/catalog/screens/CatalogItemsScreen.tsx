@@ -15,8 +15,8 @@ import { CatalogItemCard } from '~/features/catalog/components/CatalogItemCard';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
 import { useCatalogItems } from '../hooks';
 import type { CatalogItem } from '../types';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { withAuthWall } from '~/features/auth/hocs';
 import { CatalogItemsAuthWall } from '../components';
 

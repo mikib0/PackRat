@@ -3,7 +3,7 @@ import 'expo-dev-client';
 import { Stack, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { AiChatHeader } from '~/components/ai-chatHeader';
-import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
+import { ActivityIndicator } from 'nativewindui/ActivityIndicator';
 
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { useAuthInit } from '~/features/auth/hooks/useAuthInit';

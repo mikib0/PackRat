@@ -4,14 +4,14 @@ import { Icon } from '@roninoss/icons';
 import { useCreatePackItem } from '../hooks';
 import { cn } from '~/lib/cn';
 import type { CatalogItem } from '~/types';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from 'nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Text } from '../../../components/nativewindui/Text';
+import { Text } from 'nativewindui/Text';
 import type { PackItemInput } from '../types';
 import { nanoid } from 'nanoid/non-secure';
 import ImageCacheManager from '~/lib/utils/ImageCacheManager';
 import { getImageExtension } from '~/lib/utils/imageUtils';
-import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
+import { ActivityIndicator } from 'nativewindui/ActivityIndicator';
 
 interface ItemSuggestionCardProps {
   packId: string;

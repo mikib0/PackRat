@@ -6,14 +6,14 @@ import { Pressable, View, Text, FlatList } from 'react-native';
 import { useState, useRef, useMemo } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import type { LargeTitleSearchBarRef } from '~/components/nativewindui/LargeTitleHeader/types';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import type { LargeTitleSearchBarRef } from 'nativewindui/LargeTitleHeader/types';
 import {
   ESTIMATED_ITEM_HEIGHT,
   List,
   type ListRenderItemInfo,
   ListSectionHeader,
-} from '~/components/nativewindui/List';
+} from 'nativewindui/List';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { WeatherTile } from '~/features/weather/components/WeatherTile';

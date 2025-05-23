@@ -4,8 +4,8 @@ import type { Pack } from '../types';
 import { CategoryBadge } from '~/components/initial/CategoryBadge';
 import { WeightBadge } from '~/components/initial/WeightBadge';
 import { Icon } from '@roninoss/icons';
-import { Alert } from '~/components/nativewindui/Alert';
-import { Button } from '../../../components/nativewindui/Button';
+import { Alert } from 'nativewindui/Alert';
+import { Button } from 'nativewindui/Button';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useDeletePack, usePackDetails } from '../hooks';
 

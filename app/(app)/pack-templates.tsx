@@ -2,8 +2,8 @@ import { Icon } from '@roninoss/icons';
 import { View, ScrollView } from 'react-native';
 import { colors } from 'react-native-keyboard-controller/lib/typescript/components/KeyboardToolbar/colors';
 
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 
 // Mock data for pack templates

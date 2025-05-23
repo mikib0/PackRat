@@ -3,9 +3,9 @@ import type React from 'react';
 import { useState, useEffect } from 'react';
 import { View, ScrollView, SafeAreaView } from 'react-native';
 
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { Text } from '~/components/nativewindui/Text';
+import { Avatar, AvatarFallback, AvatarImage } from 'nativewindui/Avatar';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
+import { Text } from 'nativewindui/Text';
 import { userStore } from '~/features/auth/store';
 import { usePackDetails } from '~/features/packs/hooks/usePackDetails';
 import { computeCategorySummaries } from '~/features/packs/utils';

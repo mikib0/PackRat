@@ -1,8 +1,8 @@
 import { Icon, MaterialIconName } from '@roninoss/icons';
 import { View } from 'react-native';
 
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
-import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
+import { Avatar, AvatarFallback, AvatarImage } from 'nativewindui/Avatar';
+import { LargeTitleHeader } from 'nativewindui/LargeTitleHeader';
 import {
   ESTIMATED_ITEM_HEIGHT,
   List,
@@ -10,8 +10,8 @@ import {
   ListItem,
   ListRenderItemInfo,
   ListSectionHeader,
-} from '~/components/nativewindui/List';
-import { Text } from '~/components/nativewindui/Text';
+} from 'nativewindui/List';
+import { Text } from 'nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 
