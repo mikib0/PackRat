@@ -337,7 +337,7 @@ export const siteConfig = {
     ],
     legal: [
       { title: "Terms", href: "#" },
-      { title: "Privacy", href: "#" },
+      { title: "Privacy", href: "/privacy-policy" },
       { title: "Cookies", href: "#" },
       { title: "Licenses", href: "#" },
     ],
