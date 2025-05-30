@@ -12,50 +12,51 @@ import {
 } from "drizzle-orm/pg-core";
 
 // User table
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  email: text("email").unique().notNull(),
-  emailVerified: boolean("email_verified").default(false),
-  passwordHash: text("password_hash"),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  email: text('email').unique().notNull(),
+  emailVerified: boolean('email_verified').default(false),
+  passwordHash: text('password_hash'),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  role: text('role').default('USER'), // 'USER', 'ADMIN'
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 // Authentication providers table
-export const authProviders = pgTable("auth_providers", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
+export const authProviders = pgTable('auth_providers', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
     .references(() => users.id)
     .notNull(),
-  provider: text("provider").notNull(), // 'email', 'google', 'apple'
-  providerId: text("provider_id"), // ID from the provider
-  createdAt: timestamp("created_at").defaultNow(),
+  provider: text('provider').notNull(), // 'email', 'google', 'apple'
+  providerId: text('provider_id'), // ID from the provider
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 // Refresh tokens table
-export const refreshTokens = pgTable("refresh_tokens", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
+export const refreshTokens = pgTable('refresh_tokens', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
     .references(() => users.id)
     .notNull(),
-  token: text("token").notNull().unique(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  revokedAt: timestamp("revoked_at"),
-  replacedByToken: text("replaced_by_token"),
+  token: text('token').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  revokedAt: timestamp('revoked_at'),
+  replacedByToken: text('replaced_by_token'),
 });
 
 // One-time password table
-export const oneTimePasswords = pgTable("one_time_passwords", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
+export const oneTimePasswords = pgTable('one_time_passwords', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  code: varchar("code", { length: 6 }).notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+    .references(() => users.id, { onDelete: 'cascade' }),
+  code: varchar('code', { length: 6 }).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 // Packs table
@@ -202,7 +203,38 @@ export const packWeightHistoryRelations = relations(
       fields: [packWeightHistory.packId],
       references: [packs.id],
     }),
-  }),
+  })
+);
+
+// Reported content table
+export const reportedContent = pgTable('reported_content', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .references(() => users.id)
+    .notNull(),
+  userQuery: text('user_query').notNull(),
+  aiResponse: text('ai_response').notNull(),
+  reason: text('reason').notNull(),
+  userComment: text('user_comment'),
+  status: text('status').default('pending').notNull(), // pending, reviewed, dismissed
+  reviewed: boolean('reviewed').default(false),
+  reviewedBy: integer('reviewed_by').references(() => users.id),
+  reviewedAt: timestamp('reviewed_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const reportedContentRelations = relations(
+  reportedContent,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [reportedContent.userId],
+      references: [users.id],
+    }),
+    reviewer: one(users, {
+      fields: [reportedContent.reviewedBy],
+      references: [users.id],
+    }),
+  })
 );
 
 // Infer models from tables
@@ -230,3 +262,5 @@ export type NewCatalogItem = InferInsertModel<typeof catalogItems>;
 export type PackItem = InferSelectModel<typeof packItems>;
 export type NewPackItem = InferInsertModel<typeof packItems>;
 
+export type ReportedContent = InferSelectModel<typeof reportedContent>;
+export type NewReportedContent = InferInsertModel<typeof reportedContent>;
