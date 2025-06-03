@@ -1,9 +1,15 @@
 import { createDb } from "@/db";
-import { oneTimePasswords, refreshTokens, users } from "@/db/schema";
+import {
+  authProviders,
+  oneTimePasswords,
+  packs,
+  refreshTokens,
+  users,
+} from '@/db/schema';
 import {
   authenticateRequest,
   unauthorizedResponse,
-} from "@/utils/api-middleware";
+} from '@/utils/api-middleware';
 import {
   generateJWT,
   generateRefreshToken,
@@ -12,13 +18,13 @@ import {
   validateEmail,
   validatePassword,
   verifyPassword,
-} from "@/utils/auth";
+} from '@/utils/auth';
 import {
   sendPasswordResetEmail,
   sendVerificationCodeEmail,
-} from "@/utils/email";
-import { and, eq, gt, isNull } from "drizzle-orm";
-import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
+} from '@/utils/email';
+import { and, eq, gt, isNull } from 'drizzle-orm';
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
 const authRoutes = new OpenAPIHono();
 
@@ -37,7 +43,7 @@ authRoutes.openapi(loginRoute, async (c) => {
 
     // Validate input
     if (!email || !password) {
-      return c.json({ error: "Email and password are required" }, 400);
+      return c.json({ error: 'Email and password are required' }, 400);
     }
 
     // Find user
@@ -48,7 +54,7 @@ authRoutes.openapi(loginRoute, async (c) => {
       .limit(1);
 
     if (user.length === 0) {
-      return c.json({ error: "Invalid email or password" }, 401);
+      return c.json({ error: 'Invalid email or password' }, 401);
     }
 
     // Verify password
@@ -58,13 +64,13 @@ authRoutes.openapi(loginRoute, async (c) => {
     );
 
     if (!isPasswordValid) {
-      return c.json({ error: "Invalid email or password" }, 401);
+      return c.json({ error: 'Invalid email or password' }, 401);
     }
 
     // Check if email is verified
     if (!user[0].emailVerified) {
       return c.json(
-        { error: "Please verify your email before logging in" },
+        { error: 'Please verify your email before logging in' },
         403
       );
     }
@@ -101,8 +107,8 @@ authRoutes.openapi(loginRoute, async (c) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
-    return c.json({ error: "An error occurred during login" }, 500);
+    console.error('Login error:', error);
+    return c.json({ error: 'An error occurred during login' }, 500);
   }
 });
 
@@ -121,11 +127,11 @@ authRoutes.openapi(registerRoute, async (c) => {
 
     // Validate input
     if (!email || !password) {
-      return c.json({ error: "Email and password are required" }, 400);
+      return c.json({ error: 'Email and password are required' }, 400);
     }
 
     if (!validateEmail(email)) {
-      return c.json({ error: "Invalid email format" }, 400);
+      return c.json({ error: 'Invalid email format' }, 400);
     }
 
     const passwordValidation = validatePassword(password);
@@ -141,7 +147,7 @@ authRoutes.openapi(registerRoute, async (c) => {
       .limit(1);
 
     if (existingUser.length > 0) {
-      return c.json({ error: "Email already in use" }, 409);
+      return c.json({ error: 'Email already in use' }, 409);
     }
 
     // Hash password
@@ -174,12 +180,12 @@ authRoutes.openapi(registerRoute, async (c) => {
     return c.json({
       success: true,
       message:
-        "User registered successfully. Please check your email for your verification code.",
+        'User registered successfully. Please check your email for your verification code.',
       userId: newUser.id,
     });
   } catch (error) {
-    console.error("Registration error:", error);
-    return c.json({ error: "An error occurred during registration" }, 500);
+    console.error('Registration error:', error);
+    return c.json({ error: 'An error occurred during registration' }, 500);
   }
 });
 
@@ -268,9 +274,9 @@ authRoutes.openapi(verifyEmailRoute, async (c) => {
       },
     });
   } catch (error) {
-    console.error("Email verification error:", error);
+    console.error('Email verification error:', error);
     return c.json(
-      { error: "An error occurred during email verification" },
+      { error: 'An error occurred during email verification' },
       500
     );
   }
@@ -289,7 +295,7 @@ authRoutes.openapi(resendVerificationRoute, async (c) => {
     const { email } = await c.req.json();
 
     if (!email) {
-      return Response.json({ error: "Email is required" }, { status: 400 });
+      return Response.json({ error: 'Email is required' }, { status: 400 });
     }
 
     const db = createDb(c);
@@ -302,7 +308,7 @@ authRoutes.openapi(resendVerificationRoute, async (c) => {
       .limit(1);
 
     if (user.length === 0) {
-      return Response.json({ error: "User not found" }, { status: 404 });
+      return Response.json({ error: 'User not found' }, { status: 404 });
     }
 
     const userId = user[0].id;
@@ -310,7 +316,7 @@ authRoutes.openapi(resendVerificationRoute, async (c) => {
     // Check if user is already verified
     if (user[0].emailVerified) {
       return Response.json(
-        { error: "Email is already verified" },
+        { error: 'Email is already verified' },
         { status: 400 }
       );
     }
@@ -335,12 +341,12 @@ authRoutes.openapi(resendVerificationRoute, async (c) => {
 
     return Response.json({
       success: true,
-      message: "Verification code sent successfully",
+      message: 'Verification code sent successfully',
     });
   } catch (error) {
-    console.error("Resend verification error:", error);
+    console.error('Resend verification error:', error);
     return Response.json(
-      { error: "An error occurred while resending verification code" },
+      { error: 'An error occurred while resending verification code' },
       { status: 500 }
     );
   }
@@ -361,7 +367,7 @@ authRoutes.openapi(forgotPasswordRoute, async (c) => {
     const db = createDb(c);
 
     if (!email) {
-      return Response.json({ error: "Email is required" }, { status: 400 });
+      return Response.json({ error: 'Email is required' }, { status: 400 });
     }
 
     // Find user
@@ -376,7 +382,7 @@ authRoutes.openapi(forgotPasswordRoute, async (c) => {
       return Response.json({
         success: true,
         message:
-          "If your email is registered, you will receive a verification code",
+          'If your email is registered, you will receive a verification code',
       });
     }
 
@@ -401,11 +407,11 @@ authRoutes.openapi(forgotPasswordRoute, async (c) => {
     return Response.json({
       success: true,
       message:
-        "If your email is registered, you will receive a verification code",
+        'If your email is registered, you will receive a verification code',
     });
   } catch (error) {
-    console.error("Forgot password error:", error);
-    return Response.json({ error: "An error occurred" }, { status: 500 });
+    console.error('Forgot password error:', error);
+    return Response.json({ error: 'An error occurred' }, { status: 500 });
   }
 });
 
@@ -425,7 +431,7 @@ authRoutes.openapi(resetPasswordRoute, async (c) => {
 
     if (!email || !code || !newPassword) {
       return Response.json(
-        { error: "Email, code, and new password are required" },
+        { error: 'Email, code, and new password are required' },
         { status: 400 }
       );
     }
@@ -447,7 +453,7 @@ authRoutes.openapi(resetPasswordRoute, async (c) => {
       .limit(1);
 
     if (userResult.length === 0) {
-      return Response.json({ error: "User not found" }, { status: 404 });
+      return Response.json({ error: 'User not found' }, { status: 404 });
     }
 
     const user = userResult[0];
@@ -466,7 +472,7 @@ authRoutes.openapi(resetPasswordRoute, async (c) => {
 
     if (codeRecord.length === 0) {
       return Response.json(
-        { error: "Invalid verification code" },
+        { error: 'Invalid verification code' },
         { status: 400 }
       );
     }
@@ -474,7 +480,7 @@ authRoutes.openapi(resetPasswordRoute, async (c) => {
     // Check if code is expired
     if (new Date() > codeRecord[0].expiresAt) {
       return Response.json(
-        { error: "Verification code has expired" },
+        { error: 'Verification code has expired' },
         { status: 400 }
       );
     }
@@ -492,12 +498,12 @@ authRoutes.openapi(resetPasswordRoute, async (c) => {
 
     return Response.json({
       success: true,
-      message: "Password reset successfully",
+      message: 'Password reset successfully',
     });
   } catch (error) {
-    console.error("Reset password error:", error);
+    console.error('Reset password error:', error);
     return Response.json(
-      { error: "An error occurred during password reset" },
+      { error: 'An error occurred during password reset' },
       { status: 500 }
     );
   }
@@ -516,7 +522,7 @@ authRoutes.openapi(refreshTokenRoute, async (c) => {
     const { refreshToken } = await c.req.json();
 
     if (!refreshToken) {
-      return c.json({ error: "Refresh token is required" }, 400);
+      return c.json({ error: 'Refresh token is required' }, 400);
     }
 
     const db = createDb(c);
@@ -538,14 +544,14 @@ authRoutes.openapi(refreshTokenRoute, async (c) => {
       .limit(1);
 
     if (tokenRecord.length === 0) {
-      return c.json({ error: "Invalid refresh token" }, 401);
+      return c.json({ error: 'Invalid refresh token' }, 401);
     }
 
     const token = tokenRecord[0];
 
     // Check if token is expired
     if (new Date() > token.expiresAt) {
-      return c.json({ error: "Refresh token expired" }, 401);
+      return c.json({ error: 'Refresh token expired' }, 401);
     }
 
     // Generate new refresh token
@@ -593,8 +599,8 @@ authRoutes.openapi(refreshTokenRoute, async (c) => {
       user: user[0],
     });
   } catch (error) {
-    console.error("Token refresh error:", error);
-    return c.json({ error: "An error occurred during token refresh" }, 500);
+    console.error('Token refresh error:', error);
+    return c.json({ error: 'An error occurred during token refresh' }, 500);
   }
 });
 
@@ -614,7 +620,7 @@ authRoutes.openapi(logoutRoute, async (c) => {
     const { refreshToken } = await c.req.json();
 
     if (!refreshToken) {
-      return c.json({ error: "Refresh token is required" }, 400);
+      return c.json({ error: 'Refresh token is required' }, 400);
     }
 
     // Revoke the refresh token
@@ -625,11 +631,11 @@ authRoutes.openapi(logoutRoute, async (c) => {
 
     return c.json({
       success: true,
-      message: "Logged out successfully",
+      message: 'Logged out successfully',
     });
   } catch (error) {
-    console.error("Logout error:", error);
-    return c.json({ error: "An error occurred during logout" }, 500);
+    console.error('Logout error:', error);
+    return c.json({ error: 'An error occurred during logout' }, 500);
   }
 });
 
@@ -663,7 +669,7 @@ authRoutes.openapi(meRoute, async (c) => {
       .limit(1);
 
     if (user.length === 0) {
-      return c.json({ error: "User not found" }, 404);
+      return c.json({ error: 'User not found' }, 404);
     }
 
     return c.json({
@@ -671,9 +677,38 @@ authRoutes.openapi(meRoute, async (c) => {
       user: user[0],
     });
   } catch (error) {
-    console.error("Get user info error:", error);
-    return c.json({ error: "An error occurred" }, 500);
+    console.error('Get user info error:', error);
+    return c.json({ error: 'An error occurred' }, 500);
   }
+});
+
+authRoutes.delete('/', async (c) => {
+  const auth = await authenticateRequest(c);
+  if (!auth) {
+    return unauthorizedResponse();
+  }
+  const db = createDb(c);
+
+  const userId = auth.userId;
+
+  // Delete all user-related data in the correct order to respect foreign key constraints
+
+  // First, delete all refresh tokens
+  await db.delete(refreshTokens).where(eq(refreshTokens.userId, userId));
+
+  // Delete one-time passwords
+  await db.delete(oneTimePasswords).where(eq(oneTimePasswords.userId, userId));
+
+  // Delete auth providers
+  await db.delete(authProviders).where(eq(authProviders.userId, userId));
+
+  // Delete all user's packs (cascade will delete pack items)
+  await db.delete(packs).where(eq(packs.userId, userId));
+
+  // Finally, delete the user
+  await db.delete(users).where(eq(users.id, userId));
+
+  return c.json({ success: true });
 });
 
 export { authRoutes };

@@ -70,20 +70,24 @@ packRoutes.openapi(updatePackRoute, async (c) => {
   try {
     const packId = c.req.param('packId');
     const data = await c.req.json();
+    
+    // Create update object with only the provided fields
+    const updateData: Record<string, any> = {};
+    if ('name' in data) updateData.name = data.name;
+    if ('description' in data) updateData.description = data.description;
+    if ('category' in data) updateData.category = data.category;
+    if ('isPublic' in data) updateData.isPublic = data.isPublic;
+    if ('image' in data) updateData.image = data.image;
+    if ('tags' in data) updateData.tags = data.tags;
+    if ('deleted' in data) updateData.deleted = data.deleted;
+    if ('localUpdatedAt' in data) updateData.localUpdatedAt = new Date(data.localUpdatedAt);
+
+    // Always update the updatedAt timestamp
+    updateData.updatedAt = new Date();
 
     await db
       .update(packs)
-      .set({
-        name: data.name,
-        description: data.description,
-        category: data.category,
-        isPublic: data.isPublic,
-        image: data.image,
-        tags: data.tags,
-        deleted: data.deleted,
-        localUpdatedAt: new Date(data.localUpdatedAt),
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(and(eq(packs.id, packId), eq(packs.userId, auth.userId)));
 
     const updatedPack: PackWithItems | undefined =
