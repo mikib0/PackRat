@@ -7,12 +7,21 @@ import {
 import { computePackWeights } from '@/utils/compute-pack';
 import { getCatalogItems, getPackDetails } from '@/utils/DbUtils';
 import { and, eq } from 'drizzle-orm';
-import { Hono } from 'hono';
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
-const packRoutes = new Hono();
+const packRoutes = new OpenAPIHono();
 
 // Get a specific pack
-packRoutes.get('/:packId', async (c) => {
+const getPackRoute = createRoute({
+  method: 'get',
+  path: '/{packId}',
+  request: {
+    params: z.object({ packId: z.string() }),
+  },
+  responses: { 200: { description: 'Get pack' } },
+});
+
+packRoutes.openapi(getPackRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -39,7 +48,19 @@ packRoutes.get('/:packId', async (c) => {
 });
 
 // Update a pack
-packRoutes.put('/:packId', async (c) => {
+const updatePackRoute = createRoute({
+  method: 'put',
+  path: '/{packId}',
+  request: {
+    params: z.object({ packId: z.string() }),
+    body: {
+      content: { 'application/json': { schema: z.any() } },
+    },
+  },
+  responses: { 200: { description: 'Update pack' } },
+});
+
+packRoutes.openapi(updatePackRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -90,7 +111,14 @@ packRoutes.put('/:packId', async (c) => {
 });
 
 // Delete a pack
-packRoutes.delete('/:packId', async (c) => {
+const deletePackRoute = createRoute({
+  method: 'delete',
+  path: '/{packId}',
+  request: { params: z.object({ packId: z.string() }) },
+  responses: { 200: { description: 'Delete pack' } },
+});
+
+packRoutes.openapi(deletePackRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -107,7 +135,17 @@ packRoutes.delete('/:packId', async (c) => {
   }
 });
 
-packRoutes.post('/:packId/item-suggestions', async (c) => {
+const itemSuggestionsRoute = createRoute({
+  method: 'post',
+  path: '/{packId}/item-suggestions',
+  request: {
+    params: z.object({ packId: z.string() }),
+    body: { content: { 'application/json': { schema: z.any() } } },
+  },
+  responses: { 200: { description: 'Pack item suggestions' } },
+});
+
+packRoutes.openapi(itemSuggestionsRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
@@ -168,7 +206,17 @@ packRoutes.post('/:packId/item-suggestions', async (c) => {
   }
 });
 
-packRoutes.post('/:packId/weight-history', async (c) => {
+const weightHistoryRoute = createRoute({
+  method: 'post',
+  path: '/{packId}/weight-history',
+  request: {
+    params: z.object({ packId: z.string() }),
+    body: { content: { 'application/json': { schema: z.any() } } },
+  },
+  responses: { 200: { description: 'Create pack weight history' } },
+});
+
+packRoutes.openapi(weightHistoryRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();

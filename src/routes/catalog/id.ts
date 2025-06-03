@@ -5,12 +5,21 @@ import {
   unauthorizedResponse,
 } from "@/utils/api-middleware";
 import { eq } from "drizzle-orm";
-import { Hono } from "hono";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
-const catalogItemRoutes = new Hono();
+const catalogItemRoutes = new OpenAPIHono();
 
 // Get catalog item by ID
-catalogItemRoutes.get("/:id", async (c) => {
+const getItemRoute = createRoute({
+  method: 'get',
+  path: '/{id}',
+  request: {
+    params: z.object({ id: z.string() }),
+  },
+  responses: { 200: { description: 'Get catalog item' } },
+});
+
+catalogItemRoutes.openapi(getItemRoute, async (c) => {
   try {
     // Authenticate the request
     const auth = await authenticateRequest(c);
@@ -37,7 +46,19 @@ catalogItemRoutes.get("/:id", async (c) => {
 });
 
 // Update catalog item
-catalogItemRoutes.put("/:id", async (c) => {
+const updateItemRoute = createRoute({
+  method: 'put',
+  path: '/{id}',
+  request: {
+    params: z.object({ id: z.string() }),
+    body: {
+      content: { 'application/json': { schema: z.any() } },
+    },
+  },
+  responses: { 200: { description: 'Update catalog item' } },
+});
+
+catalogItemRoutes.openapi(updateItemRoute, async (c) => {
   try {
     // Only admins should be able to update catalog items
     const auth = await authenticateRequest(c);
@@ -99,7 +120,14 @@ catalogItemRoutes.put("/:id", async (c) => {
 });
 
 // Delete catalog item
-catalogItemRoutes.delete("/:id", async (c) => {
+const deleteItemRoute = createRoute({
+  method: 'delete',
+  path: '/{id}',
+  request: { params: z.object({ id: z.string() }) },
+  responses: { 200: { description: 'Delete catalog item' } },
+});
+
+catalogItemRoutes.openapi(deleteItemRoute, async (c) => {
   try {
     // Only admins should be able to delete catalog items
     const auth = await authenticateRequest(c);

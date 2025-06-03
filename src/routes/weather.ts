@@ -3,15 +3,28 @@ import {
   authenticateRequest,
   unauthorizedResponse,
 } from "@/utils/api-middleware";
-import { Hono } from "hono";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { env } from "hono/adapter";
 
-const weatherRoutes = new Hono();
+const weatherRoutes = new OpenAPIHono();
 
 const WEATHER_API_BASE_URL = "https://api.weatherapi.com/v1";
 
 // Search locations endpoint
-weatherRoutes.get("/search", async (c) => {
+const searchRoute = createRoute({
+  method: 'get',
+  path: '/search',
+  request: {
+    query: z.object({
+      q: z.string().optional(),
+    }),
+  },
+  responses: {
+    200: { description: 'Search locations' },
+  },
+});
+
+weatherRoutes.openapi(searchRoute, async (c) => {
   const { WEATHER_API_KEY } = env<Env>(c);
 
   // Authenticate the request
@@ -55,7 +68,21 @@ weatherRoutes.get("/search", async (c) => {
 });
 
 // Search locations by coordinates endpoint
-weatherRoutes.get("/search-by-coordinates", async (c) => {
+const searchByCoordRoute = createRoute({
+  method: 'get',
+  path: '/search-by-coordinates',
+  request: {
+    query: z.object({
+      lat: z.string().optional(),
+      lon: z.string().optional(),
+    }),
+  },
+  responses: {
+    200: { description: 'Search locations by coordinates' },
+  },
+});
+
+weatherRoutes.openapi(searchByCoordRoute, async (c) => {
   const { WEATHER_API_KEY } = env<Env>(c);
 
   // Authenticate the request
@@ -134,7 +161,21 @@ weatherRoutes.get("/search-by-coordinates", async (c) => {
 });
 
 // Get weather data endpoint
-weatherRoutes.get("/forecast", async (c) => {
+const forecastRoute = createRoute({
+  method: 'get',
+  path: '/forecast',
+  request: {
+    query: z.object({
+      lat: z.string().optional(),
+      lon: z.string().optional(),
+    }),
+  },
+  responses: {
+    200: { description: 'Get weather forecast' },
+  },
+});
+
+weatherRoutes.openapi(forecastRoute, async (c) => {
   const { WEATHER_API_KEY } = env<Env>(c);
 
   // Authenticate the request

@@ -1,7 +1,7 @@
-import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { userItemsRoutes } from "./items";
 
-const userRoutes = new Hono();
+const userRoutes = new OpenAPIHono();
 
 userRoutes.route("/", userItemsRoutes);
 

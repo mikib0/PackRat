@@ -7,15 +7,34 @@ import {
 import { getItemDetails, getPackDetails } from "@/utils/DbUtils";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import { Hono } from "hono";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { env } from "hono/adapter";
 import { reportedContent } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { createDb } from '@/db';
 
-const chatRoutes = new Hono();
+const chatRoutes = new OpenAPIHono();
 
-chatRoutes.post('/', async (c) => {
+const chatRoute = createRoute({
+  method: 'post',
+  path: '/',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z.any(),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Chat response',
+    },
+  },
+});
+
+chatRoutes.openapi(chatRoute, async (c) => {
   const auth = await authenticateRequest(c);
   if (!auth) {
     return unauthorizedResponse();
