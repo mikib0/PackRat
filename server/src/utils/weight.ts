@@ -4,7 +4,7 @@ import type { PackItem, WeightUnit } from "@/types";
 export const convertWeight = (
   weight: number,
   from: WeightUnit,
-  to: WeightUnit
+  to: WeightUnit,
 ): number => {
   if (from === to) return weight;
 
@@ -31,7 +31,7 @@ export const formatWeight = (weight: number, unit: WeightUnit): string => {
 // Calculate base weight (non-consumable, non-worn items)
 export const calculateBaseWeight = (
   items: PackItem[],
-  unit: WeightUnit = "g"
+  unit: WeightUnit = "g",
 ): number => {
   return items
     .filter((item) => !item.consumable && !item.worn)
@@ -39,7 +39,7 @@ export const calculateBaseWeight = (
       const weightInTargetUnit = convertWeight(
         item.weight * item.quantity,
         item.weightUnit,
-        unit
+        unit,
       );
       return total + weightInTargetUnit;
     }, 0);
@@ -48,14 +48,29 @@ export const calculateBaseWeight = (
 // Calculate total weight
 export const calculateTotalWeight = (
   items: PackItem[],
-  unit: WeightUnit = "g"
+  unit: WeightUnit = "g",
 ): number => {
   return items.reduce((total, item) => {
     const weightInTargetUnit = convertWeight(
       item.weight * item.quantity,
       item.weightUnit,
-      unit
+      unit,
     );
     return total + weightInTargetUnit;
   }, 0);
+};
+
+export const convertToGrams = (weight: number, unit: string): number => {
+  switch (unit.toLowerCase()) {
+    case "kg":
+      return weight * 1000;
+    case "g":
+      return weight;
+    case "oz":
+      return weight * 28.3495;
+    case "lb":
+      return weight * 453.592;
+    default:
+      return weight; // Assume grams if unknown
+  }
 };

@@ -9,7 +9,7 @@ import {
   jsonb,
   varchar,
   real,
-} from 'drizzle-orm/pg-core';
+} from "drizzle-orm/pg-core";
 
 // User table
 export const users = pgTable('users', {
@@ -19,6 +19,7 @@ export const users = pgTable('users', {
   passwordHash: text('password_hash'),
   firstName: text('first_name'),
   lastName: text('last_name'),
+  role: text('role').default('USER'), // 'USER', 'ADMIN'
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -71,8 +72,10 @@ export const packs = pgTable('packs', {
   image: text('image'),
   tags: jsonb('tags').$type<string[]>(),
   deleted: boolean('deleted').default(false),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  localCreatedAt: timestamp('local_created_at').notNull(),
+  localUpdatedAt: timestamp('local_updated_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(), // for controlling sync. controlled by server.
+  updatedAt: timestamp('updated_at').defaultNow().notNull(), // for controlling sync. controlled by server.
 });
 
 // Catalog items table
@@ -151,6 +154,19 @@ export const packItems = pgTable('pack_items', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const packWeightHistory = pgTable('weight_history', {
+  id: text('id').primaryKey(),
+  userId: integer('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  packId: text('pack_id')
+    .references(() => packs.id, { onDelete: 'cascade' })
+    .notNull(),
+  weight: real('weight').notNull(),
+  localCreatedAt: timestamp('local_created_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Define relations
 
 export const packsRelations = relations(packs, ({ one, many }) => ({
@@ -180,6 +196,47 @@ export const catalogItemsRelations = relations(catalogItems, ({ many }) => ({
   packItems: many(packItems),
 }));
 
+export const packWeightHistoryRelations = relations(
+  packWeightHistory,
+  ({ one }) => ({
+    pack: one(packs, {
+      fields: [packWeightHistory.packId],
+      references: [packs.id],
+    }),
+  })
+);
+
+// Reported content table
+export const reportedContent = pgTable('reported_content', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .references(() => users.id)
+    .notNull(),
+  userQuery: text('user_query').notNull(),
+  aiResponse: text('ai_response').notNull(),
+  reason: text('reason').notNull(),
+  userComment: text('user_comment'),
+  status: text('status').default('pending').notNull(), // pending, reviewed, dismissed
+  reviewed: boolean('reviewed').default(false),
+  reviewedBy: integer('reviewed_by').references(() => users.id),
+  reviewedAt: timestamp('reviewed_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const reportedContentRelations = relations(
+  reportedContent,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [reportedContent.userId],
+      references: [users.id],
+    }),
+    reviewer: one(users, {
+      fields: [reportedContent.reviewedBy],
+      references: [users.id],
+    }),
+  })
+);
+
 // Infer models from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -204,3 +261,6 @@ export type NewCatalogItem = InferInsertModel<typeof catalogItems>;
 
 export type PackItem = InferSelectModel<typeof packItems>;
 export type NewPackItem = InferInsertModel<typeof packItems>;
+
+export type ReportedContent = InferSelectModel<typeof reportedContent>;
+export type NewReportedContent = InferInsertModel<typeof reportedContent>;

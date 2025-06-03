@@ -7,14 +7,23 @@ import {
   authenticateRequest,
   unauthorizedResponse,
 } from "@/utils/api-middleware";
-import { Hono } from "hono";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { Env } from "@/types/env";
 import { env } from "hono/adapter";
 
-const uploadRoutes = new Hono();
+const uploadRoutes = new OpenAPIHono();
 
 // Generate a presigned URL for uploading to R2
-uploadRoutes.get("/presigned", async (c) => {
+const presignedRoute = createRoute({
+  method: 'get',
+  path: '/presigned',
+  request: {
+    query: z.object({ fileName: z.string().optional(), contentType: z.string().optional() }),
+  },
+  responses: { 200: { description: 'Generate presigned upload URL' } },
+});
+
+uploadRoutes.openapi(presignedRoute, async (c) => {
   // Authenticate the request
   const auth = await authenticateRequest(c);
   if (!auth) {

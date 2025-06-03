@@ -6,6 +6,7 @@ export type Env = {
   JWT_SECRET: string;
   PASSWORD_RESET_SECRET: string;
   OPENAI_API_KEY: string;
+  OPENWEATHER_KEY: string;
   WEATHER_API_KEY: string;
   CLOUDFLARE_ACCOUNT_ID: string;
   R2_ACCESS_KEY_ID: string;
